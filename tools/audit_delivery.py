@@ -30,6 +30,23 @@ which is the whole mechanism, stated as one sentence.
     python3 tools/audit_delivery.py --check         # symmetry; it fails either way
     python3 tools/audit_delivery.py --ignore PATH --reason "..."
 
+A CLAIM EXPIRES WHEN ITS SLICE SHIPS (ADR-218)
+
+"In flight" used to mean "some manifest names it" -- ANY manifest, forever.
+Seventy-one manifests later that was 221 files, every hot file in the kit among
+them, and a change to any of them was excused by a slice that had been pushed
+weeks before. ADR-207 changed tools/keep_emit.py and did not name it; ADR-206's
+manifest did, so this audit called the change "in flight" for ten slices while
+origin/main failed verify_keep and every run here was green. A claim is a
+statement about work that has NOT been committed yet, so only an UNSHIPPED
+manifest may make one.
+
+And where there is git, git is asked. The paragraph above was true of a mount
+with no git in it; a clone has one, and `git status` is exact where a ledger of
+hashes is a memory. With git: committed means the bytes are HEAD's, shipped
+means the manifest is in HEAD's tree. Without it: the ledger, as before, and a
+manifest is shipped once `deliver.py --record` has said so.
+
 WHAT THIS IS NOT
 
 It is not proof that a delivered file was PUSHED -- that happens on a machine
@@ -37,7 +54,7 @@ this process cannot see, and the ledger records what was handed over, not what
 git did with it. It is the other half of the ratchet: a file nothing has ever
 handed over cannot have been pushed, and that is the failure this exists for.
 """
-import argparse, io, json, os, sys, time
+import argparse, io, json, os, subprocess, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
@@ -67,27 +84,93 @@ def tracked():
     return sorted(out)
 
 
-def claimed():
-    """Every path some manifest names: work a slice has DECLARED it is shipping."""
+def git_view(root=None):
+    """What git says about this tree, or None when there is no git to ask.
+
+    -> {"dirty": set of paths whose bytes are not HEAD's (modified, staged,
+                 untracked), under the tracked directories,
+        "shipped": set of manifest ids whose manifest is in HEAD's tree}
+
+    None means NO EVIDENCE, never "clean": no git binary, not a repository, no
+    commit yet, or a git that failed. The caller falls back to the ledger."""
+    root = root or ROOT
+    try:
+        st = subprocess.run(["git", "-C", root, "status", "--porcelain", "-z",
+                             "--untracked-files=all", "--"] + list(TRACKED_DIRS),
+                            capture_output=True, timeout=120)
+        ls = subprocess.run(["git", "-C", root, "ls-tree", "-r", "--name-only", "-z", "HEAD",
+                             "--", "tools/delivery"], capture_output=True, timeout=120)
+    except Exception:
+        return None
+    if st.returncode != 0 or ls.returncode != 0:
+        return None
+    dirty = set()
+    parts = st.stdout.decode("utf-8", "replace").split("\0")
+    i = 0
+    while i < len(parts):
+        e = parts[i]
+        i += 1
+        if len(e) < 4:
+            continue
+        dirty.add(e[3:])
+        if e[0] in "RC":            # a rename or a copy: the next field is where it came from
+            if i < len(parts) and parts[i]:
+                dirty.add(parts[i])
+            i += 1
+    shipped = set()
+    for n in ls.stdout.decode("utf-8", "replace").split("\0"):
+        if n.startswith("tools/delivery/") and n.endswith(".json"):
+            shipped.add(os.path.basename(n)[:-5])
+    return {"dirty": dirty, "shipped": shipped}
+
+
+def shipped(view=None):
+    """The manifests whose slice is OVER. With git: the manifest is in HEAD's
+    tree, which is the same fact the push script's own guard reads (ADR-184).
+    Without: `deliver.py --record` said so, by name. Not inferred from which
+    slice a path was last delivered `by` -- an adoption writes that too, and an
+    adoption is a baseline, not a slice that shipped."""
+    if view is not None:
+        return set(view["shipped"])
+    return set(D.load_ledger().get("recorded") or [])
+
+
+def claimed(view=None):
+    """Every path an UNSHIPPED manifest names: work a slice has DECLARED it is
+    shipping and has not shipped yet. A manifest whose slice is over claims
+    nothing -- a later change to one of its paths is somebody else's work, and
+    if nobody names it, it is exactly the file this audit exists to find."""
+    done = shipped(view)
     out = {}
     for mid in D.manifests():
+        if mid in done:
+            continue
         for p in D.load_manifest(mid).get("paths") or []:
             out.setdefault(p, mid)
     return out
 
 
-def measure():
+def measure(view="ask"):
+    if view == "ask":
+        view = git_view()
     led = D.load_ledger().get("paths", {})
-    cl = claimed()
+    cl = claimed(view)
     state = D.load_ledger()
     ignored = state.get("ignored") or {}
-    rows = {"delivered": [], "claimed": [], "undelivered": [], "ignored": [], "gone": []}
+    rows = {"delivered": [], "claimed": [], "undelivered": [], "ignored": [], "gone": [],
+            "evidence": "git" if view is not None else "ledger"}
     for rel in tracked():
         if rel in ignored:
             rows["ignored"].append(rel)
             continue
-        e = led.get(rel)
-        same = bool(e) and e.get("sha") == D.sha(os.path.join(ROOT, rel))
+        if view is not None:
+            # GIT IS ASKED. The bytes are HEAD's or they are not; what a ledger
+            # remembers about them is beside the point where the repository
+            # itself can be read.
+            same = rel not in view["dirty"]
+        else:
+            e = led.get(rel)
+            same = bool(e) and e.get("sha") == D.sha(os.path.join(ROOT, rel))
         if same:
             rows["delivered"].append(rel)
         elif rel in cl:
@@ -96,6 +179,7 @@ def measure():
             rows["undelivered"].append(rel)
     have = set(tracked())
     rows["gone"] = sorted(p for p in led if p not in have and p not in ignored)
+    rows["unshipped"] = sorted(set(cl.values()))
     return rows
 
 
@@ -122,11 +206,13 @@ def main(argv):
 
     r = measure()
     n = sum(len(r[k]) for k in ("delivered", "claimed", "ignored", "undelivered"))
-    print("delivery reach  --  %d tracked file(s)" % n)
+    print("delivery reach  --  %d tracked file(s), evidence: %s" % (n, r["evidence"]))
     print("-" * 78)
-    print("  %5d delivered      their bytes are in the ledger" % len(r["delivered"]))
-    print("  %5d in flight      a manifest claims them; the push script will stage them"
-          % len(r["claimed"]))
+    print("  %5d delivered      %s" % (len(r["delivered"]),
+                                       "their bytes are HEAD's" if r["evidence"] == "git"
+                                       else "their bytes are in the ledger"))
+    print("  %5d in flight      an UNSHIPPED manifest claims them (%s); its push script will "
+          "stage them" % (len(r["claimed"]), ", ".join(r["unshipped"]) or "none"))
     print("  %5d ignored        outside delivery, with a reason" % len(r["ignored"]))
     print("  %5d UNDELIVERED    on disk, claimed by nothing, in no commit" % len(r["undelivered"]))
     if r["gone"]:

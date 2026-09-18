@@ -1,0 +1,35 @@
+{
+ "body": "A fresh clone of origin/main at ADR-217 fails verify_keep 270 of 271 while the ledger in the same commit says 316 of 316, and both are true: the 316 was counted on a disk carrying a change to tools/keep_emit.py that ADR-207 made and no push script ever staged. audit_delivery exists to find exactly that file (ADR-147), ran in every full run since, and said 0 UNDELIVERED every time. Its docstring says it subtracts the paths the manifests of UNSHIPPED slices claim, and its code read EVERY manifest, forever: ADR-206's manifest names keep_emit.py, ADR-206 shipped, ADR-207 changed the file without naming it, and the audit filed the change under in flight. By ADR-217 that bucket held 221 files -- the contract, every ledger, the board, AI_HARNESS -- so the audit could still see a brand-new file nobody had named and nothing else. The ratchet under it had stopped too: claims were meant to end when --record moved the ledger, and the last slice recorded is ADR-190; --record was a step in every close and a check in none, ADR-216's shape exactly. NOW A CLAIM EXPIRES WHEN ITS SLICE SHIPS: only an unshipped manifest claims its paths. AND WHERE THERE IS GIT, GIT IS ASKED -- which bytes are not HEAD's, which manifests are in HEAD's tree; no git, no repository, no commit or a git that failed is NO EVIDENCE, never clean, and the audit says which evidence it read. Without git a slice is over when --record says so BY NAME, not inferred from which slice a path was last delivered by -- the first version did that and the suite's own older fixture refuted it five times, because an adoption writes by too. --catch-up brings a stalled ledger up to what git vouches for and nothing else (217 paths, 71 slices), will not record a modified file, and refuses with no git. --check holds the recording step and named 27 slices. First honest run: 654 delivered, 222 in flight, 0 undelivered became 870, 0 and 1. AND ONE MORE IT CANNOT SEE: AI_HARNESS carries a paragraph headed ADR-218 whose slice -- tools/exempt.py, tools/audit_declared.py, verify_declared -- exists NOWHERE; four shared paths carry its traces, among them run_all, which runs an audit_declared that is not there, so a full run on origin has a red row for a second reason. ADR-217's commit staged those paths with the next slice's edits already in them. That is why this slice is 219. The audits rewrite their ledgers on every full run and a slice that ran them ships them, since git now says so. verify_delivery 50 to 66, mutate_delivery 38 to 53 all killed.",
+ "chain": "adr217",
+ "chain_probe": "docs/ADR-217-a-script-that-said-it-pushed-2026-09-16.md",
+ "clean": [
+  "adr217"
+ ],
+ "id": "adr219",
+ "once": true,
+ "paths": [
+  "docs/ADR-219-a-claim-that-never-expired-2026-09-17.md",
+  "docs/CHANGELOG-2026-09-17-adr219-a-claim-that-never-expired.md",
+  "tools/audit_delivery.py",
+  "tools/deliver.py",
+  "tools/keep_emit.py",
+  "tools/mutate_delivery.py",
+  "tools/verify/verify_delivery.py",
+  "tools/delivery/adr219.json",
+  "docs/AI_HARNESS.md",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json",
+  "tools/badinput_ledger.json",
+  "tools/carried_ledger.json",
+  "tools/destructive_ledger.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/readable_ledger.json",
+  "tools/restored_ledger.json",
+  "tools/takeaway_ledger.json"
+ ],
+ "subject": "ADR-219: origin/main was red for ten slices, and the audit built to see that called it 'in flight'"
+}

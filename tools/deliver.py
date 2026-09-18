@@ -23,6 +23,7 @@ and this file writes BOTH artefacts from it:
     python3 tools/deliver.py --bundle adr147   # the tarball to hand over
     python3 tools/deliver.py --record adr147   # move the delivery ledger forward
     python3 tools/deliver.py --check           # every manifest, every script
+    python3 tools/deliver.py --catch-up        # a stalled ledger, from what git vouches for
 
 THE PUSH SCRIPT MOVES INTO THE REPO. It is the one artefact of every slice that
 lived outside it -- outside every audit, outside every suite, outside the commit
@@ -38,6 +39,8 @@ WHAT --check HOLDS
     a hand-edited script is a failure rather than a silent divergence;
   * a manifest's id matches its filename, and its chain names a manifest or an
     older push script that really is there;
+  * a manifest's "install" pairs copy a file this slice DELIVERS to a path the
+    bridge will not write (ADR-223), and the script stages the copy;
   * a manifest that says "once": true generates a script that PUSHES ONCE
     (ADR-184): run again after its slice is in HEAD, it pushes if the commit
     is still unpushed and otherwise does nothing -- it never stages the paths
@@ -74,7 +77,8 @@ LEDGER = os.path.join(HERE, "delivery_ledger.json")
 # to a new session is not a hand edit either, so the sessions that real slices
 # were signed from are listed the same way, newest first).
 _SESSIONS = (
-    "https://claude.ai/code/session_01YPcb1A7CejriRgL9xLrhJ3",   # ADR-171 on
+    "https://claude.ai/code/session_015Ryyc7gWVh4QXAQ9RAFPF1",   # ADR-218 on
+    "https://claude.ai/code/session_01YPcb1A7CejriRgL9xLrhJ3",   # ADR-171 to ADR-217
     "https://claude.ai/code/session_01CNn3hvazSDBU2TCgsGXjTt",   # ADR-147 to ADR-170
 )
 _COAUTHORS = (
@@ -217,6 +221,24 @@ def script_text(m, trailer=None):
             a('  if ($st) { Write-Host "%s is not committed yet -- running its script first"; & $prev }'
               % c)
             a('}')
+    for inst in m.get("install") or []:
+        # INSTALLED BY THE COMMAND THAT PUSHES (ADR-223). Some files a slice
+        # changes cannot travel the way the rest do: the delivery bridge refuses
+        # to write .github/workflows, and it is right to -- a CI definition
+        # written onto somebody's machine by a remote tool is a supply-chain
+        # hole. So the file travels as an ordinary one and the OPERATOR'S OWN
+        # command copies it into place. ADR-202 said exactly that and generated
+        # a script with no such step in it: the path filter it was written to
+        # install sat in tools/ci/ for fifteen slices and the workflow never
+        # changed.
+        if not (isinstance(inst, dict) and inst.get("from") and inst.get("to")):
+            continue                  # --check names it; a generator must not crash on it
+        a("# INSTALLED BY THIS COMMAND (ADR-223): the bridge that lands a slice refuses to write")
+        a("# this path, so it travels as an ordinary file and is copied into place here.")
+        a('Copy-Item -Force (Join-Path $csrbt "%s") (Join-Path $csrbt "%s")'
+          % (inst["from"].replace("/", "\\"), inst["to"].replace("/", "\\")))
+        if inst["to"] not in paths:
+            paths.append(inst["to"])
     a("git -C $csrbt add -A `")
     for i, p in enumerate(paths):
         a("  %s%s" % (p, " `" if i < len(paths) - 1 else ""))
@@ -297,13 +319,67 @@ def record(mid, adopt=None):
             continue
         paths[rel] = {"sha": sha(full), "by": mid, "at": int(time.time())}
         n += 1
+    if adopt is None:
+        # ADR-218: THE SLICE IS OVER, and the ledger says so by name. Where there
+        # is no git to ask, this list is what ends a manifest's claim on its
+        # paths -- a claim that never ends excuses every later change to them.
+        rec = state.setdefault("recorded", [])
+        if mid not in rec:
+            rec.append(mid)
     save_ledger(state)
     return n
+
+
+def catch_up():
+    """Bring a ledger that stopped moving up to what git says is committed.
+
+    -> (paths recorded, slices marked over), or None when there is no git to ask.
+
+    ADR-218: the ledger last moved at ADR-190. Twenty-seven slices shipped after
+    it and none was recorded, because nothing held the step that records them --
+    so every one of their manifests went on claiming its paths, and the audit
+    that reads those claims excused whatever was changed under them. This is not
+    an adoption: every line it writes is one git vouches for. A path is recorded
+    only if its bytes ARE HEAD's, and as delivered by the last shipped manifest
+    that names it (or by HEAD, when none does)."""
+    import audit_delivery as AD
+    view = AD.git_view(ROOT)
+    if view is None:
+        return None
+    state = load_ledger()
+    paths = state.setdefault("paths", {})
+    rec = state.setdefault("recorded", [])
+    over = [m for m in manifests() if m in view["shipped"]]
+    last = {}
+    for mid in over:
+        for rel in load_manifest(mid).get("paths") or []:
+            last[rel] = mid
+    n = 0
+    now = int(time.time())
+    for rel in AD.tracked():
+        if rel in view["dirty"]:
+            continue
+        s = sha(os.path.join(ROOT, rel))
+        e = paths.get(rel)
+        if e and e.get("sha") == s:
+            continue
+        paths[rel] = {"sha": s, "by": last.get(rel, "HEAD"), "at": now, "evidence": "git"}
+        n += 1
+    k = 0
+    for mid in over:
+        if mid not in rec:
+            rec.append(mid)
+            k += 1
+    save_ledger(state)
+    return n, k
 
 
 def check():
     """-> [problem strings]. Empty is the pass."""
     bad = []
+    import audit_delivery as AD
+    view = AD.git_view(ROOT)
+    known_over = AD.shipped(None)
     for mid in manifests():
         m = load_manifest(mid)
         if m.get("id") != mid:
@@ -343,6 +419,20 @@ def check():
             if not os.path.isfile(os.path.join(ROOT, p)):
                 bad.append("%s: names %s, which is not there -- the commit would stage nothing "
                            "for it" % (mid, p))
+        for inst in m.get("install") or []:
+            if not (isinstance(inst, dict) and inst.get("from") and inst.get("to")):
+                bad.append("%s: an install is {from, to}: %r" % (mid, inst))
+                continue
+            if inst["from"] not in (m.get("paths") or []):
+                bad.append("%s: installs %s, which its paths do not name -- the copy would be of a "
+                           "file this slice never delivered" % (mid, inst["from"]))
+            if inst["to"] in (m.get("paths") or []):
+                bad.append("%s: %s is both delivered and installed -- if the bridge can write it, "
+                           "it needs no install; if it cannot, naming it in paths puts it in a "
+                           "tarball that will be refused" % (mid, inst["to"]))
+            if inst["to"].split("/")[0] in ("tools", "docs"):
+                bad.append("%s: installs into %s, which is an ordinary path -- deliver it"
+                           % (mid, inst["to"]))
         c = m.get("chain")
         if c and not (os.path.isfile(manifest_path(c))
                       or os.path.isfile(os.path.join(PUSH, "push-%s.ps1" % c))
@@ -351,6 +441,12 @@ def check():
             bad.append("%s: chains from %s, and no manifest or script by that name is anywhere"
                        % (mid, c))
         sp = os.path.join(PUSH, "push-%s.ps1" % mid)
+        if view is not None and mid in view["shipped"] and mid not in known_over:
+            # ADR-218: A STEP NOTHING HOLDS STOPS BEING TAKEN. `--record` was in
+            # every slice's close and in no check, and it stopped at ADR-190.
+            bad.append("%s: git says this slice is committed and the delivery ledger has never "
+                       "recorded it, so without git its manifest would go on claiming its paths "
+                       "and excusing every later change to them -- run --catch-up" % mid)
         if not os.path.isfile(sp):
             bad.append("%s: no generated script -- run --script %s" % (mid, mid))
         else:
@@ -372,6 +468,10 @@ def main(argv):
                     help="record every tracked file as delivered by <ID>. For seeding the ledger "
                          "once, from a tree that is known to be committed -- an adoption, not "
                          "evidence, and it says so in the ledger")
+    ap.add_argument("--catch-up", action="store_true", dest="catch_up",
+                    help="record every committed path and every shipped slice git vouches for "
+                         "(ADR-218). Evidence, not adoption: it needs git and writes nothing "
+                         "git does not say")
     ap.add_argument("--check", action="store_true", help="hold every manifest and every script")
     ap.add_argument("--list", action="store_true", help="the manifests, and what each ships")
     a = ap.parse_args(argv)
@@ -402,6 +502,14 @@ def main(argv):
                                     "baseline the ratchet starts from."}
         save_ledger(state)
         print("adopted %d path(s) as delivered by %s" % (n, a.adopt))
+        return 0
+    if a.catch_up:
+        got = catch_up()
+        if got is None:
+            print("there is no git here to ask, and a catch-up without evidence is an adoption: "
+                  "use --adopt and say so")
+            return 2
+        print("caught up: %d path(s) recorded as committed, %d slice(s) marked over" % got)
         return 0
     if a.record:
         print("recorded %d path(s) as delivered by %s" % (record(a.record), a.record))

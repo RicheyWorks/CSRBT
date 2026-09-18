@@ -197,6 +197,111 @@ MUTANTS += [
      "is NOT in the shape run_all"),
 ]
 
+MUTANTS += [
+    # ---- ADR-218: a claim expires when its slice ships ----------------------
+    ("a shipped slice goes on claiming its paths, the way every slice did until ADR-218",
+     '        if mid in done:\n            continue',
+     '        if False:\n            continue',
+     "THE FILE THAT NEVER LEFT"),
+    ("without git, a recorded slice goes on claiming its paths",
+     '    return set(D.load_ledger().get("recorded") or [])',
+     '    return set()',
+     "WITHOUT GIT: a slice that has been recorded no longer claims"),
+    ("recording a slice does not say by name that it is over",
+     '        if mid not in rec:\n            rec.append(mid)\n    save_ledger(state)\n    return n',
+     '        if False:\n            rec.append(mid)\n    save_ledger(state)\n    return n',
+     "says BY NAME that it is over"),
+    ("git is there and the ledger is read anyway",
+     '            same = rel not in view["dirty"]',
+     '            e = led.get(rel)\n            same = bool(e) and e.get("sha") == D.sha(os.path.join(ROOT, rel))',
+     "WITH GIT, committed is delivered"),
+    ("a git that failed is read as a clean tree",
+     '    if st.returncode != 0 or ls.returncode != 0:\n        return None',
+     '    if False:\n        return None',
+     "is NO EVIDENCE, never"),
+    ("untracked files are asked for by directory, so a new file in an old directory is never seen",
+     '                             "--untracked-files=all", "--"] + list(TRACKED_DIRS),',
+     '                             "--untracked-files=no", "--"] + list(TRACKED_DIRS),',
+     "an UNTRACKED file nobody names"),
+    ("every manifest on disk is taken for shipped, whether or not HEAD holds it",
+     '    for n in ls.stdout.decode("utf-8", "replace").split("\\0"):',
+     '    for n in ["tools/delivery/%s.json" % m for m in D.manifests()]:',
+     "the slice that is OPEN names it"),
+    ("the audit does not say which evidence it read",
+     '            "evidence": "git" if view is not None else "ledger"}',
+     '            "evidence": "ledger"}',
+     "WITH GIT, committed is delivered"),
+    ("--check does not hold the recording step",
+     '        if view is not None and mid in view["shipped"] and mid not in known_over:',
+     '        if False:',
+     "HOLDS THE STEP NOTHING HELD"),
+    ("--check calls an OPEN slice unrecorded",
+     '        if view is not None and mid in view["shipped"] and mid not in known_over:',
+     '        if view is not None and mid not in known_over:',
+     "HOLDS THE STEP NOTHING HELD"),
+    ("a catch-up records a file that is modified, as if git had vouched for it",
+     '        if rel in view["dirty"]:\n            continue\n        s = sha(',
+     '        if False:\n            continue\n        s = sha(',
+     "--catch-up writes only what git vouches for"),
+    ("a catch-up does not mark the shipped slices over",
+     '    for mid in over:\n        if mid not in rec:\n            rec.append(mid)\n            k += 1',
+     '    for mid in []:\n        if mid not in rec:\n            rec.append(mid)\n            k += 1',
+     "--catch-up writes only what git vouches for"),
+    ("a catch-up credits every path to HEAD, and the slice that delivered it is lost",
+     '        paths[rel] = {"sha": s, "by": last.get(rel, "HEAD"), "at": now, "evidence": "git"}',
+     '        paths[rel] = {"sha": s, "by": "HEAD", "at": now, "evidence": "git"}',
+     "--catch-up writes only what git vouches for"),
+    ("a catch-up does not say its lines are git's",
+     '        paths[rel] = {"sha": s, "by": last.get(rel, "HEAD"), "at": now, "evidence": "git"}',
+     '        paths[rel] = {"sha": s, "by": last.get(rel, "HEAD"), "at": now}',
+     "--catch-up writes only what git vouches for"),
+    ("with no git, a catch-up goes ahead on belief",
+     '    view = AD.git_view(ROOT)\n    if view is None:\n        return None\n    state = load_ledger()',
+     '    view = AD.git_view(ROOT) or {"dirty": set(), "shipped": set(manifests())}\n    state = load_ledger()',
+     "--catch-up REFUSES"),
+]
+
+MUTANTS += [
+    # ---- ADR-223: installed by the command that pushes ------------------------
+    ("the script has no install step, which is the script ADR-202 generated",
+     '    for inst in m.get("install") or []:\n        # INSTALLED BY THE COMMAND THAT PUSHES',
+     '    for inst in []:\n        # INSTALLED BY THE COMMAND THAT PUSHES',
+     "THE COMMAND THAT PUSHES INSTALLS IT"),
+    ("the copy happens after the add, so the commit stages the old bytes",
+     """        a('Copy-Item -Force (Join-Path $csrbt "%s") (Join-Path $csrbt "%s")'
+          % (inst["from"].replace("/", "\\\\"), inst["to"].replace("/", "\\\\")))
+        if inst["to"] not in paths:
+            paths.append(inst["to"])
+    a("git -C $csrbt add -A `")""",
+     """        if inst["to"] not in paths:
+            paths.append(inst["to"])
+    a("git -C $csrbt add -A `")
+    for inst in [i for i in (m.get("install") or []) if isinstance(i, dict) and i.get("from") and i.get("to")]:
+        a('Copy-Item -Force (Join-Path $csrbt "%s") (Join-Path $csrbt "%s")'
+          % (inst["from"].replace("/", "\\\\"), inst["to"].replace("/", "\\\\")))""",
+     "BEFORE the add"),
+    ("the copy is made and never staged",
+     '        if inst["to"] not in paths:\n            paths.append(inst["to"])',
+     '        if False:\n            paths.append(inst["to"])',
+     "the copy is STAGED"),
+    ("an install of a file the slice never delivered is accepted",
+     '            if inst["from"] not in (m.get("paths") or []):',
+     '            if False:',
+     "which its paths do not name"),
+    ("a path may be both delivered and installed",
+     '            if inst["to"] in (m.get("paths") or []):',
+     '            if False:',
+     "both delivered and installed"),
+    ("an install into an ordinary path is accepted",
+     '            if inst["to"].split("/")[0] in ("tools", "docs"):',
+     '            if False:',
+     "an ordinary path"),
+    ("a malformed install is not named",
+     '                bad.append("%s: an install is {from, to}: %r" % (mid, inst))',
+     '                pass',
+     "an install is {from, to}"),
+]
+
 KNOWN_EQUIVALENT = [
 ]
 

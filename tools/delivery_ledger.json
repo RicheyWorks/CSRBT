@@ -960,10 +960,207 @@
    "by": "adr190",
    "sha": "cc5f5b93f96897e141cf4b273d66c4a73dbaa6e2f68ce7227b9e73fcb5f18879"
   },
+  "docs/ADR-191-the-session-2026-09-11.md": {
+   "at": 1789690114,
+   "by": "adr191",
+   "evidence": "git",
+   "sha": "4827b52106b7f5c8ca19f3e4b441420218a24b77b12f08994cd8d0b12b78a6a6"
+  },
+  "docs/ADR-192-http-2026-09-12.md": {
+   "at": 1789690114,
+   "by": "adr192",
+   "evidence": "git",
+   "sha": "c38a3060f27e9ff84174b46b01f384e2579e56b728a1d5550613259f57bee7a3"
+  },
+  "docs/ADR-193-the-brief-2026-09-12.md": {
+   "at": 1789690114,
+   "by": "adr193",
+   "evidence": "git",
+   "sha": "6d7982ed922dd54fa88dc223a3f2fc9ee6ac621589a23545b5524af3d7dbded1"
+  },
+  "docs/ADR-194-the-fourth-blind-trial-2026-09-12.md": {
+   "at": 1789690114,
+   "by": "adr194",
+   "evidence": "git",
+   "sha": "aac1d600f26f9d08710299fff1574f76046615c5ec441ddef56ffa79062ccaed"
+  },
+  "docs/ADR-195-the-report-gets-a-since-2026-09-12.md": {
+   "at": 1789690114,
+   "by": "adr195",
+   "evidence": "git",
+   "sha": "95c7362421dcecfd67670cfc5d132d195992aab7e74b3b703c1ca6587bd09160"
+  },
+  "docs/ADR-196-a-diff-is-evidence-2026-09-12.md": {
+   "at": 1789690114,
+   "by": "adr196",
+   "evidence": "git",
+   "sha": "ba3f67c1a45b87e9f349f64e763bb3eb9904d75d84e532e87c2ad0965aee4236"
+  },
+  "docs/ADR-197-the-findings-become-failures-2026-09-12.md": {
+   "at": 1789690114,
+   "by": "adr197",
+   "evidence": "git",
+   "sha": "9a52c3f663af54fe8ae857f5ebaa9b2e726bbfcdbf349cc85fe63b9c75872633"
+  },
+  "docs/ADR-198-the-plot-everyone-calls-400-2026-09-13.md": {
+   "at": 1789690114,
+   "by": "adr198",
+   "evidence": "git",
+   "sha": "604c9f420279acb8f5d66f5a620a51e0185336e5a67a98ce457c2a4cfa47951f"
+  },
+  "docs/ADR-199-what-the-page-said-back-2026-09-13.md": {
+   "at": 1789690114,
+   "by": "adr199",
+   "evidence": "git",
+   "sha": "33c7d92166d307e6d98434cfcd2e225c36dc451fcc118af4ab053b759e4d5f54"
+  },
+  "docs/ADR-200-the-claim-moves-to-the-act-2026-09-13.md": {
+   "at": 1789690114,
+   "by": "adr200",
+   "evidence": "git",
+   "sha": "0869c88cf44f959b7376063343807834c8414fdae303ab4197dca846c3d3a897"
+  },
+  "docs/ADR-201-every-record-carries-its-photographs-2026-09-14.md": {
+   "at": 1789690114,
+   "by": "adr201",
+   "evidence": "git",
+   "sha": "b6180f562a540b1675cbbbcdaaf62cfa908492d1b701ca211931f312911b6a43"
+  },
+  "docs/ADR-202-a-check-nobody-can-afford-2026-09-14.md": {
+   "at": 1789690114,
+   "by": "adr202",
+   "evidence": "git",
+   "sha": "dffd57ae4571cf8d379aa8de1baf4929d079ebb4ec0bbfdf54e94e8f1e5b5795"
+  },
+  "docs/ADR-203-what-has-not-left-this-device-2026-09-14.md": {
+   "at": 1789690114,
+   "by": "adr203",
+   "evidence": "git",
+   "sha": "535559bb6e9a8120fb4ac0e69811276226f4cc13c365eb24ce14d35c90ef0892"
+  },
+  "docs/ADR-204-the-promise-nobody-checked-2026-09-14.md": {
+   "at": 1789690114,
+   "by": "adr204",
+   "evidence": "git",
+   "sha": "00da43791cc8337c86b3dcb3f8ae35fa0ff47f54c51a462b9776611f562d26d7"
+  },
+  "docs/ADR-205-a-page-with-no-outputs-2026-09-14.md": {
+   "at": 1789690114,
+   "by": "adr205",
+   "evidence": "git",
+   "sha": "2305655934753aa7611a411dbffeae4b14b6bf6c17a56fbca6f5b28b976d1b62"
+  },
+  "docs/ADR-206-a-restore-cannot-bring-a-photograph-back-2026-09-14.md": {
+   "at": 1789690114,
+   "by": "adr206",
+   "evidence": "git",
+   "sha": "94cf7be873099f5b1188762fd8636352ac6347718f1ce7a72fcd05e34440bac7"
+  },
+  "docs/ADR-207-a-page-that-takes-records-must-keep-them-2026-09-14.md": {
+   "at": 1789690114,
+   "by": "adr207",
+   "evidence": "git",
+   "sha": "9d56b1c1b19092b897cc69f6f3de97e51f25592f40ba086894e531d2a449c606"
+  },
+  "docs/ADR-208-a-silent-button-is-not-an-output-2026-09-15.md": {
+   "at": 1789690114,
+   "by": "adr208",
+   "evidence": "git",
+   "sha": "0e6b4be211477bb32834adf818c6efb8dbfe47a8eb70014683370f3d49245157"
+  },
+  "docs/ADR-209-a-destructive-act-must-ask-2026-09-15.md": {
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "2f428c682f567e923ec5590d1b7cf66b911911c902c2c9635c56c0bbba3219a2"
+  },
+  "docs/ADR-210-a-page-with-your-work-in-it-2026-09-15.md": {
+   "at": 1789690114,
+   "by": "adr210",
+   "evidence": "git",
+   "sha": "19a1643e949abf5130e61345b9f96a15cced694caf383c01f5edb4ee80fc7be6"
+  },
+  "docs/ADR-211-the-export-is-the-part-that-survives-2026-09-15.md": {
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "97957d3fc640e450716484174093450a5274ae55cb26d5850a63bd72f528e23f"
+  },
+  "docs/ADR-212-a-download-a-published-page-cannot-start-2026-09-16.md": {
+   "at": 1789690114,
+   "by": "adr212",
+   "evidence": "git",
+   "sha": "d51e053651e3baa2f78c025a83d154496a8946e496545abd4c576344cbc26c58"
+  },
+  "docs/ADR-213-a-protocol-that-carried-no-answers-2026-09-16.md": {
+   "at": 1789690114,
+   "by": "adr213",
+   "evidence": "git",
+   "sha": "5d0e4eb42026af5551b8e81663ffa1f64e65be3ba26c97b9732c6bc7a9abb8f0"
+  },
+  "docs/ADR-214-the-stations-kept-the-run-to-themselves-2026-09-16.md": {
+   "at": 1789690114,
+   "by": "adr214",
+   "evidence": "git",
+   "sha": "3276709aee8cb0aefe7fba0ada786691f476c0d98aa72d10a64d71c833c00627"
+  },
+  "docs/ADR-215-which-numbers-decide-the-verdict-2026-09-16.md": {
+   "at": 1789690114,
+   "by": "adr215",
+   "evidence": "git",
+   "sha": "084c8c005909826dce121ffde5bf68b0e9fe61add413a625ad347b4d69100588"
+  },
+  "docs/ADR-216-a-ratchet-that-did-not-exist-2026-09-16.md": {
+   "at": 1789690114,
+   "by": "adr216",
+   "evidence": "git",
+   "sha": "4c1c58fa2512fbad2e6a55a3fd8255e57b90eb04b572f6c1db8607c849d8682c"
+  },
+  "docs/ADR-217-a-script-that-said-it-pushed-2026-09-16.md": {
+   "at": 1789690114,
+   "by": "adr217",
+   "evidence": "git",
+   "sha": "fe379b2138148233bd7415b956d0ecf3c94b5898c7b62ae215895dabaabb0c5b"
+  },
+  "docs/ADR-219-a-claim-that-never-expired-2026-09-17.md": {
+   "at": 1789711865,
+   "by": "adr219",
+   "sha": "89bbfebb8a11be1b504a0ea444c1a39f75d654c59726522739d65b19af3ad950"
+  },
+  "docs/ADR-220-the-receipt-before-the-look-2026-09-17.md": {
+   "at": 1789711865,
+   "by": "adr220",
+   "sha": "2d6278ef6fd82ad9877e43be9ffec8f2379f9d8691dbc7914a8e64a4bc552452"
+  },
+  "docs/ADR-221-nothing-a-client-sends-closes-a-door-2026-09-17.md": {
+   "at": 1789711865,
+   "by": "adr221",
+   "sha": "0bf573f17d46b3bd10f55eb9e6b63382cd8744679c8494295c5e934bceb8db8b"
+  },
+  "docs/ADR-222-a-command-says-when-and-from-what-2026-09-17.md": {
+   "at": 1789711865,
+   "by": "adr222",
+   "sha": "11e62157b9ca13d0b6eba4df1976b8d586a237b9f73e33c0b1e7f652743661df"
+  },
+  "docs/ADR-223-a-filter-that-never-reached-the-workflow-2026-09-17.md": {
+   "at": 1789711865,
+   "by": "adr223",
+   "sha": "23e784d40c74bfdc3d05287470f7610eec57ab6bca6db89128f6a97a8597958d"
+  },
+  "docs/ADR-224-the-slice-that-arrived-without-itself-2026-09-17.md": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "07437b64b769297f8417bb0d9c92338545265bfc210c4a65db3511ef9727a6f2"
+  },
+  "docs/ADR-225-a-build-that-included-thirteen-and-a-ci-that-fetched-eleven-2026-09-17.md": {
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "25702660138e4f2e1faddc3cfdfaa0562dbd709370f70c344fa52b2434e073cd"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "99c4cb537f867c194dab1dc9a0cfbd54717a6196e031994e2ef5c98ee2acd52c"
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "154d0fe4559cf10fe34670a54eee47e624c60709f83ba62702dc1824bc70645c"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1016,9 +1213,9 @@
    "sha": "b53a6d273532dda6b43ca2114788585c259f715e3c6161a920dd3a9c8b878ef2"
   },
   "docs/AUTOMATION-HARNESS.md": {
-   "at": 1788676922,
-   "by": "adr146b",
-   "sha": "f78d75d58f32a4abce7d0e9af000cca43f11c2134b96b83f21191b0583ba188a"
+   "at": 1789711865,
+   "by": "adr220",
+   "sha": "bbafb9caf17fb3537dcc225cc599e2a24a231a8805f6e5d990c7abd5102fdb91"
   },
   "docs/CHANGELOG-2026-05-30.md": {
    "at": 1788676922,
@@ -1860,6 +2057,203 @@
    "by": "adr190",
    "sha": "a17155bc08212b46320c4e86ce74f0441153d7fd92ffbd35facae066405dba7b"
   },
+  "docs/CHANGELOG-2026-09-11-adr191-the-session.md": {
+   "at": 1789690114,
+   "by": "adr191",
+   "evidence": "git",
+   "sha": "38950602f690d1339eca9df64daf7e2558775cbaf0a2f32f8598a6bc000b6ad3"
+  },
+  "docs/CHANGELOG-2026-09-12-adr192-http.md": {
+   "at": 1789690114,
+   "by": "adr192",
+   "evidence": "git",
+   "sha": "ce2a45e4afbad95b1d1078a0142878421757aa3d002821779192b2f8677a049d"
+  },
+  "docs/CHANGELOG-2026-09-12-adr193-the-brief.md": {
+   "at": 1789690114,
+   "by": "adr193",
+   "evidence": "git",
+   "sha": "654ced8c9a374491658aaa001b7297e36294116ef0e839a0ace6c8fc2d01f29e"
+  },
+  "docs/CHANGELOG-2026-09-12-adr194-the-fourth-blind-trial.md": {
+   "at": 1789690114,
+   "by": "adr194",
+   "evidence": "git",
+   "sha": "48c8821a379802752327bda0d0b1ab56cf8f110a2b1233b5e0347acaeff841ec"
+  },
+  "docs/CHANGELOG-2026-09-12-adr195-the-report-gets-a-since.md": {
+   "at": 1789690114,
+   "by": "adr195",
+   "evidence": "git",
+   "sha": "371dc2820ac16d9c23c12b625fda9a8afb6a3f15c1bdd79067728c598d0c5b6f"
+  },
+  "docs/CHANGELOG-2026-09-12-adr196-a-diff-is-evidence.md": {
+   "at": 1789690114,
+   "by": "adr196",
+   "evidence": "git",
+   "sha": "564dfb9c9bc8581f0aaee554c1d3003200dd8621cf15aaba65983303ac4b2955"
+  },
+  "docs/CHANGELOG-2026-09-12-adr197-the-findings-become-failures.md": {
+   "at": 1789690114,
+   "by": "adr197",
+   "evidence": "git",
+   "sha": "c8656e84645dd6f9f76faa9994d174aad24c490e57010b9d115e30ab2ab2696c"
+  },
+  "docs/CHANGELOG-2026-09-13-adr198-the-plot-everyone-calls-400.md": {
+   "at": 1789690114,
+   "by": "adr198",
+   "evidence": "git",
+   "sha": "01789adb7afa1500b0174ca56046996b6cc3a865d9811efdbaddff3e4ce68464"
+  },
+  "docs/CHANGELOG-2026-09-13-adr199-what-the-page-said-back.md": {
+   "at": 1789690114,
+   "by": "adr199",
+   "evidence": "git",
+   "sha": "154b7e2fbbb23411b1d2b1cd924889067a818854220b69a337a2b327e5827713"
+  },
+  "docs/CHANGELOG-2026-09-13-adr200-the-claim-moves-to-the-act.md": {
+   "at": 1789690114,
+   "by": "adr200",
+   "evidence": "git",
+   "sha": "cc99c8710e4e5b3ecf32380e1c621a6175bda97ba8c99975022a4a6a684d30c8"
+  },
+  "docs/CHANGELOG-2026-09-14-adr201-every-record-carries-its-photographs.md": {
+   "at": 1789690114,
+   "by": "adr201",
+   "evidence": "git",
+   "sha": "4657f4deac4c72305d45c390dbcb470f130b24c8b98911d594b4d8dc5b7522a1"
+  },
+  "docs/CHANGELOG-2026-09-14-adr202-a-check-nobody-can-afford.md": {
+   "at": 1789690114,
+   "by": "adr202",
+   "evidence": "git",
+   "sha": "5b0605da54513c2451d9e2bef708a35c4368863189ef454f1edd743e5c23118b"
+  },
+  "docs/CHANGELOG-2026-09-14-adr203-what-has-not-left-this-device.md": {
+   "at": 1789690114,
+   "by": "adr203",
+   "evidence": "git",
+   "sha": "a5c8aa41f7bb0099f9ec10ff1497644fa82e5c5d98f6d7d30bedaf5d4e4c1f30"
+  },
+  "docs/CHANGELOG-2026-09-14-adr204-the-promise-nobody-checked.md": {
+   "at": 1789690114,
+   "by": "adr204",
+   "evidence": "git",
+   "sha": "a2b66530f127af0d77ba8a99c46d09fd1567d062e392e6afc4aef2b28f2181a4"
+  },
+  "docs/CHANGELOG-2026-09-14-adr205-a-page-with-no-outputs.md": {
+   "at": 1789690114,
+   "by": "adr205",
+   "evidence": "git",
+   "sha": "b84a7f9b8655c8db6e2d3eb5fe1dd2547710595af222c4ce051e385318f32430"
+  },
+  "docs/CHANGELOG-2026-09-14-adr206-a-restore-cannot-bring-a-photograph-back.md": {
+   "at": 1789690114,
+   "by": "adr206",
+   "evidence": "git",
+   "sha": "a6f5f7e2c8443a31c56aaa74aeacf74252bc51b3ad36b4a22b7c4880694f7a70"
+  },
+  "docs/CHANGELOG-2026-09-14-adr207-a-page-that-takes-records-must-keep-them.md": {
+   "at": 1789690114,
+   "by": "adr207",
+   "evidence": "git",
+   "sha": "aba8f75930019b7993eb7c6bb4b1a1d1109d6a18d7b8ab5fca989aa190a4ea21"
+  },
+  "docs/CHANGELOG-2026-09-15-adr208-a-silent-button-is-not-an-output.md": {
+   "at": 1789690114,
+   "by": "adr208",
+   "evidence": "git",
+   "sha": "a26b7601550b788799d71eba7a75de87511d2093b560072bbe53f2c007c9dbb2"
+  },
+  "docs/CHANGELOG-2026-09-15-adr209-a-destructive-act-must-ask.md": {
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "aef5fbbdfa91c0ddfce0571097f7468db5e387db2baab7a9f57961580cb58739"
+  },
+  "docs/CHANGELOG-2026-09-15-adr210-a-page-with-your-work-in-it.md": {
+   "at": 1789690114,
+   "by": "adr210",
+   "evidence": "git",
+   "sha": "25b0f6c24e7ad49c8ffb526cfc4183f1ed432cea8a64f5849fd0dfbed69a555c"
+  },
+  "docs/CHANGELOG-2026-09-15-adr211-the-export-is-the-part-that-survives.md": {
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "138ce2e2105e45e11739bdca3ff5e80132559cebfbf160f170aa53a959487e61"
+  },
+  "docs/CHANGELOG-2026-09-16-adr212-a-download-a-published-page-cannot-start.md": {
+   "at": 1789690114,
+   "by": "adr212",
+   "evidence": "git",
+   "sha": "58473871708fb538ca6e9090b1648ec0ae0bed317a10482e8c5c0d452ecbc61c"
+  },
+  "docs/CHANGELOG-2026-09-16-adr213-a-protocol-that-carried-no-answers.md": {
+   "at": 1789690114,
+   "by": "adr213",
+   "evidence": "git",
+   "sha": "953754d49742877ee396c65357d0261572eb61e11c14f2e0d87a515998add8f1"
+  },
+  "docs/CHANGELOG-2026-09-16-adr214-the-stations-kept-the-run-to-themselves.md": {
+   "at": 1789690114,
+   "by": "adr214",
+   "evidence": "git",
+   "sha": "5666f2fa1a455639d9eb283ab6184a1a741cb8549e19fe047bad3e1bc6e61551"
+  },
+  "docs/CHANGELOG-2026-09-16-adr215-which-numbers-decide-the-verdict.md": {
+   "at": 1789690114,
+   "by": "adr215",
+   "evidence": "git",
+   "sha": "47564828729394bf71eef7d91de6ad3fef1d6fc54fb0e5b5a9844684bdc93131"
+  },
+  "docs/CHANGELOG-2026-09-16-adr216-a-ratchet-that-did-not-exist.md": {
+   "at": 1789690114,
+   "by": "adr216",
+   "evidence": "git",
+   "sha": "f8716de7ed54972749fb8b9c080fe5efef2291fb4cf3f28999cc7537b44a4741"
+  },
+  "docs/CHANGELOG-2026-09-16-adr217-a-script-that-said-it-pushed.md": {
+   "at": 1789690114,
+   "by": "adr217",
+   "evidence": "git",
+   "sha": "c6fcf3b2cc69d8b8b31bff68d9d1e9ed74115120aa43de2bb132a5288bdeac5c"
+  },
+  "docs/CHANGELOG-2026-09-17-adr219-a-claim-that-never-expired.md": {
+   "at": 1789711865,
+   "by": "adr219",
+   "sha": "10d5dbb8b5a9361c19e5eda26974eb58d8a9d3042641cd4e41cd5d29fea30b57"
+  },
+  "docs/CHANGELOG-2026-09-17-adr220-the-receipt-before-the-look.md": {
+   "at": 1789711865,
+   "by": "adr220",
+   "sha": "5d32ad91c36681da459c7e5f2b4426c5c24c89d986f4ca561fe29f2d7f17caca"
+  },
+  "docs/CHANGELOG-2026-09-17-adr221-nothing-a-client-sends-closes-a-door.md": {
+   "at": 1789711865,
+   "by": "adr221",
+   "sha": "58db5767c44ae00c9e4f26486e4b548c04120f6ffcd4e662baa18bcdfc20293f"
+  },
+  "docs/CHANGELOG-2026-09-17-adr222-a-command-says-when-and-from-what.md": {
+   "at": 1789711865,
+   "by": "adr222",
+   "sha": "af0c8df0b1ffd17733ef2621f172d3c7195d064eb56149be8fe488fedb4521b5"
+  },
+  "docs/CHANGELOG-2026-09-17-adr223-a-filter-that-never-reached-the-workflow.md": {
+   "at": 1789711865,
+   "by": "adr223",
+   "sha": "8e177d80aeb861d141d4b0ed5cb0f54c271a3b4c7200e786f5a21cbdee50d35b"
+  },
+  "docs/CHANGELOG-2026-09-17-adr224-the-slice-that-arrived-without-itself.md": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "7cfd0dc8523733f05920eda9e89e9db93a698d8b710cd9f64dc8404068c277ad"
+  },
+  "docs/CHANGELOG-2026-09-17-adr225-a-build-that-included-thirteen-and-a-ci-that-fetched-eleven.md": {
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "2c0450f532faf7548a4a793a7ac3ecb5c37c8de804ed67489176f00dee639a3b"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -1991,9 +2385,10 @@
    "sha": "648ac346c28f9d670a5d6667bb798b95981426a8c3e6ef1c1662f8f8697f6ded"
   },
   "docs/breeding-bench.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "a97e3da12966e91d2b61b1cec84f01a233184831d419dfa9f779913747f4230d"
+   "at": 1789690114,
+   "by": "adr212",
+   "evidence": "git",
+   "sha": "5b7e4e917a67fa02d1aba8d2368e79ed5dde3fb747c1e9df8f4bd1ad66cb01cc"
   },
   "docs/breeding-suite.html": {
    "at": 1788676923,
@@ -2001,9 +2396,10 @@
    "sha": "c1f4cc41747dc719d249415005b17e833e120e6629b682e53d8953bacd20a955"
   },
   "docs/cell-bench.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "5f61db264c37a87781580f97177e3ddf7a2b6329f567e13de17d5de359244837"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "c23d74e79de055726c5cc5c3f5cb0a1e9aeba389288869707a9e89da2a5174e4"
   },
   "docs/code-audit-2026-05-30.md": {
    "at": 1788676923,
@@ -2016,14 +2412,16 @@
    "sha": "e9becaa5c548d68981beeefad9483a64e94ac6e0e0205c98883a9c6289453c2f"
   },
   "docs/collection-sheet.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "d0374e3746f0d789064602282dcee2906a742d2c1e2f1b4b2e29a84f7d38a7e3"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "e65a8c2ad190ecdc1b31260b7f09d7939a3b6f9158569f4bea7cabd2c38105e5"
   },
   "docs/cp-bench.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "999a789e49c8285c7737dc7af6688cd47eb90502d6edaffe0f6554d032dcae1b"
+   "at": 1789690114,
+   "by": "adr212",
+   "evidence": "git",
+   "sha": "aa19b0963f0652f794d20f2ff60917608f594e8368327bc516e7d6834f2faeae"
   },
   "docs/cp-characters.html": {
    "at": 1788676923,
@@ -2036,9 +2434,10 @@
    "sha": "34aad0f1eaf8bfe0331310063c265af494bc5448d1fec86b4b39687a1f8d1b44"
   },
   "docs/deployment-log.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "a15811b5372932533b2cd81a5e06ed260802d09329dcfb240c7b1c80492bf4df"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "12d46fac92ba5ace5bc0539980663f03ee14e5e78cd5be470bf42d967a2edc3e"
   },
   "docs/douglas-explorer.html": {
    "at": 1788676924,
@@ -2046,9 +2445,10 @@
    "sha": "795a01ffe37c125d1b528631a4aa3c662e01962dbaae6d324a0e64d8dbf1207f"
   },
   "docs/eco-protocol-library.html": {
-   "at": 1789012926,
-   "by": "adr178",
-   "sha": "d9cb9d8de9dcce8e50db8147ed6db5fecbbaa4d606d01576085827264a53ea1d"
+   "at": 1789690114,
+   "by": "adr199",
+   "evidence": "git",
+   "sha": "cc204da59ef9f587640d09e0bc87ccc06577d85b488b25c7d84ca0a92f14dcc0"
   },
   "docs/eco-protocol-reference.html": {
    "at": 1789015420,
@@ -2091,9 +2491,10 @@
    "sha": "55fde6efe30b2e5d91cd06cd06ae1eb04ada2bdd954229cda3c5c4bbbb2fd338"
   },
   "docs/ecology-lab.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "725d7112547ff2f12771042716bfd5d15e6682d4633f264b66fa50753fee72d4"
+   "at": 1789690114,
+   "by": "adr214",
+   "evidence": "git",
+   "sha": "3f389207ea643d64cda4e1ef69596bfc65fd4b6c7ef1066f3d817989ccd87337"
   },
   "docs/ecology-teachers-guide.html": {
    "at": 1788676924,
@@ -2111,9 +2512,10 @@
    "sha": "98eec884fbbeb0b2166b97ca7964c0823dbf1c3a41504ce6e661a1acc206a4bb"
   },
   "docs/ethogram.html": {
-   "at": 1788817514,
-   "by": "adr154",
-   "sha": "689239831a0d8ed74b6604cfc6635c5843ea18666825e39acbae5cae9bf899b9"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "716322a6f05bf3fd779904a7bd57d4986d455416f9b1d2160d27d12bf1906e2a"
   },
   "docs/evidence/manifest.json": {
    "at": 1788676924,
@@ -2121,9 +2523,10 @@
    "sha": "28dcfb6002ba20800d85b5a9607d8a06e200bc1f9815ecb12859d0ef094fbde6"
   },
   "docs/experiment-guide.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "a52bc4895edf5a7422fc066a43e51c8d16fca2617dc14a4490d25a5454fedf72"
+   "at": 1789690114,
+   "by": "adr212",
+   "evidence": "git",
+   "sha": "32e97c8f5924e7180467ebb5d16d526fbed01a804a2f4ece413eefa659d28f8c"
   },
   "docs/experiment-out/crosses.csv": {
    "at": 1788676924,
@@ -2196,24 +2599,28 @@
    "sha": "0340b517042765c76eaa9429b79e46a86bfe5d5d5c5c9de367cdfe49026aba11"
   },
   "docs/farm-scout.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "ca1116be43784738ff514fd8b972cd45a8216c15d54778c12bcfb6f83813c31f"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "eff2795ad7988474e50763d56ede90a2b9897c806c84666c83eb36781ac8883a"
   },
   "docs/field-notebook.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "cac4369d5724165f7199cf943c29c1435cebd8b3d25ae0315a0188bc5478d9fd"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "8dcbb5bc58c319dae54a598b6c15d800d061614b63a7d56a0ad676130e936210"
   },
   "docs/field-season.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "6651588e64d26d8a0cd94669aff31cf2355e729e466f6a9967183b8594dbd347"
+   "at": 1789690114,
+   "by": "adr210",
+   "evidence": "git",
+   "sha": "5f8d48a8ce574afdc809c40987fe39a1160403b6a655f620e96ebb12d3882910"
   },
   "docs/food-web.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "f7d332cb675de2f8ea52c49b5e2b00a4a3022a83bbda0f7325a6a12a4942331a"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "848d81248f6642fd3ef54497f13fcd989ed0bf16277eb27a6728f645a33cfa09"
   },
   "docs/fungal-characters.html": {
    "at": 1788676924,
@@ -2221,9 +2628,10 @@
    "sha": "e5b9c7bafea072163f6546c9cac05775d616428ff368e7f627187f5a0de8989f"
   },
   "docs/greenhouse.html": {
-   "at": 1788831534,
-   "by": "adr156",
-   "sha": "9a54182d30463a902ed16111e0b3657df979d11a99a8c34438ad60588cf8717a"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "aa8358fe196307487baf7dad107d720f24b0aa2a14add56eac37463f0fa9ab29"
   },
   "docs/hardening-audit-2026-07-08.md": {
    "at": 1788676924,
@@ -2261,19 +2669,22 @@
    "sha": "6ef6c67517c5c7e00c15243c4944e070404e655f9f3cae6bc62dd870c16e2f15"
   },
   "docs/micro-bench.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "ac0c2889056fce5acffc5db2b9d108ed5855258cb2a28701ba086a65c30d02c3"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "8558864092874e5d00a2b58939dce8868d2415856bc86484c4ebd708f41f308f"
   },
   "docs/ordination.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "982880acec97af40b457b605842ecf34132f6c1fade23838e3b1c0c8e14a353d"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "6cfd35492b6abddc4b7f71e4de93bac13e3056acdf73a5e249914df507d50a66"
   },
   "docs/pheno-tracker.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "f344808930942f33582916645ec238322d890a65fa33ea8c5376e7c415eeee45"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "68244f15a9435fac9bb9cb828199a50eb9bb9fdfa6492124aa1e6853d6e52aee"
   },
   "docs/plant-characters.html": {
    "at": 1788676924,
@@ -2281,9 +2692,10 @@
    "sha": "bfdf709c7fb6d514fe8cfcd814e9155a4cdd358124711c3e0661ab5f5e723c69"
   },
   "docs/releve.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "859a4101ac789e8020fc8a32f4966a8a56e5bfea1e919121660b2788c6d2fbad"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "c9a59e4f900d85209eb7dffaf995aaa0d1c3d72ebc121f6eb4c34ac168298660"
   },
   "docs/sample-experiment.eco": {
    "at": 1788676925,
@@ -2296,29 +2708,34 @@
    "sha": "bf37dcc4c41aaac1eb79562a372d44e9e59879cf94b553e1daf6968f0623d842"
   },
   "docs/selection-log.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "ddf8899876daf2cfa0341374a4a15c1d94b76e224153b8318f9dd2169ca05703"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "1cb0fb5c09f33578f69c3108af7bbdfaf9f5ca5b274a1146b17610f76b1830f3"
   },
   "docs/soil-bench.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "e17a37c107a97f0b384a5f249e95ebfa73da010c9dbf2717e66cedd5cd1d6f20"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "72b8c174bb9df05e6e57566c6be248500ca8c7bf79d356b995faf45fc04599c7"
   },
   "docs/soil-recipes.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "21fe44696999d2257029b10a6aa784a2cffed0efa6da3e908c2333f993cb1eee"
+   "at": 1789690114,
+   "by": "adr210",
+   "evidence": "git",
+   "sha": "6ee94f26189c7b14c139e57a7fe2cca9c99675d59a73e5e492aaf20fca240858"
   },
   "docs/soil-suite.html": {
-   "at": 1789024176,
-   "by": "adr181",
-   "sha": "257e2d209f87d89d2dce8b8b1a97fcbf982cd7d1a28b290dacda80d670abe503"
+   "at": 1789690114,
+   "by": "adr198",
+   "evidence": "git",
+   "sha": "65355cf56ab5676ac82df8e1cf541743e6cf5383dd7b2e9720cd6067952d7a4f"
   },
   "docs/stand-sheet.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "c95d6c5d0da435aad17e2ca18b3cd37513dcb0e4bd2762e4b2138842a2a40e5f"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "f33d2de90068dbcb8d7291b63611ce1e06d7fe40c0e637246f47672b8d04f0e1"
   },
   "docs/strategy-audit-and-feasibility-2026-05-30.md": {
    "at": 1788676925,
@@ -2326,9 +2743,10 @@
    "sha": "d60acafe7d2504158ee6026aba5bb0747ad71bd809ad072b364129306c8ca624"
   },
   "docs/survey-design.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "2fef03f6a81140fb708eddf6296b9a1524981154387eba57d16e33799af06d81"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "c93ab3e4dfd015b37918862e2b54e862fe5ffe5004c52b147ab52540a2fe58c8"
   },
   "docs/system-design-audit-2026-05-30.md": {
    "at": 1788676925,
@@ -2411,9 +2829,10 @@
    "sha": "5525554471e82c1db95de81b1c0623381c97b4d2e40be131acb7226dc1587ee4"
   },
   "docs/tree-visualizer.html": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "d46a2dd979dd1dc1c31768cb721d3e3845bc94403681dea2580a3718ba356a07"
+   "at": 1789690114,
+   "by": "adr200",
+   "evidence": "git",
+   "sha": "7264c1144c48d6115e97712ee1e43a8f8fe2bed59753b9bbffeb0f7badd3aee1"
   },
   "docs/viability-map.json": {
    "at": 1788676925,
@@ -2436,9 +2855,14 @@
    "sha": "cce3cea0ab95827aa12319c680e82952d9ef350bce40099c0092361fa29ece31"
   },
   "tools/audit_badinput.py": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "026394962a2587d29e1ce44b80a49f9dea8dfb7834628cc6e9077e888018f6da"
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "07d6ae3e5173579fa7aa2fca09ab80d00b6ad58a880664772f6d8e2c8d7bd4e1"
+  },
+  "tools/audit_carried.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "d23ae3ab8da535f3cf1bf46118dcc5a31f4720eaa18e8cec25315cef50f222f0"
   },
   "tools/audit_claims.py": {
    "at": 1788676925,
@@ -2450,10 +2874,20 @@
    "by": "adr146b",
    "sha": "f70cef108b119617c85832e2426a5d9f6ff10e4cfa19493cd55f41d589cb2946"
   },
+  "tools/audit_declared.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "bbd9ac063363c95124b337ca02dfe107f4dde62f3bb7a08eb8ba708cc3bb2751"
+  },
   "tools/audit_delivery.py": {
-   "at": 1788683836,
-   "by": "adr147",
-   "sha": "409b95cd0496c6b0cc14c12f33f3f946f6e1bfb0362a3f2479733a5aa1025479"
+   "at": 1789711865,
+   "by": "adr219",
+   "sha": "80cdc0bd1947994d4acbc8fa3c4112f97ec60f3f1599d35d661baf20666d62e9"
+  },
+  "tools/audit_destructive.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "2b65ab91c61e125f2827720dc06bbdb24d68918afba086be93f94b524ea8a5d8"
   },
   "tools/audit_escaping.py": {
    "at": 1788676925,
@@ -2476,9 +2910,9 @@
    "sha": "312250cb8b03cf359470a734a7f5ca562fd0aae5c1c12fb12c0b4a0e032706c6"
   },
   "tools/audit_outputs.py": {
-   "at": 1788783742,
-   "by": "adr153",
-   "sha": "18fd73f0d6d2dd42d976047d51b3ce459d47c09d68a22d95f8d5e9700a85e30a"
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "c72e13bae2d7f1ad7bcfd4a729b331145d1ebee2aa5da7b98fd6269c979ca7bd"
   },
   "tools/audit_print.py": {
    "at": 1788676925,
@@ -2495,10 +2929,20 @@
    "by": "adr180",
    "sha": "e2c4c5936474c4a97d611ac7ffeccc088c94b9621808a7006fb5152b72e15278"
   },
+  "tools/audit_restored.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "f43015dbcf316462180a365b5a6fade037ec4c90d1ee64f692c6e065f4f55e80"
+  },
   "tools/audit_states.py": {
    "at": 1788676925,
    "by": "adr146b",
    "sha": "f4772a3491dd37a2d4f6ff9206e0b921775d35600cf572e252417140751c2226"
+  },
+  "tools/audit_takeaway.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "e18f441787d73f0685388b8a9ccb5baf8aa16be0e15cb9c1871ddd57f9911b85"
   },
   "tools/audit_targets.py": {
    "at": 1788676925,
@@ -2511,29 +2955,42 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "6a8c10809505e3a13f9b022b6bd7d658396241fb9e348b1a8704e1fbd8634af7"
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "65fb36759024946094dbcda4917a851a312ab14dac1892ee53b14ccbfac3a81d"
   },
   "tools/blind_console.py": {
-   "at": 1788676925,
-   "by": "adr146b",
-   "sha": "3625b3e5be6e6e202252bd72828796c296c4e217f74b086fb7dea5878fda3c39"
+   "at": 1789690114,
+   "by": "adr194",
+   "evidence": "git",
+   "sha": "251ff2bdfe3accd3ae1d4816e52735185fe42c241eb9722514758443171fb249"
+  },
+  "tools/carried_ledger.json": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "40123b6396f0bada2291ff6a193abeac0c572f41f1ab5c4392e824122f9be867"
+  },
+  "tools/ci/ci.yml": {
+   "at": 1789711865,
+   "by": "adr223",
+   "sha": "54890fe9ef8e8cccad1d7977967b731bf437a722fb97a7949d4960e56f9c7bef"
   },
   "tools/contend.py": {
-   "at": 1788676925,
-   "by": "adr146b",
-   "sha": "eceb3ec79cfebba9fcac7b7809a76b0f6f0eef94b2425479e98903f28aecb628"
+   "at": 1789690114,
+   "by": "adr216",
+   "evidence": "git",
+   "sha": "27d2221fe50399fcccac037159ea377f14454decacc9ae76192939288af7191e"
   },
   "tools/contention_ledger.json": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "c8a78f4ad406d2fb7078e799c7f837b602f896d5dc08b0814ec15c4b426276b4"
+   "at": 1789690114,
+   "by": "adr216",
+   "evidence": "git",
+   "sha": "36ed7b428de4b21bbd8ce5cbc0f563f1c097c0389d6492347a3660f242d34e97"
   },
   "tools/deliver.py": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "aa22bdd5e9d86a2547e307ddf255e3594fbd27df8f073a9f2fe34b7a815f050c"
+   "at": 1789711865,
+   "by": "adr223",
+   "sha": "003ffbd71dc6dbe38ee46c75aa646da322e71cb2f3082c9a7e3152e2a545b903"
   },
   "tools/delivery/adr147.json": {
    "at": 1788683836,
@@ -2755,15 +3212,218 @@
    "by": "adr190",
    "sha": "68b9c270a738ccb5cd089c7a0040948d3a77a5e4173495a20ef538301cbe5f3d"
   },
+  "tools/delivery/adr191.json": {
+   "at": 1789690114,
+   "by": "adr191",
+   "evidence": "git",
+   "sha": "e471e64fe574ee0a6387ada1bf4118949fb3116025d8f77237231089525ef3e0"
+  },
+  "tools/delivery/adr192.json": {
+   "at": 1789690114,
+   "by": "adr192",
+   "evidence": "git",
+   "sha": "fd0f5707f70baa73d2e5d96d5fbfc45b7bc656b0e714419c40d339e9eaf92ab8"
+  },
+  "tools/delivery/adr193.json": {
+   "at": 1789690114,
+   "by": "adr193",
+   "evidence": "git",
+   "sha": "c0f2843a131212710d4389d36d7acb1ef89c9ac0beff7f97abea988a2061bdf9"
+  },
+  "tools/delivery/adr194.json": {
+   "at": 1789690114,
+   "by": "adr194",
+   "evidence": "git",
+   "sha": "1e6a415c659e1eb0e996a0b19f85a94fa0723be6edf2c919b17a5a22f60b1478"
+  },
+  "tools/delivery/adr195.json": {
+   "at": 1789690114,
+   "by": "adr195",
+   "evidence": "git",
+   "sha": "c35670eb131662a118ab3b12ae8e2080c8fd40b479188ca776347a3f3b2a7732"
+  },
+  "tools/delivery/adr196.json": {
+   "at": 1789690114,
+   "by": "adr196",
+   "evidence": "git",
+   "sha": "85293de78eb626f62fb6b6b4b92d462d41277936fc7c78c7548e887c46b2e584"
+  },
+  "tools/delivery/adr197.json": {
+   "at": 1789690114,
+   "by": "adr197",
+   "evidence": "git",
+   "sha": "7c78d28c217ff2e8f9d8809eac3ff884008fc3b6820fb2e4710f0b801e10308c"
+  },
+  "tools/delivery/adr198.json": {
+   "at": 1789690114,
+   "by": "adr198",
+   "evidence": "git",
+   "sha": "6d97ebde24fad7671f7690e4e29cf9c65ed26b629973c9a514b937b782becaf5"
+  },
+  "tools/delivery/adr199.json": {
+   "at": 1789690114,
+   "by": "adr199",
+   "evidence": "git",
+   "sha": "18d272ec1d7873050d903d49281c7074983144d9116ed6097e2574b40ce82d6f"
+  },
+  "tools/delivery/adr200.json": {
+   "at": 1789690114,
+   "by": "adr200",
+   "evidence": "git",
+   "sha": "5056406efe6c6e09ea32324304ed1a78e14bebcaad041b089e0bcd128c714b73"
+  },
+  "tools/delivery/adr201.json": {
+   "at": 1789690114,
+   "by": "adr201",
+   "evidence": "git",
+   "sha": "676ef6d3aaeb0f100143e3fa291c614d0790af3ad43fe6f9651bedb7e188bfac"
+  },
+  "tools/delivery/adr202.json": {
+   "at": 1789690114,
+   "by": "adr202",
+   "evidence": "git",
+   "sha": "27c84305ca3d2dafe3dfe8efb6ec37c6edcd2648c21b3e21031b38f9595b18e5"
+  },
+  "tools/delivery/adr203.json": {
+   "at": 1789690114,
+   "by": "adr203",
+   "evidence": "git",
+   "sha": "b21a125064dfcf65d2c69b96892511b1ce39079d9dd53b18cdccd2ca61b40e86"
+  },
+  "tools/delivery/adr204.json": {
+   "at": 1789690114,
+   "by": "adr204",
+   "evidence": "git",
+   "sha": "33045765b0d1f1f4e7ef6f625fea5a5a8073688f8350c191dd23daf4f115c972"
+  },
+  "tools/delivery/adr205.json": {
+   "at": 1789690114,
+   "by": "adr205",
+   "evidence": "git",
+   "sha": "cda6aedecfccda6f9679495dad49b98ea191e2795a4d551853d2ed39509cbb69"
+  },
+  "tools/delivery/adr206.json": {
+   "at": 1789690114,
+   "by": "adr206",
+   "evidence": "git",
+   "sha": "4c2142aa98fe6cad9bc22967231bb93869c10a6d90f142a44434e1db6b4194c8"
+  },
+  "tools/delivery/adr207.json": {
+   "at": 1789690114,
+   "by": "adr207",
+   "evidence": "git",
+   "sha": "4e2c08620319746ebb7d93fb75205295c71be315737b058f4bf122bbc7c7186d"
+  },
+  "tools/delivery/adr208.json": {
+   "at": 1789690114,
+   "by": "adr208",
+   "evidence": "git",
+   "sha": "f8ad39e1e1bc9dc30585fc6beda2616f0419fc26f9bb741efa4527cf3f6b06eb"
+  },
+  "tools/delivery/adr209.json": {
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "dc8be25bc4ac388f289f1823867d8b95a4464e0f70a38a4027f83383c0066f2d"
+  },
+  "tools/delivery/adr210.json": {
+   "at": 1789690114,
+   "by": "adr210",
+   "evidence": "git",
+   "sha": "2a6c5a47c2fc96f03b8a09817e174439c80e09311b5b0114c6314a854a23456d"
+  },
+  "tools/delivery/adr211.json": {
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "007eaa6ce12d88427be2d7591d466618224bc564f9524d1f51f032d3db52529c"
+  },
+  "tools/delivery/adr212.json": {
+   "at": 1789690114,
+   "by": "adr212",
+   "evidence": "git",
+   "sha": "515ef39f04c73797be5210ca8292c2caf190be2baa6e03975b0912c3b7fb93e5"
+  },
+  "tools/delivery/adr213.json": {
+   "at": 1789690114,
+   "by": "adr213",
+   "evidence": "git",
+   "sha": "817f3d8c7843b0ccf4411049989c18571ed93bffb41f3822e307d50dc7aff9df"
+  },
+  "tools/delivery/adr214.json": {
+   "at": 1789690114,
+   "by": "adr214",
+   "evidence": "git",
+   "sha": "53b4d2477cb11d6e606fa6fd55bade3bd98d00770c068698174ff593a3601600"
+  },
+  "tools/delivery/adr215.json": {
+   "at": 1789690114,
+   "by": "adr217",
+   "evidence": "git",
+   "sha": "444193d6b43cb3bd53bdc8c7247ae3db11f501429c154274f6585eda61d02f58"
+  },
+  "tools/delivery/adr216.json": {
+   "at": 1789690114,
+   "by": "adr216",
+   "evidence": "git",
+   "sha": "f03355431120c9003d3500148ea135c0ced70fb2d54b766e071ebb6f189cb4ca"
+  },
+  "tools/delivery/adr217.json": {
+   "at": 1789690114,
+   "by": "adr217",
+   "evidence": "git",
+   "sha": "3b1684a7cd5aa29be9a133b68d15d552245e75484fad1ac3b560e7145c5c0312"
+  },
+  "tools/delivery/adr219.json": {
+   "at": 1789711865,
+   "by": "adr219",
+   "sha": "61d08060334408ec2c1266fd93bba18c41a051f54042226b2a0ae5a15d690927"
+  },
+  "tools/delivery/adr220.json": {
+   "at": 1789711865,
+   "by": "adr220",
+   "sha": "7b039ed2dd3ad698f6e035a11de9d7efde134398fd46822913cf642114d5b26b"
+  },
+  "tools/delivery/adr221.json": {
+   "at": 1789711865,
+   "by": "adr221",
+   "sha": "32365ee16fac3955b718d3a9fee65235eed92435afbd474054ca9ff40fefadf9"
+  },
+  "tools/delivery/adr222.json": {
+   "at": 1789711865,
+   "by": "adr222",
+   "sha": "854c1e65e38fe7dc1ec2e2f148c2d66f10855724f65129293bcbfc61998a7ecb"
+  },
+  "tools/delivery/adr223.json": {
+   "at": 1789711865,
+   "by": "adr223",
+   "sha": "ef20836cbb919c2d29a96619bca83287bf4ddb949ad49b83b203808a05cb0e71"
+  },
+  "tools/delivery/adr224.json": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "77476543ffd91d66f3d3c63a6eb17da9339a9b3400fdefc21b08010cecf95f2a"
+  },
+  "tools/delivery/adr225.json": {
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "1b78a7b66babc6463837ff161d627eb0356f276520cbf3357dc16a82071b7fc5"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "b7a2c819a171afe565159e3183c664199732129e69889a7415e5c6f42bbf78fd"
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "6b4b9f690c8da7e128aec619fcdd3cb4e845246bcdd589cbc615a866265662a8"
+  },
+  "tools/destructive_ledger.json": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "bcc4f40a857ac90d84d694eee23b26aca26ff0ce373f35b48915fd779d9900fd"
   },
   "tools/dwc.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "f0e0ece8c5003073c2e644e8959f1e67a02688f96c57e2aaf71fa68ec8a66094"
+   "at": 1789690114,
+   "by": "adr201",
+   "evidence": "git",
+   "sha": "87e64496acf708a942564e0abe23200f682fea503f2c77ba48aa4ba227a2a0f0"
   },
   "tools/dwc_emit.py": {
    "at": 1788676926,
@@ -2776,9 +3436,9 @@
    "sha": "f67b88ea242c332b3400e31e361709e2f9771df071c55c60aa1caccf056fae22"
   },
   "tools/ecosystem.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "dd15ae9ea4b1e7462d40e8b047c59df4339287d6de62c1c8226f5e47395795a8"
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "403909d880d19f048a030d4417de67dc23873e07c71096e64e2198eb16c72450"
   },
   "tools/ecosystem_ledger.json": {
    "at": 1788676926,
@@ -2801,19 +3461,25 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "6bca35e7cbd720577587aa5e1c998481ea25a19a05226e8972403d6504418cfd"
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "4f896cd7497e83ea0838a2854a0c0a2a3e1d6fe67f2401358a45bc04eceab16f"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
    "by": "adr146b",
    "sha": "99c46c9126e397d520630b1cbd6282686a547e6e952b87cf3f1c02e781d3d86d"
   },
+  "tools/exempt.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "04353bce7c9176bae4d8004b65841e818c0a5d18d5bd177a676ea89986244801"
+  },
   "tools/fek.py": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "ec3444ac34cf411a1feb056ab59dfd202b5aeb02b5efeca320abd64439f2f68b"
+   "at": 1789690114,
+   "by": "adr210",
+   "evidence": "git",
+   "sha": "a580fd1d0b08da5b783ed691c17d515e16436e1764a737e101ed045ef292db17"
   },
   "tools/fek_emit.py": {
    "at": 1788676926,
@@ -2846,9 +3512,10 @@
    "sha": "eb9df6bef4362b8e37eb20cd2ab24a9af38ef8e821b62f482330c643b747b08a"
   },
   "tools/harness.py": {
-   "at": 1788831534,
-   "by": "adr155",
-   "sha": "a227161115948d6c6dd980b12f7d043f194e951de14aa41383db1226a3fddb27"
+   "at": 1789690114,
+   "by": "adr201",
+   "evidence": "git",
+   "sha": "085488fa74aa646d4c141c3bcc74c942a8289aa9f31676f60c6d16a447d53790"
   },
   "tools/harness_baseline.json": {
    "at": 1788831534,
@@ -2856,19 +3523,29 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "9ed587993b1bea856f284e8f27dcca9459768095b7f1cdebdc6894ec0de2963e"
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "1b6f5bd74fe0d2b5d548a9c369a729e841bd8fbffb4edf38d7add4013b8c498d"
   },
   "tools/harness_board.py": {
-   "at": 1788783742,
-   "by": "adr153",
-   "sha": "47962dad2b09701c307062194c81ca6ba6675532f03831004a18b93e7bd986c1"
+   "at": 1789711865,
+   "by": "adr221",
+   "sha": "0e35cc9899896328ada88a14a4eafe0d3e892f08855a5cbf53ea3455cb0c94d1"
   },
   "tools/harness_contract.py": {
-   "at": 1789111268,
-   "by": "adr189",
-   "sha": "d11b74c15f8992d4143a43588bc6f503694b07aa896a7012080e50eb28d31eb3"
+   "at": 1789711865,
+   "by": "adr222",
+   "sha": "59441688a5192bec5feb5816e3197ab724f8935bfc2879f6a4e5b3cbcee07ee0"
+  },
+  "tools/harness_frames.py": {
+   "at": 1789711865,
+   "by": "adr221",
+   "sha": "7f824c2616565e9313ab41282475a7cca5a54905a32a828240d401c1d1b3ace5"
+  },
+  "tools/harness_http.py": {
+   "at": 1789711865,
+   "by": "adr221",
+   "sha": "1153df6ced6846380ec31b796bdc625f9f6cd473218370ae5317fd46714b8ea5"
   },
   "tools/harness_ledger.json": {
    "at": 1788831534,
@@ -2876,39 +3553,44 @@
    "sha": "623cd675df37c608e4c0b6daec8267cc3b0d03a01e1951af7e328f211c43d688"
   },
   "tools/harness_mcp.py": {
-   "at": 1789111268,
-   "by": "adr189",
-   "sha": "c1e072e67e872e05fab4254044e983b2b45119e178ca13bfb4ab1d6dcda2015c"
+   "at": 1789711865,
+   "by": "adr222",
+   "sha": "6fe89e28bca285879ce154cda3712784ea2f6bd01feb2508f5635dcdad48773c"
   },
   "tools/harness_plugin_fixture.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "28937a9642904557f467e563f8fb9812630704232091efd3fce0f6b3ab65a050"
+   "at": 1789690114,
+   "by": "adr191",
+   "evidence": "git",
+   "sha": "76222c16b3e1c811a05cf350460ce4662620c9f6143c0298ed1fb18ae386c80a"
   },
   "tools/harness_plugin_lab.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "659f921465a75b7444e8e66ef571102e330cc3fd3a2f828f606a14e18acde6d5"
+   "at": 1789690114,
+   "by": "adr191",
+   "evidence": "git",
+   "sha": "1210ee29278831d6e993374a2e5ea05cc10ed1b24fc1d3e9f02d350eb3ee99af"
   },
   "tools/harness_plugin_organism.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "0fefc6546ba228e4d370f838ebbd095c1b9d2d8c6e8d7eef223e5a64f25005ec"
+   "at": 1789690114,
+   "by": "adr191",
+   "evidence": "git",
+   "sha": "d589d5c033735aab0f17fd4b1e6fcd5b60a75415f71ff3d409894ab54f6d1707"
   },
   "tools/harness_plugin_page.py": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "e0cd7d8e47135d493264c88b46d61230d971fc8372662568e7cac1b1a819a0fd"
+   "at": 1789690114,
+   "by": "adr199",
+   "evidence": "git",
+   "sha": "c7d5033c32005128fee6e78f6f2474c3e5b03762dad3523c9a9c93f17392f970"
   },
   "tools/harness_plugin_session.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "e65fa9ade5d351e691f9bad9bdb42622a94931119217a74a36d957533005e36b"
+   "at": 1789690114,
+   "by": "adr191",
+   "evidence": "git",
+   "sha": "e43f4cda75a740ad3079e3f3c9c144034eaee972e2c200bd6a7296ff62b201f2"
   },
   "tools/harness_stdio.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "fa1085eab9b51939c542a863ac27ee79e2364b0729ea19c5fc7e56b203687b7d"
+   "at": 1789711865,
+   "by": "adr221",
+   "sha": "7b1a5649f6687319a8dd2a80072676e20ef238b24042ff0415ecbc61a8431d86"
   },
   "tools/harness_targets.py": {
    "at": 1788676926,
@@ -2916,9 +3598,10 @@
    "sha": "374e42feeff7f7518edc791650216fafbaf052d8e1f4323d4a388b1abc422c3d"
   },
   "tools/harness_tasks.py": {
-   "at": 1789088328,
-   "by": "adr187",
-   "sha": "2c237f160b2627b6b3b631b1217f161436f7e458d963bf85585aca68470f5f87"
+   "at": 1789690114,
+   "by": "adr208",
+   "evidence": "git",
+   "sha": "9f91e0c06250dc2daa84a080f356255863df2bced274ad6c02391bde2eeb0813"
   },
   "tools/harness_walk.py": {
    "at": 1789111268,
@@ -2926,14 +3609,15 @@
    "sha": "4b4920a9f1d7e5ec342a735016033c59668604a438c9c4c5bb40c06f27da6247"
   },
   "tools/keep.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "9513ef1decd40f58c3c607ad127ba1b57c5e0939feb2e9d9418060bfe6973e19"
+   "at": 1789690114,
+   "by": "adr210",
+   "evidence": "git",
+   "sha": "347ac669afb1a5c247f61792efdb19231236e47801e565159ec442334782fa45"
   },
   "tools/keep_emit.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "9e8d2746558e9a2e3fff18159ebd48b876efa76a9d58bc91bb0fb9b4a59e3c6f"
+   "at": 1789711865,
+   "by": "adr219",
+   "sha": "1d3b2dfd7dc8e67f956143b591e65e59ea985bc47822262096ce09963bd69413"
   },
   "tools/mulberry32.py": {
    "at": 1788676926,
@@ -2941,9 +3625,9 @@
    "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
   },
   "tools/mutant_ledger.json": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "287a863ef8703d35fabb063ea3beef58c31efb17a40db9aaafe5938aca505efa"
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "79c3407e0ea1c6c36330acaa72a2aeaa0865d6e9c7cd3094677b36d5e6b67f49"
   },
   "tools/mutant_ledger.py": {
    "at": 1788676926,
@@ -2961,9 +3645,26 @@
    "sha": "20b9420343be7defdd6a2a5e87ff5c4e959e0bcbff246467f5de13e7feba42a4"
   },
   "tools/mutate_badinput.py": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "f8b3b80e1866c534a77dfd3028eed8f6f17f33a38c16e508cda08e03d1804060"
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "2d58518d643f36e5180c788f2b4f61d0f9652bef82cebf2caaec35066d09dc74"
+  },
+  "tools/mutate_brief.py": {
+   "at": 1789690114,
+   "by": "adr193",
+   "evidence": "git",
+   "sha": "897b8025ab0fb645ac13b1846705004b9630e3b9c2af8fc93ce3d0d078bc96cf"
+  },
+  "tools/mutate_carried.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "f9031f136debee8eefeb07bf7666be28c4c11603c0a35dfff0afe49a6e144fbb"
+  },
+  "tools/mutate_ci.py": {
+   "at": 1789690114,
+   "by": "adr202",
+   "evidence": "git",
+   "sha": "2381536af53be3d6125ccedd9035128515dcbf34ae2dbf7bde8b1b0d27f8d0cd"
   },
   "tools/mutate_contend.py": {
    "at": 1788676927,
@@ -2971,29 +3672,62 @@
    "sha": "a77c8ec78f8f78ca72cceac4281c94b753eea8da683bced1440dbdcf01d36fd4"
   },
   "tools/mutate_contract.py": {
-   "at": 1789111268,
-   "by": "adr189",
-   "sha": "f27f192c59e0566d00aac264eaa26dc25897440c0f11b9ff3c5874d421582879"
+   "at": 1789711865,
+   "by": "adr222",
+   "sha": "8d48a44665b34d26c000f26003f5534f81efc0dd997e7cf2231dc4b213474874"
+  },
+  "tools/mutate_declared.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "bf90690cc70f79873c16d9e36fb95ad55ae3d0ee096b57d97ed099f3238e7858"
   },
   "tools/mutate_delivery.py": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "2c224e782830b7eb65005c92ad56be50d23a8979af7d52e823bb526da81afd4e"
+   "at": 1789711865,
+   "by": "adr223",
+   "sha": "f475f5dd6d540d31f83c380d9713ed0baa06c414d8f94e9f5e2e5d64d13cbaa0"
+  },
+  "tools/mutate_destructive.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "3b386ed1abd5ad7cc66c8b448dc527fe72aaac5301e5f2efa406897b0c916236"
   },
   "tools/mutate_engines.py": {
-   "at": 1788676927,
-   "by": "adr146b",
-   "sha": "1e0cf5c6abd078e57daabdb062b880b16a96fb2a406b0f513d60471680e87fc7"
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "9fc7d943101061d10f3509a4edacc0a9679c42621dbedc9d2a1cc0d24faaee57"
   },
   "tools/mutate_entry.py": {
    "at": 1788676927,
    "by": "adr146b",
    "sha": "ca84788c2f6d351318147aea5ee00a2f95909a99c5cf901c294b55e599d91f67"
   },
+  "tools/mutate_fek.py": {
+   "at": 1789690114,
+   "by": "adr206",
+   "evidence": "git",
+   "sha": "b7133211a2ef4107b594bc72dc6026fb5d8a3fe7932b9f0b357d0a9ecfae52a1"
+  },
+  "tools/mutate_frames.py": {
+   "at": 1789711865,
+   "by": "adr221",
+   "sha": "b776b1a4fcfeaf40079330e7c4f27d076db069901609f0c16a77051a6021f0ff"
+  },
   "tools/mutate_harness.py": {
-   "at": 1788831534,
-   "by": "adr155",
-   "sha": "199a777a4eb47d30c8a154c1674cb9d85b7cea80959364f7a8cf43a1dc504c53"
+   "at": 1789690114,
+   "by": "adr201",
+   "evidence": "git",
+   "sha": "d8873a68f6a8dd5ca9e7f537596f026a1464a2b76ba4f4bfe94fcc6fdeacd460"
+  },
+  "tools/mutate_http.py": {
+   "at": 1789711865,
+   "by": "adr221",
+   "sha": "e27d6a266ab8e12c04372b3abb0521033dd5384d898766b2393b8b740c656ce8"
+  },
+  "tools/mutate_keep.py": {
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "4b4eb17cf98d83707dc8b3aba069248a25e0b64fb0b4e351eedfd36fd86831b1"
   },
   "tools/mutate_lab.py": {
    "at": 1788676927,
@@ -3010,10 +3744,16 @@
    "by": "adr146b",
    "sha": "3fd93b0e99616169d26531e4f210c8e09e560aad6c88f4d7fa613e3078fc9852"
   },
+  "tools/mutate_outbox.py": {
+   "at": 1789690114,
+   "by": "adr203",
+   "evidence": "git",
+   "sha": "12587f1919929babab3cdee9d10ed1e758c2780abf3a768e37c9680b87a5beb1"
+  },
   "tools/mutate_outputs.py": {
-   "at": 1788783742,
-   "by": "adr153",
-   "sha": "407719e836e9ab980790ddb6e44e25fbb2e725191e9738afc752a7b444a3684f"
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "b1e3b472f058c8bd418af58c47e6406149c1a54f6cdb6b9bc238830eec5cfc33"
   },
   "tools/mutate_publish.py": {
    "at": 1788676927,
@@ -3026,14 +3766,26 @@
    "sha": "c16bfdfd34cbdf73a220aeecb6fe55cc5a385ca43f798ad0d52d50fb4f80971c"
   },
   "tools/mutate_report.py": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "334d304dee8ea15e875a6867ecfc7a180d8739576f212407f730772aa2679181"
+   "at": 1789690114,
+   "by": "adr201",
+   "evidence": "git",
+   "sha": "6988336aba08d9d5348eb87511654e35415f892c68a4b8ec23cd2f199eab162f"
+  },
+  "tools/mutate_restored.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "f45d965849c1f3f6f74bf19da19d5d937d94881c6aaf2c9bd54adb1be9b163bd"
+  },
+  "tools/mutate_takeaway.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "daf69b20c262b0d338dd87fe072d0584189c54237d9cbdbd5fe8fc775db00d3a"
   },
   "tools/mutate_tasks.py": {
-   "at": 1789088328,
-   "by": "adr187",
-   "sha": "19ea34fe3c4d3188350c78ba926a06bf14187ce8a7f4791d06580dfe4148922f"
+   "at": 1789690114,
+   "by": "adr208",
+   "evidence": "git",
+   "sha": "619cbc463ff0482fcfa75c9e5db8f796f53ad89204d7dfe2669718770c32fda6"
   },
   "tools/mutate_walk.py": {
    "at": 1788676927,
@@ -3060,10 +3812,22 @@
    "by": "adr146b",
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
+  "tools/outbox.py": {
+   "at": 1789690114,
+   "by": "adr203",
+   "evidence": "git",
+   "sha": "858a9fc68cf918071b876a5a571bc9d8d79afa4282acae92d2674005a857afdc"
+  },
+  "tools/outbox_emit.py": {
+   "at": 1789690114,
+   "by": "adr208",
+   "evidence": "git",
+   "sha": "b326bc268f68cd28544a28e49b34fea3ce04b026ec0098c9f9a5395788bde19f"
+  },
   "tools/outputs_ledger.json": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "72bac6e9dc7b2ffa7a234d0c1d79c0b7f96e6d8b48de7deaec9bbca55d3995b0"
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "dea69d6632de2e1311f7e47a71344e41f89c4aaf1bb0ad9ead4d2b98e83ce5a2"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -3096,9 +3860,14 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "3aff3e9dbacc8b2e9f677772c6ec01fe7144db129ea6919bebacc1d57b277e12"
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "5d2e541c06d20e69c3110ddae47b97958959da395b75f7daa0203be4d9c5d10b"
+  },
+  "tools/push/push-adr225-siblings.ps1": {
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "4dfeb2b142e837594d9fde040490c61d915815aaf816db568d946ef9f4b81c26"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -3106,14 +3875,20 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "188023c9c0144e742ce490ab08a956df5ba8afa922a8024659adbdf6ddd868af"
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "507b60308f3e11c9c586b9ee3ca8045dd84d375c9ff00ee1e1f15a3312b435c3"
+  },
+  "tools/restored_ledger.json": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "c9da2d0d3cab1d3025593e59c6bab0ca1c9cd86180a3af8c29e0cf122473a261"
   },
   "tools/routes.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "725feb0b6f3d751076698862d12d6257bca5e33be2f73686e674b37366b02f5f"
+   "at": 1789690114,
+   "by": "adr205",
+   "evidence": "git",
+   "sha": "36ad2664429ae3a5d7b847bd926fd9e671819ef8b63d73a828eceb0a1e1c5946"
   },
   "tools/routes.py": {
    "at": 1788676928,
@@ -3121,9 +3896,10 @@
    "sha": "e0fcfcee1759b6cc65564213f4cdb7d0bc3dcf7403ef1c2bb61c8d158c7063d6"
   },
   "tools/swarm.py": {
-   "at": 1788773558,
-   "by": "adr152",
-   "sha": "31023fed19f5a40bae716263b5808325ba326e3308272f87b1a59723dc4a344c"
+   "at": 1789690114,
+   "by": "adr201",
+   "evidence": "git",
+   "sha": "e54ddb51ebd1fa68cda016c15def35493a31dfe584b5734c04806658508748b6"
   },
   "tools/swarm_ledger.json": {
    "at": 1788676928,
@@ -3140,10 +3916,16 @@
    "by": "adr146b",
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
+  "tools/takeaway_ledger.json": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "64befeb9a3294b26e4c77344c713b62d4bdf494871370a4682eb51b61c251896"
+  },
   "tools/task_ledger.json": {
-   "at": 1789134576,
-   "by": "adr190",
-   "sha": "436f1ad5930c5095806b6a99483d869f9f62bfc6df459c86c9aa3a5744c1d964"
+   "at": 1789690114,
+   "by": "adr214",
+   "evidence": "git",
+   "sha": "b3556759f65b464449bbe9b68692e3db32435f9eebf2380cb45d3424e2b9a0ee"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -3186,9 +3968,10 @@
    "sha": "ba146d3c3c81d3395635ceb79dcff34908f02469e1a2d8eba095e0778cca4488"
   },
   "tools/tasks/page-breeding-bench-science.json": {
-   "at": 1788880159,
-   "by": "adr163",
-   "sha": "20d40cc1ec2a5c49d8ce1dca1af11ba1a2fba45a6430f146b911530094bf6cca"
+   "at": 1789690114,
+   "by": "adr208",
+   "evidence": "git",
+   "sha": "2452d8082ac3514d028f1c18c84be2fd47a93d69b02fda4ed869f0a521c12a5d"
   },
   "tools/tasks/page-breeding-suite-reference.json": {
    "at": 1788676928,
@@ -3196,9 +3979,10 @@
    "sha": "6b38894711d3196ab3d210992c48a4c0ff59826698ee9b329a3c32b5abaa0c93"
   },
   "tools/tasks/page-cell-bench-science.json": {
-   "at": 1788868002,
-   "by": "adr159",
-   "sha": "ded9bd621515d48e17b8d721ae72a0fb6ed942da3d9ccf060a1eb350b65ac945"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "3d461f8d9a97b0cf101a8625cb1ea119eb6702e9642c8d13a3076f00686d5c2e"
   },
   "tools/tasks/page-collection-sheet-canary.json": {
    "at": 1788676928,
@@ -3206,14 +3990,16 @@
    "sha": "aa5d619dbf07c0dae390543a1cd3a556eda369120b473704b816ceafd098071b"
   },
   "tools/tasks/page-collection-sheet-science.json": {
-   "at": 1788923746,
-   "by": "adr167",
-   "sha": "6baebc32c726c8bd00aef25aa6b4655e6a90c506463a998308df6aabc5710e7f"
+   "at": 1789690114,
+   "by": "adr197",
+   "evidence": "git",
+   "sha": "251130a2033b8ea1ff664c8914ba2f914e0d2e91df381d0606ffffcc1dabd8a3"
   },
   "tools/tasks/page-cp-bench-science.json": {
-   "at": 1789041080,
-   "by": "adr185",
-   "sha": "5fa4a45458508822bd70a7b1fbcb88c814c697b1b00473f1cb91de64e0bb6571"
+   "at": 1789690114,
+   "by": "adr208",
+   "evidence": "git",
+   "sha": "ce839b4d558c5da35f8443c408d765cdf6c4777f2f620f9568e139499a5b078b"
   },
   "tools/tasks/page-cp-characters-key.json": {
    "at": 1788935024,
@@ -3226,9 +4012,10 @@
    "sha": "012ef576d961fa7967adca1a4920f4eeb639d82fcf26078971de2cd63bc56a17"
   },
   "tools/tasks/page-deployment-log-science.json": {
-   "at": 1788996656,
-   "by": "adr176",
-   "sha": "844e0aaaba23838bf5524dcfd26a003498548e29ff116c005810d454b5feda69"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "d647bda271eafb532a96b1fb4ac0a560089fed952be5d964b3823374aae06aa3"
   },
   "tools/tasks/page-douglas-explorer-reference.json": {
    "at": 1788676928,
@@ -3236,9 +4023,10 @@
    "sha": "31c670dd76d45f56d6aea35cd5d4ccd1a1295dc52c602263feb5ce41468f8e3f"
   },
   "tools/tasks/page-eco-protocol-library-reference.json": {
-   "at": 1789012926,
-   "by": "adr178",
-   "sha": "34e317580e338eeb397977f8703efb92664ce3cb4d4066e069f60797d69bb9fe"
+   "at": 1789690114,
+   "by": "adr200",
+   "evidence": "git",
+   "sha": "3ef6b0164c508e45c073215adfdc646ae115c97b9764f80787dc97c4ae8bf463"
   },
   "tools/tasks/page-eco-protocol-reference-reference.json": {
    "at": 1788676928,
@@ -3271,9 +4059,10 @@
    "sha": "d74a58df549a93a8e94a130a0965ba3b2715270a8f2bb2f80abbb71675e3edc4"
   },
   "tools/tasks/page-ecology-lab-science.json": {
-   "at": 1789082976,
-   "by": "adr186",
-   "sha": "2de879b75687e2738b74942866f1da523dfa300b2fb3c949fc08fe1e305a49dc"
+   "at": 1789690114,
+   "by": "adr214",
+   "evidence": "git",
+   "sha": "d0cf01621948b57b58f3b33b488e3c730e19d6dfd8b93fc2e2ae58c7c6b340ba"
   },
   "tools/tasks/page-ecology-reference.json": {
    "at": 1788676928,
@@ -3291,9 +4080,10 @@
    "sha": "960e896be2e08d3a1685095c3e4dfd0068d1d548541d435f130a7b80a825c318"
   },
   "tools/tasks/page-ethogram-kappa.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "03172d844dec1a6fe6583146015104b99c42bb322500b24eed2c7925ed4748ea"
+   "at": 1789690114,
+   "by": "adr206",
+   "evidence": "git",
+   "sha": "2dfa47e07e8c9a8e7069e9c34f75cc0ca1536c20eede5a11dec5d7432ee442ee"
   },
   "tools/tasks/page-ethogram-science.json": {
    "at": 1788817514,
@@ -3301,9 +4091,10 @@
    "sha": "2410e7718beab05a29cbd5e36ba28ffe55ff774958ac1c9a40474f844f7eefc6"
   },
   "tools/tasks/page-experiment-guide-design.json": {
-   "at": 1788956788,
-   "by": "adr172",
-   "sha": "86b89d4a01ce62f2fa0a25c7a210752fcd587e3b48109409f05175e710c1c85d"
+   "at": 1789690114,
+   "by": "adr212",
+   "evidence": "git",
+   "sha": "41968d9ae91a02e685ff32f44bdeb52a3e1081fe8ba744466626ed316ed913e5"
   },
   "tools/tasks/page-farm-scout-science.json": {
    "at": 1789009468,
@@ -3311,9 +4102,10 @@
    "sha": "e9faf5a70923effb5da4ee6498bfcf76103aa7378445d53ee124ddc912ccfcea"
   },
   "tools/tasks/page-field-notebook-science.json": {
-   "at": 1788981068,
-   "by": "adr173",
-   "sha": "4a93baba66f30941412a3d411552b87a9c2644c62f43095d0cfdfe8c03b8f013"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "37451ec3062915ecbddeeeb94f0bb98d8c7f9f73f12570b58273d860624618c0"
   },
   "tools/tasks/page-field-season-replay.json": {
    "at": 1789009468,
@@ -3321,9 +4113,10 @@
    "sha": "dbbbefe35441e17cfcdce675c61ea15e890c2b392c64314d91e8b1266f01872a"
   },
   "tools/tasks/page-food-web-science.json": {
-   "at": 1788983626,
-   "by": "adr174",
-   "sha": "99a000ac5670a5ec063fc61dfc8b37ed90e33739aadcde68250033c876734f09"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "195251d52e0fe760e0d6cc029f73c87f7421efa3ba08b98d23e5ee1777339e2a"
   },
   "tools/tasks/page-fungal-characters-key.json": {
    "at": 1788676928,
@@ -3336,9 +4129,10 @@
    "sha": "90f702b8dc2d1d0cbdf074d07da12c56e4e35e6559dacd003a83e4c076f530ac"
   },
   "tools/tasks/page-micro-bench-science.json": {
-   "at": 1788910185,
-   "by": "adr164",
-   "sha": "d80637a7c60959f6d02f3a795e56e5828e31079df19a5b4d0e94b11cc77de887"
+   "at": 1789690114,
+   "by": "adr205",
+   "evidence": "git",
+   "sha": "812b2bccde8fe6c3453b5f423dbf97bab63ab6d9ba45c7d8b1345195dcd00600"
   },
   "tools/tasks/page-ordination-science.json": {
    "at": 1788994143,
@@ -3346,9 +4140,10 @@
    "sha": "36ab4031617d19b2c624b63aebaa4a9cfecab466a16c6d059fc4473e3ba68995"
   },
   "tools/tasks/page-pheno-tracker-science.json": {
-   "at": 1789009468,
-   "by": "adr177",
-   "sha": "a98d255cb405fc1392d55cf0292d484f8fb7987696b683a4472b9478e1b5ed02"
+   "at": 1789690114,
+   "by": "adr197",
+   "evidence": "git",
+   "sha": "df1e4331aac36ce989aafb9e7b4394e38db3859ae0dcbeb7a4852d13c8a4a76d"
   },
   "tools/tasks/page-plant-characters-key.json": {
    "at": 1788676928,
@@ -3366,9 +4161,10 @@
    "sha": "6fc44bd1a0ed6b8e773926e95408c78d947f127ca887f74c3e4c1d7fe3a4d925"
   },
   "tools/tasks/page-soil-bench-science.json": {
-   "at": 1789024176,
-   "by": "adr181",
-   "sha": "c35f82b98c08981324c4d8f9f452abd9ddb129e28ab7dd06257cbaab0ad0d63b"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "eaaf77bb71dbb4c2d785c214a6c9bbd69bcc283925cd29f4c8cbbc345190c9b3"
   },
   "tools/tasks/page-soil-recipes-scaling.json": {
    "at": 1788996656,
@@ -3381,14 +4177,16 @@
    "sha": "fb33c0b5f912431335b0fbc2f38d29b09642edbc7aed397d129b0dfed81abe8b"
   },
   "tools/tasks/page-stand-sheet-science.json": {
-   "at": 1788783742,
-   "by": "adr153",
-   "sha": "bcc5051281b39939e8c646a923cb9ecb7374838a9e4899df6ca73c6dfff663fa"
+   "at": 1789690114,
+   "by": "adr198",
+   "evidence": "git",
+   "sha": "fc29904eab953631349e45126b9b5948c8d13689b648da779a04c4b0103f3ac6"
   },
   "tools/tasks/page-survey-design-science.json": {
-   "at": 1789020361,
-   "by": "adr180",
-   "sha": "4b275f377a678f07c9a97c5c57308a73b7cd195e3009c381f9c5f9284514d53f"
+   "at": 1789690114,
+   "by": "adr201",
+   "evidence": "git",
+   "sha": "06718f7c57e3309d2851e8f7b79ad88b15636ab4e61178becbd0bc08e1dcb7ce"
   },
   "tools/tasks/page-tree-proofs-science.json": {
    "at": 1789024176,
@@ -3471,14 +4269,15 @@
    "sha": "b5a35ba0a1cdc46ec58d68e733a4d59aef5c26fe1ccf964894107a9be47e6ae6"
   },
   "tools/verify/counts.json": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "93562bfc7b3c2481ab2ef06b29250aad55644d4adbeed3358f176c1ef693d0a1"
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "0bbd9ff2c847aea27af28d8d9e8b07bced5483e11ea1604191332d4b0c8a9ff4"
   },
   "tools/verify/run_all.py": {
-   "at": 1788783742,
-   "by": "adr153",
-   "sha": "6a004f1adb1a3992c645857b63a5aaa560e268213177ca9ba7be31f5b5915867"
+   "at": 1789690114,
+   "by": "adr216",
+   "evidence": "git",
+   "sha": "2cf07a01474d83b660b2c14648d044771b82548768a720a68ce387cbb781835e"
   },
   "tools/verify/verify_advertised.py": {
    "at": 1788676929,
@@ -3496,24 +4295,44 @@
    "sha": "7a49f4c6ec35fe411382fd4895c669b26cb31b78cce3f77dc4a7c501c01d727c"
   },
   "tools/verify/verify_badinput.py": {
-   "at": 1788761490,
-   "by": "adr151",
-   "sha": "0da2f5592c7382cdd006487cf0cd0ec1d953a7cdd6fd8f598596ab2da43e406e"
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "fb0d4bec805d262876683665ce9d12718eef31fb14a87baf1568666b55e5f331"
   },
   "tools/verify/verify_board.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "b9a8c076605a446bd9b080db7f6d9b879c5252c1e4493f2b7e5469a905cd7b22"
+   "at": 1789690114,
+   "by": "adr216",
+   "evidence": "git",
+   "sha": "1ff2ca647b240eb3de13eac110667b9546e4afb804f7ed7dfe211cd2d1fa4476"
   },
   "tools/verify/verify_br.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "4f933d45fd61cf2c2fa0b9e714e63e6e0cb3157fa3ece4e99507e0bec8152def"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "1efa3970ffc74a6ef36483f50ad1722405d8e2e59156d21b4fd826418d72feeb"
+  },
+  "tools/verify/verify_brief.py": {
+   "at": 1789690114,
+   "by": "adr193",
+   "evidence": "git",
+   "sha": "66d490a818f8ae6a76522ff5d1cc67f067095253874d5bf163fc0b074af39755"
+  },
+  "tools/verify/verify_carried.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "221a38c1c16f4fb620e1fb94d920989d80e8d7f59f10cbcb9a11412a70ba59a1"
   },
   "tools/verify/verify_cb.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "41eef3012ece76f7392ac53ed267b69c6341dd41c8b4bd852997af3834eddcde"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "b287b4ed98dcc23dd47faf17555ca67eb2936ebb2741a959c9af739ce1205f7c"
+  },
+  "tools/verify/verify_ci.py": {
+   "at": 1789690114,
+   "by": "adr202",
+   "evidence": "git",
+   "sha": "ac161fa1bde83b8d97e1c35c6e2a26726577b0773ee8e52ebc06973925a432dc"
   },
   "tools/verify/verify_claims_math.py": {
    "at": 1788676929,
@@ -3531,14 +4350,15 @@
    "sha": "1ac61b39064d21a2bec67b6bfce20389e83ae9575e4c57bf23c95ef91b6049b1"
   },
   "tools/verify/verify_contend.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "b3bda976a6e93cc74dc2bd9104bf3eda419cfd0501c2d1386ecfffde2f449b93"
+   "at": 1789690114,
+   "by": "adr216",
+   "evidence": "git",
+   "sha": "ba608700c37545fb332b4cedf3b605991d67b4e3a2e8ec9d903d2a2cd7536f79"
   },
   "tools/verify/verify_contract.py": {
-   "at": 1789111268,
-   "by": "adr189",
-   "sha": "d14a29f8f0bc0f21537bc9ce689a7a8e72c0ed5f342888f4bf4911c567257674"
+   "at": 1789711865,
+   "by": "adr222",
+   "sha": "c61592835f5733a5f541857d2d09e0548e9a73626cb440c8d4b47c98e901508a"
   },
   "tools/verify/verify_contrast_slice.py": {
    "at": 1788676929,
@@ -3546,44 +4366,59 @@
    "sha": "872e0711eb549291844d92e47cdeb320dd4af85314eaf6f99f5811ed67c2af39"
   },
   "tools/verify/verify_cp.py": {
-   "at": 1789041080,
-   "by": "adr185",
-   "sha": "5fd1151dc21b71db81bce87fb8ecc9b6b40606faa4d63593c531d6fcb7d1b7ab"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "6cd9b4a47ea1daaffa5335baf4e6aa1eb241ec405ab74cbedb5dfb7906198e1c"
   },
   "tools/verify/verify_cpc.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "ae461651640872a54e7d2d7b98a581aa35a93c59c3c1f2bebef5585a2a296fee"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "a77db9728c7baccedb647c557b76a461282dd4dbaa3ed4da3de0dc7a61ddd113"
   },
   "tools/verify/verify_cs.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "0837377f2d17d67964f9cfcf9973db8c5b43d5f1e48ff8ad6376c326a6404b0a"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "a8409bf4dcc4c5146130a6a1671784b8458b9635cbebed5dd9c6a6080a5e2ee8"
   },
   "tools/verify/verify_cs_science.py": {
    "at": 1789082976,
    "by": "adr186",
    "sha": "09cb787c8179b664efeeee53689a1b7272e7e34c2908824406ed753eba3f08b7"
   },
+  "tools/verify/verify_declared.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "7d21caa75bb6b37f651bf125774fcb8e4507999afe6abd234477faed8def73ca"
+  },
   "tools/verify/verify_delivery.py": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "1498c12014e5621a10a6ff2fe8bd92f6e90eba3ca75d07472d2ed16aac6dac67"
+   "at": 1789711865,
+   "by": "adr223",
+   "sha": "5b302be5cd3bd70710b33de67b82e8e2eb745ff61f2323e0ade2fc54f817448c"
   },
   "tools/verify/verify_dep.py": {
    "at": 1788996656,
    "by": "adr176",
    "sha": "5a45172bc188257981d17b29ab62e1ad0c45c1118e6dfe5c479063be131b5abc"
   },
+  "tools/verify/verify_destructive.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "c23916b2108e031ef303d36576e62970e0c1c2f47fb6b59dad25eda631ec6db7"
+  },
   "tools/verify/verify_dwc.py": {
-   "at": 1788860747,
-   "by": "adr158",
-   "sha": "c5f639329360be1285865c569047ff56c006f8d2c205ec709748c77f7678ba25"
+   "at": 1789690114,
+   "by": "adr201",
+   "evidence": "git",
+   "sha": "2ed803768e6c73b9e811f983459300363b0209732c9e9711f5ebc066c623cb85"
   },
   "tools/verify/verify_eco.py": {
-   "at": 1789082976,
-   "by": "adr186",
-   "sha": "0da323573ce153032ec820cd8a68cd698b8ee498e29995fa52e9196e3b17caac"
+   "at": 1789690114,
+   "by": "adr214",
+   "evidence": "git",
+   "sha": "936b4be78839840808639cf1c4df7271b9e5c7fd45fda7915816595413be1423"
   },
   "tools/verify/verify_eco_experiment.py": {
    "at": 1788676929,
@@ -3591,14 +4426,15 @@
    "sha": "1b8f455fe16a5b133b551bd5d6310f6644b46c8b29d0f6ce32ee5493bb2a0d7b"
   },
   "tools/verify/verify_ecosystem.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "e0869b61136f6ba10bb106f627fe113b4a04bcd92ff3424e21b14ad2bd27766a"
+   "at": 1789711865,
+   "by": "adr225",
+   "sha": "acb8b80d3a005e6d6e1777efd491e3c53db523dde30aa1b0a2a8e02bcca9a4a2"
   },
   "tools/verify/verify_emitters.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "a0796686b53fc1f37a5a215260c54d5d46da368da57cfb91388d2dc955eaef89"
+   "at": 1789690114,
+   "by": "adr203",
+   "evidence": "git",
+   "sha": "4a2cc42930d892e8432bc80e235f2d7459c6104def614108ea5b6831a5c7b477"
   },
   "tools/verify/verify_engine_sessions.py": {
    "at": 1788676929,
@@ -3641,9 +4477,10 @@
    "sha": "ed7d353f71db17dd8c221312be62f9c049a67801bcd0dbd5158ebb5d37fa9f7e"
   },
   "tools/verify/verify_fek.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "7ffe37d29db94bbf79a4ede4f2510ebf2ed2a5fe9c24df456bc8d597954ab393"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "0e5c8c93b90291df9a49867a9706f395960b38a4ab2d9dadcd2dc86046207dde"
   },
   "tools/verify/verify_findings.py": {
    "at": 1788676929,
@@ -3651,24 +4488,32 @@
    "sha": "503ea6465ed4752b5e161bef045999a2816ddd91330430bc7b8761af9b6b3d40"
   },
   "tools/verify/verify_fn.py": {
-   "at": 1788981068,
-   "by": "adr173",
-   "sha": "73d427fa5d1612fa4a729d70e687297f4cf35b952d999b7e2e2e1fdc13982570"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "fa142c8c11f014c4f788ab00370a3aadccace49e0aaa17a0c8f0b5f4666b79d1"
   },
   "tools/verify/verify_focus_slice.py": {
    "at": 1788676929,
    "by": "adr146b",
    "sha": "23a023ce5b50e395b3af2c1cc8172a16ae3cbd5249675468ab9dd687dcb3d3b8"
   },
+  "tools/verify/verify_frames.py": {
+   "at": 1789711865,
+   "by": "adr221",
+   "sha": "ee8f8dff3245498b9ee03a3e4dcdb8bfd2f6fed43ea2a1cf6f4c13412008056f"
+  },
   "tools/verify/verify_fs.py": {
-   "at": 1789009468,
-   "by": "adr177",
-   "sha": "f5c68c0b453f39df1fa5b84956e974aa996f0dd9093570b3c5068d2a0e136209"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "b11b23a6a3babfcd2b45e3408a158c051df818b098300b24b2009b80765c34c8"
   },
   "tools/verify/verify_fw.py": {
-   "at": 1788983626,
-   "by": "adr174",
-   "sha": "5222c10d579271dfe03b5b85fcaf29fca92e993d2a0e7fe4214605b719609244"
+   "at": 1789690114,
+   "by": "adr211",
+   "evidence": "git",
+   "sha": "2781c594a400d3f613b77406c6b3e29c6436266b3d3e29df901e53bbd13ff235"
   },
   "tools/verify/verify_gh.py": {
    "at": 1789041080,
@@ -3676,19 +4521,27 @@
    "sha": "5c6cac61cf33d1a39d05b9094d9b9d8c191caecf76f769aba6bff010176c557b"
   },
   "tools/verify/verify_harness.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "b9a8fe13f5f113ff8ae53c29defeb257f84ef295dfdf9724408f98ce4feac43b"
+   "at": 1789690114,
+   "by": "adr201",
+   "evidence": "git",
+   "sha": "1f95c7e3796d2c366373b98332dbc7269465eb757c2fc11360da9bfaffd4067f"
   },
   "tools/verify/verify_harness_matrix.py": {
    "at": 1788831534,
    "by": "adr155",
    "sha": "e4b4bab852ab7dc8345761768f4d521e4c9fd299ee44f79dfad42d7fad4f1226"
   },
+  "tools/verify/verify_http.py": {
+   "at": 1789690114,
+   "by": "adr192",
+   "evidence": "git",
+   "sha": "5b7fdb14083597e8e5c1740eb027b372dd7f25fa05363fe89bc6815b8767675b"
+  },
   "tools/verify/verify_keep.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "a2a84896a75b7b19531dd6c15eef9cba60fbce0cf0da6b6c652bb89f81840149"
+   "at": 1789690114,
+   "by": "adr210",
+   "evidence": "git",
+   "sha": "a4782c85a5230014e39a50032cd2b4a744c43ba761387bb6667f7ee8cd0bab7c"
   },
   "tools/verify/verify_kit_consistency.py": {
    "at": 1788676929,
@@ -3706,14 +4559,16 @@
    "sha": "00f4e61173c2c319350fa0d5f483999385ac480718b1a350e957ba8c19821979"
   },
   "tools/verify/verify_mb.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "342f7ca5f5400cc9a2facadf2a4d700d1f42e17d1d4966a9f37cafa82388682f"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "d1148f5d1030fdfdc018b11083f242b7e746116f621f9e381b570423b2d8a4f5"
   },
   "tools/verify/verify_mcp.py": {
-   "at": 1788745341,
-   "by": "adr150",
-   "sha": "40a25172ec13a1085b574f329058c5b609932f819081569419ca1501f70ba9c6"
+   "at": 1789690114,
+   "by": "adr194",
+   "evidence": "git",
+   "sha": "26f779adc1db8602837b8dc3b4018b1689541f5f42d572162efebb2fd21b20bf"
   },
   "tools/verify/verify_mutate.py": {
    "at": 1788676929,
@@ -3735,10 +4590,16 @@
    "by": "adr146b",
    "sha": "155f5bde52819df857cbd27ba2f1b11339c10c567145aa66932224de208c8b98"
   },
+  "tools/verify/verify_outbox.py": {
+   "at": 1789690114,
+   "by": "adr208",
+   "evidence": "git",
+   "sha": "3c9f0116e5cb4f06dd216792d7caee2e14bb11af0445c056d21cf03c99eb2ed5"
+  },
   "tools/verify/verify_outputs.py": {
-   "at": 1788783742,
-   "by": "adr153",
-   "sha": "73de6cefcb5098c9e1c2ea202117b1de8f9196fb59c6595a059da96a623f9ea8"
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "7a81276d5fc73ab897c3e69f01949eddfa68c29bc3c329ef1c817945bf97f570"
   },
   "tools/verify/verify_print_channel.py": {
    "at": 1788676929,
@@ -3761,9 +4622,10 @@
    "sha": "dc090169680160a2df49dc4cb0686329a5231881e3613a2d21c7627e73b8516d"
   },
   "tools/verify/verify_pt.py": {
-   "at": 1789009468,
-   "by": "adr177",
-   "sha": "88b7520be02f2a67ef946c855dc664d86bed7c12851802efc1239b7e8f4dffe5"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "b1a97c729e223a30771e9478bd0cd36562d8f313413d7768c693439ea6a92a47"
   },
   "tools/verify/verify_publish_drift.py": {
    "at": 1788676929,
@@ -3786,9 +4648,15 @@
    "sha": "62b9e55b0c611506771174d60b99dfe51caf34e1ed773cfa56330e2c61ed40fd"
   },
   "tools/verify/verify_report.py": {
-   "at": 1789134587,
-   "by": "adr190",
-   "sha": "77215461ffe7b665974930e1a2f5a5fc35b88e29c967e8d1d36ac2f4a1cdd4b8"
+   "at": 1789690114,
+   "by": "adr203",
+   "evidence": "git",
+   "sha": "18313778b31ebff48f06ae35b0b08dc900c1d2c6a44190997b21b90c829ad6ba"
+  },
+  "tools/verify/verify_restored.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "0f15738cfc99d9d4eadd7a75a2cf4b9fe2be3d86baf0cebb74afa66b49f37531"
   },
   "tools/verify/verify_routes.py": {
    "at": 1788676930,
@@ -3796,9 +4664,10 @@
    "sha": "f4297a8b94c3e9c9bbb1df54eb514ca508a2576c4e3926e746361ae2eafda4d9"
   },
   "tools/verify/verify_rv.py": {
-   "at": 1788676930,
-   "by": "adr146b",
-   "sha": "aaf1f8bbe2a2926f6aeec67f756420ed44bd09d3a8ea3a975917c17351a8b58d"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "91090ed687b15840839e92b18a8952ee51485ad3cea5e8bf6e91ab478a8cadc9"
   },
   "tools/verify/verify_sd.py": {
    "at": 1789020361,
@@ -3811,19 +4680,22 @@
    "sha": "1793b9d4b45dde17dc856ee5305cb6e7c18183f89e7adf9de87069090009a19d"
   },
   "tools/verify/verify_soil.py": {
-   "at": 1789024176,
-   "by": "adr181",
-   "sha": "bf1b0b4a73a4d5e743b6c83f25c4de631592e3e4116efe7ed7520b7bc2a2c4f4"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "fb334444f8cf5c4224e03623646141bd263e321f31ddc476f5e2100bda6bde1f"
   },
   "tools/verify/verify_ss.py": {
-   "at": 1788676930,
-   "by": "adr146b",
-   "sha": "697f1a2bb73d8db5b01326075a008ffe26cc6b2be3ab85bd2d6794c986a2af13"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "ec2adce52cadfabbaab5c6498b312a0fa24f96722572818154b39fe0d51867a8"
   },
   "tools/verify/verify_suites.py": {
-   "at": 1788676930,
-   "by": "adr146b",
-   "sha": "6c8967a4dfb7d4382edab345c05dba5bc05583dada721e151226e4b391609560"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "647b8af3f104745a43daa069dfe89734c9531fd4763a6330ef9f50d2b4bd27bb"
   },
   "tools/verify/verify_swarm.py": {
    "at": 1788676930,
@@ -3835,10 +4707,16 @@
    "by": "adr146b",
    "sha": "c29a8a4b4bbbba217f4e0c7b9bed82d0d6e65957f930508ded392502387b0b39"
   },
+  "tools/verify/verify_takeaway.py": {
+   "at": 1789711865,
+   "by": "adr224",
+   "sha": "9330dd1fdd9266f9e1939d672a1a78aa1e7b2b3ff0bdcc0dd7faa51335602c9c"
+  },
   "tools/verify/verify_tasks.py": {
-   "at": 1789088328,
-   "by": "adr187",
-   "sha": "ad2da286b0d1523906130362faf4ee0757c0cbe326a69aeac51783a5c8d24960"
+   "at": 1789690114,
+   "by": "adr208",
+   "evidence": "git",
+   "sha": "9d3051cf0a4833bbfebf4a64ccbdc7ef075c10e26a7da541911b39791a40259c"
   },
   "tools/verify/verify_tie_render.py": {
    "at": 1788676930,
@@ -3856,9 +4734,10 @@
    "sha": "1076ece5682a033e5b96d1fd1e2523fcc22ff895b03ce09d007638acb62a2955"
   },
   "tools/verify/verify_two.py": {
-   "at": 1789009468,
-   "by": "adr177",
-   "sha": "96060f012693c7dc63040e6f5c7a762719cdc72f7611584ba31d21158fc9466a"
+   "at": 1789690114,
+   "by": "adr209",
+   "evidence": "git",
+   "sha": "d46bd8211ab395e689ed5d70f34b066e2fb7fb81eb673aff0712c5c4391e5570"
   },
   "tools/verify/verify_visualizer_sessions.py": {
    "at": 1788676930,
@@ -3866,14 +4745,94 @@
    "sha": "36c84a2ce0c9aba0eacddaf22d42e8068a57bb09dd958d2161175ccb03c55524"
   },
   "tools/verify/verify_walk.py": {
-   "at": 1789111268,
-   "by": "adr189",
-   "sha": "17f407544b0c2883b3adc92b13cbe545aca47912b3704c55a16f9fdcab3c02e1"
+   "at": 1789711865,
+   "by": "adr222",
+   "sha": "c105fbbf106820c60d2ca12154999c3b3d3e94e6b9f2c26bee4405b031aec0dc"
   },
   "tools/walk_ledger.json": {
    "at": 1788817514,
    "by": "adr154",
    "sha": "2fbe1b9ac31f797a20537c81f2e8c9954240fadd88e9860c8684352abce05768"
   }
- }
+ },
+ "recorded": [
+  "adr147",
+  "adr148",
+  "adr149",
+  "adr150",
+  "adr151",
+  "adr152",
+  "adr153",
+  "adr154",
+  "adr155",
+  "adr156",
+  "adr157",
+  "adr158",
+  "adr159",
+  "adr160",
+  "adr161",
+  "adr162",
+  "adr163",
+  "adr164",
+  "adr165",
+  "adr166",
+  "adr167",
+  "adr168",
+  "adr169",
+  "adr170",
+  "adr171",
+  "adr172",
+  "adr173",
+  "adr174",
+  "adr175",
+  "adr176",
+  "adr177",
+  "adr178",
+  "adr179",
+  "adr180",
+  "adr181",
+  "adr182",
+  "adr183",
+  "adr184",
+  "adr185",
+  "adr186",
+  "adr187",
+  "adr188",
+  "adr189",
+  "adr190",
+  "adr191",
+  "adr192",
+  "adr193",
+  "adr194",
+  "adr195",
+  "adr196",
+  "adr197",
+  "adr198",
+  "adr199",
+  "adr200",
+  "adr201",
+  "adr202",
+  "adr203",
+  "adr204",
+  "adr205",
+  "adr206",
+  "adr207",
+  "adr208",
+  "adr209",
+  "adr210",
+  "adr211",
+  "adr212",
+  "adr213",
+  "adr214",
+  "adr215",
+  "adr216",
+  "adr217",
+  "adr219",
+  "adr220",
+  "adr221",
+  "adr222",
+  "adr223",
+  "adr224",
+  "adr225"
+ ]
 }

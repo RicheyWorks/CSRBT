@@ -2,164 +2,315 @@
  "_comment": "Written by tools/audit_takeaway.py. Per page: the controls that hand something over whose only channel is a download -- which a published artifact refuses silently -- and whether the page claimed it left (ADR-212).",
  "pages": {
   "breeding-bench.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 2,
+   "raw": [],
+   "seen": [
+    "bCopy",
+    "bDown"
+   ],
    "stranded": []
   },
   "cell-bench.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 4,
+   "raw": [],
+   "seen": [
+    "ecoCopy",
+    "p-out/Print / save PDF",
+    "pasCopy",
+    "stdCopy"
+   ],
    "stranded": []
   },
   "collection-sheet.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 6,
+   "raw": [],
+   "seen": [
+    "csvCopy",
+    "dwcCopy",
+    "ecoCopy",
+    "matCopy",
+    "packExport",
+    "packPrompt"
+   ],
    "stranded": []
   },
   "cp-bench.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
+   "raw": [],
+   "seen": [
+    "bCopy",
+    "bDown",
+    "mCopy"
+   ],
    "stranded": []
   },
   "deployment-log.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
+   "raw": [],
+   "seen": [
+    "csvCopy",
+    "ecoCopy",
+    "p-log/Print / save PDF"
+   ],
    "stranded": []
   },
   "eco-protocol-library.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 1,
+   "raw": [],
+   "seen": [
+    "Copy"
+   ],
    "stranded": []
   },
   "ecology-lab.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 2,
+   "raw": [],
+   "seen": [
+    "rec-copy",
+    "wb-eco-copy"
+   ],
    "stranded": []
   },
   "ethogram.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 5,
+   "raw": [],
+   "seen": [
+    "budCopy",
+    "csvCopy",
+    "ecoCopy",
+    "packExport",
+    "packPrompt"
+   ],
    "stranded": []
   },
   "experiment-guide.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 5,
+   "raw": [],
+   "seen": [
+    "cl-print",
+    "eco-copy",
+    "eco-download",
+    "eng-copy",
+    "eng-skel"
+   ],
    "stranded": []
   },
   "farm-scout.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
+   "raw": [],
+   "seen": [
+    "csvCopy",
+    "ecoCopy",
+    "p-rot/Print / save PDF"
+   ],
    "stranded": []
   },
   "field-notebook.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
+   "raw": [],
+   "seen": [
+    "csvCopy",
+    "ecoCopy",
+    "p-more/Print / save PDF"
+   ],
    "stranded": []
   },
   "field-season.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 1,
+   "raw": [],
+   "seen": [
+    "results/Print the season"
+   ],
    "stranded": []
   },
   "food-web.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
+   "raw": [],
+   "seen": [
+    "Print / save PDF",
+    "csvCopy",
+    "ecoCopy"
+   ],
    "stranded": []
   },
   "greenhouse.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
+   "raw": [],
+   "seen": [
+    "ghCopy",
+    "ghCsv",
+    "p-out/Print / save PDF"
+   ],
    "stranded": []
   },
   "micro-bench.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 5,
+   "raw": [],
+   "seen": [
+    "ecoCopy",
+    "grCopy",
+    "p-out/Print / save PDF",
+    "plCopy",
+    "znCopy"
+   ],
    "stranded": []
   },
   "ordination.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
+   "raw": [],
+   "seen": [
+    "copyCoord",
+    "copyDis",
+    "p-ord/Print / save PDF"
+   ],
    "stranded": []
   },
   "pheno-tracker.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
+   "raw": [],
+   "seen": [
+    "csvCopy",
+    "ecoCopy",
+    "p-seg/Print / save PDF"
+   ],
    "stranded": []
   },
   "releve.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 7,
+   "raw": [],
+   "seen": [
+    "csvCopy",
+    "dwcCopy",
+    "ecoCopy",
+    "matCopy",
+    "p-met/Print / save PDF",
+    "packExport",
+    "packPrompt"
+   ],
    "stranded": []
   },
   "selection-log.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
+   "raw": [],
+   "seen": [
+    "csvCopy",
+    "ecoCopy",
+    "indCopy"
+   ],
    "stranded": []
   },
   "soil-bench.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 2,
+   "raw": [],
+   "seen": [
+    "cCopy",
+    "mCopy"
+   ],
    "stranded": []
   },
   "soil-recipes.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 2,
+   "raw": [],
+   "seen": [
+    "Print / save PDF",
+    "recCopy"
+   ],
    "stranded": []
   },
   "stand-sheet.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 7,
+   "raw": [],
+   "seen": [
+    "csvCopy",
+    "dwcCopy",
+    "ecoCopy",
+    "p-plot/Print / save PDF",
+    "packCopyPrompt",
+    "packExport",
+    "webCopy"
+   ],
    "stranded": []
   },
   "survey-design.html": {
-   "at": 1789539889,
+   "at": 1789701259,
    "ceiling": 0,
    "claims": [],
    "hands": 6,
+   "raw": [],
+   "seen": [
+    "cpEvent",
+    "cpHum",
+    "cpOcc",
+    "cpRead",
+    "p-out/Print / save PDF",
+    "tree/copy ID"
+   ],
    "stranded": []
   }
  }

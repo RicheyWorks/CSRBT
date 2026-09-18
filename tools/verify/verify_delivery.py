@@ -17,11 +17,19 @@ be right about four things a fixture can pin exactly:
   D. THE AUDIT. Undelivered is "bytes not in the ledger AND no manifest claims
      it"; recording moves a file to delivered; touching it afterwards moves it
      back; ignoring needs a reason; and it fails with no flag.
+  F. INSTALLED BY THE COMMAND THAT PUSHES (ADR-223). A file the bridge will not
+     write travels as an ordinary one; the script copies it into place before
+     the add and stages the copy; the tarball does not carry it.
+  E. A CLAIM EXPIRES (ADR-219). Only an UNSHIPPED manifest claims its paths --
+     the file a shipped slice named and a later one changed without naming is
+     undelivered, not in flight. Where there is git it is asked, in a real
+     repository built here; `--catch-up` writes only what git vouches for, and
+     `--check` holds the recording step that nothing held.
 
 Run:  python3 tools/verify/verify_delivery.py
 """
 MUTATE_ROLE = "subject"
-import contextlib, io, json, os, subprocess, sys, tarfile, tempfile
+import contextlib, io, json, os, shutil, subprocess, sys, tarfile, tempfile
 
 import _kit
 
@@ -339,6 +347,176 @@ ck("tools/one.py" not in led["paths"],
    "would record as delivered exactly the files that have not been: %s"
    % sorted(led["paths"].keys()))
 
+# ---- E. a claim expires when its slice ships (ADR-218) -----------------------
+# THE ADR-207 SHAPE, EXACTLY. A slice ships. A later slice changes one of the
+# files it named and does not name it. Until ADR-218 the first slice's manifest
+# went on claiming the path, so this audit called the change "in flight" -- for
+# ten slices, while origin/main failed verify_keep and every run here was green.
+D.LEDGER = os.path.join(tmp, "tools", "delivery_ledger.json")
+D.record("adr999")
+ck("adr999" in (D.load_ledger().get("recorded") or []),
+   "recording a slice says BY NAME that it is over: %s" % D.load_ledger().get("recorded"))
+put("tools/one.py", "one, changed by a later slice that did not name it\n")
+r = AD.measure(view=None)
+ck("tools/one.py" in r["undelivered"] and "tools/one.py" not in r["claimed"],
+   "WITHOUT GIT: a slice that has been recorded no longer claims its paths, so a later change to "
+   "one of them is UNDELIVERED and not excused as in flight -- a claim that never ends covers "
+   "every hot file in the kit within a month, and did: %s / %s"
+   % (r["undelivered"], r["claimed"]))
+ck(r["evidence"] == "ledger" and r["unshipped"] == [],
+   "and the audit says which evidence it read and which slices are still open: %s, %s"
+   % (r["evidence"], r["unshipped"]))
+put("tools/one.py", "one\n")
+
+E_CHECKS = 13
+_git = shutil.which("git")
+unverified = []
+if not _git:
+    unverified = ["ADR-218 git evidence, check %d of %d: there is no git on this machine to ask"
+                  % (i + 1, E_CHECKS) for i in range(E_CHECKS)]
+else:
+    repo = tempfile.mkdtemp(prefix="delivery_git_")
+
+    def g(*args):
+        return subprocess.run(["git", "-C", repo] + list(args), capture_output=True, text=True,
+                              env=dict(os.environ, GIT_AUTHOR_NAME="f", GIT_AUTHOR_EMAIL="f@f",
+                                       GIT_COMMITTER_NAME="f", GIT_COMMITTER_EMAIL="f@f",
+                                       GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_SYSTEM=os.devnull))
+
+    def rput(rel, text):
+        p = os.path.join(repo, rel)
+        if not os.path.isdir(os.path.dirname(p)):
+            os.makedirs(os.path.dirname(p))
+        io.open(p, "w", encoding="utf-8", newline="").write(text)
+
+    for d in ("tools/delivery", "tools/push", "docs"):
+        os.makedirs(os.path.join(repo, d))
+    D.ROOT = AD.ROOT = repo
+    D.MANIFESTS = os.path.join(repo, "tools", "delivery")
+    D.PUSH = os.path.join(repo, "tools", "push")
+    D.LEDGER = os.path.join(repo, "tools", "delivery_ledger.json")
+    ck(AD.git_view(repo) is None,
+       "a directory that is not a repository is NO EVIDENCE, never `clean`: the audit falls back "
+       "to the ledger rather than reading the absence of git as the absence of changes")
+    g("init", "-q")
+    ck(AD.git_view(repo) is None,
+       "...and neither is a repository with no commit in it yet")
+    rput("tools/keep.py", "the emitter\n")
+    rput("tools/other.py", "another file\n")
+    rput("docs/page.html", "<p>a page</p>\n")
+    SHIPPED = {"id": "adr206", "subject": "s", "body": "b",
+               "paths": ["tools/keep.py", "tools/delivery/adr206.json"]}
+    rput("tools/delivery/adr206.json", json.dumps(SHIPPED, indent=1) + "\n")
+    D.write_script("adr206")
+    g("add", "-A")
+    g("commit", "-q", "-m", "adr206")
+    v = AD.git_view(repo)
+    ck(v is not None and v["dirty"] == set() and v["shipped"] == {"adr206"},
+       "git is asked two things: which bytes are not HEAD's, and which manifests are in HEAD's "
+       "tree -- the same fact a push script's own guard reads (ADR-184): %s" % v)
+    r = AD.measure()
+    ck(r["evidence"] == "git" and "tools/other.py" in r["delivered"] and r["undelivered"] == [],
+       "WITH GIT, committed is delivered: a file HEAD holds is accounted for though no ledger has "
+       "ever seen it, because the repository can be read and a ledger is only a memory of it: %s"
+       % r["undelivered"])
+
+    rput("tools/keep.py", "the emitter, with five more pages -- changed by ADR-207, named by no one\n")
+    r = AD.measure()
+    ck(r["undelivered"] == ["tools/keep.py"] and r["claimed"] == [],
+       "THE FILE THAT NEVER LEFT: a shipped slice's manifest names it, a later slice changed it "
+       "and named it nowhere, and it is UNDELIVERED -- it was `in flight` for ten slices: %s / %s"
+       % (r["undelivered"], r["claimed"]))
+    ck(AD.main([]) == 1, "and the audit fails on it, with no flag")
+
+    OPEN = {"id": "adr207", "subject": "s", "body": "b",
+            "paths": ["tools/keep.py", "tools/delivery/adr207.json", "tools/delivery_ledger.json"]}
+    rput("tools/delivery/adr207.json", json.dumps(OPEN, indent=1) + "\n")
+    r = AD.measure()
+    ck(r["undelivered"] == [] and "tools/keep.py" in r["claimed"]
+       and set(r["claimed"]) <= set(OPEN["paths"]) and r["unshipped"] == ["adr207"],
+       "the slice that is OPEN names it and it is in flight -- the claim still works, it just "
+       "has to come from a slice that has not shipped: %s by %s" % (r["claimed"], r["unshipped"]))
+    rput("docs/new-page.html", "<p>new</p>\n")
+    ck(AD.measure()["undelivered"] == ["docs/new-page.html"],
+       "an UNTRACKED file nobody names is undelivered too; git status is asked for every "
+       "untracked file, not for the directory that holds them")
+    os.remove(os.path.join(repo, "docs/new-page.html"))
+
+    bad = D.check()
+    ck(any("adr206" in b and "--catch-up" in b for b in bad)
+       and not any("adr207" in b and "--catch-up" in b for b in bad),
+       "--check HOLDS THE STEP NOTHING HELD: a slice git says is committed and the ledger never "
+       "recorded is a problem, and an open slice is not. `--record` was in every close and in no "
+       "check, and it stopped at ADR-190 -- twenty-seven slices ago: %s" % bad)
+    got = D.catch_up()
+    led = D.load_ledger()
+    ck(got is not None and led.get("recorded") == ["adr206"]
+       and "tools/keep.py" not in led["paths"]
+       and led["paths"]["tools/other.py"]["by"] == "HEAD"
+       and led["paths"]["tools/delivery/adr206.json"]["by"] == "adr206"
+       and led["paths"]["tools/other.py"].get("evidence") == "git",
+       "--catch-up writes only what git vouches for: every path whose bytes ARE HEAD's, by the "
+       "last shipped slice that names it or by HEAD; the slice marked over; and NOT the file "
+       "that is modified -- this is evidence, where --adopt is a belief: %s / %s"
+       % (got, sorted(led["paths"])))
+    ck(not any("--catch-up" in b for b in D.check()),
+       "and after it --check has nothing to say about the ledger: %s" % D.check())
+    r = AD.measure(view=None)
+    ck(r["undelivered"] == [] and "tools/keep.py" in r["claimed"],
+       "the caught-up ledger agrees with git where git is taken away: the open slice's file is "
+       "in flight and nothing else is owed: %s / %s" % (r["undelivered"], r["claimed"]))
+    D.ROOT = AD.ROOT = tmp
+    ck(D.catch_up() is None,
+       "with no git to ask, --catch-up REFUSES: a catch-up without evidence is an adoption, and "
+       "there is already a flag for that which says so in the ledger")
+    shutil.rmtree(repo, ignore_errors=True)
+
+# ---- F. a file the bridge will not write is installed by the command that pushes (ADR-223) ----
+D.ROOT = AD.ROOT = tmp
+D.MANIFESTS = os.path.join(tmp, "tools", "delivery")
+D.PUSH = os.path.join(tmp, "tools", "push")
+D.LEDGER = os.path.join(tmp, "tools", "delivery_ledger.json")
+put("tools/ci/ci.yml", "on: push\n")
+INST = {"id": "adr995", "subject": "s", "body": "b",
+        "paths": ["tools/ci/ci.yml", "tools/delivery/adr995.json"],
+        "install": [{"from": "tools/ci/ci.yml", "to": ".github/workflows/ci.yml"}]}
+write_manifest(INST)
+itxt = D.script_text(INST)
+_copy = 'Copy-Item -Force (Join-Path $csrbt "tools\\ci\\ci.yml") (Join-Path $csrbt ".github\\workflows\\ci.yml")'
+ck(_copy in itxt,
+   "THE COMMAND THAT PUSHES INSTALLS IT: ADR-202 said its workflow `is copied into place by the "
+   "same command that pushes the slice` and generated a script with no such step, so the path "
+   "filter sat in tools/ci/ for fifteen slices and the workflow never changed:\n%s"
+   % [l for l in itxt.split("\n") if "Copy-Item" in l])
+ck(_copy in itxt and itxt.index(_copy) < itxt.index("git -C $csrbt add -A"),
+   "...BEFORE the add, or the commit stages the old bytes")
+_staged = itxt.split("git -C $csrbt add -A")[1].split("git -C $csrbt commit")[0]
+ck(".github/workflows/ci.yml" in _staged,
+   "...and the copy is STAGED, though the manifest's paths do not name it -- they cannot: the "
+   "tarball is made from them, and the bridge refuses a tarball that writes there")
+ck("install" not in MAN and "Copy-Item" not in D.script_text(MAN),
+   "a manifest with nothing to install generates the script it always did")
+D.write_script("adr995")
+put(".github/workflows/ci.yml", "the old workflow\n")
+_o, _paths = D.bundle("adr995", os.path.join(tmp, "adr995.tgz"))
+ck(not any(".github" in n for n in tarfile.open(os.path.join(tmp, "adr995.tgz")).getnames()),
+   "the tarball does NOT carry the installed path, though the file is there to be carried: %s" % _paths)
+ck(not any("adr995" in b for b in D.check()), "a good install is clean: %s" % D.check())
+for _bad, _say in ((dict(INST, install=[{"from": "tools/never.yml", "to": ".github/workflows/ci.yml"}]),
+                    "which its paths do not name"),
+                   (dict(INST, paths=INST["paths"] + [".github/workflows/ci.yml"]),
+                    "both delivered and installed"),
+                   (dict(INST, install=[{"from": "tools/ci/ci.yml", "to": "docs/ci.yml"}]),
+                    "an ordinary path"),
+                   (dict(INST, install=["tools/ci/ci.yml"]), "an install is {from, to}")):
+    write_manifest(_bad)
+    put(".github/workflows/ci.yml", "x\n")
+    ck(any(_say in b for b in D.check()),
+       "--check refuses an install that is wrong -- %s: %s" % (_say, [b for b in D.check() if "adr995" in b]))
+os.remove(os.path.join(D.MANIFESTS, "adr995.json"))
+
 print("---")
-print("%d/%d" % (P, P + F))
+for u in unverified:
+    print("NOT VERIFIED: " + u)
+print("%d/%d" % (P, P + F + len(unverified)))
 sys.exit(1 if F else 0)

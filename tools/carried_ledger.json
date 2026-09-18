@@ -2,49 +2,166 @@
  "_comment": "Written by tools/audit_carried.py. Per page: how many of the figures it computes appear in something it hands over, which ones do not, and the ceiling that count may not rise above (ADR-211).",
  "pages": {
   "breeding-bench.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 2,
    "figures": 19,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "Nₑ",
+    "Nₑ if these are the only parents",
+    "after 10 generations",
+    "blocks",
+    "entries",
+    "expected R per generation",
+    "grand mean",
+    "intensity i",
+    "left standing",
+    "of the population",
+    "pollen / seed parents",
+    "proportion kept",
+    "published minimum",
+    "rogued in total",
+    "seasons stored",
+    "you plan to keep",
+    "your distance",
+    "ΔF per generation",
+    "ΔF per generation #2"
+   ]
   },
   "cell-bench.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 4,
    "figures": 29,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "A read",
+    "A260/A230",
+    "A260/A280",
+    "CV on dividing count",
+    "cells in 10.0 mL",
+    "cells needed",
+    "cells per square (all)",
+    "cells scored",
+    "concentration",
+    "concentration in cuvette",
+    "counting CV (Poisson)",
+    "dividing",
+    "doubling time",
+    "fold expansion",
+    "if RNA (×40)",
+    "if dsDNA (×50)",
+    "in original sample",
+    "in µM",
+    "intercept",
+    "live cells/mL",
+    "live counted",
+    "medium to add",
+    "mitotic index",
+    "population doublings",
+    "r²",
+    "slope",
+    "standards",
+    "stock to add",
+    "viability"
+   ]
   },
   "collection-sheet.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 7,
    "figures": 10,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "Chao1",
+    "Pielou J′",
+    "Shannon H′",
+    "collections",
+    "collections / 100 m²",
+    "collections / hour",
+    "fruit bodies",
+    "g fresh / m²",
+    "singletons / doubletons",
+    "taxa Sobs"
+   ]
   },
   "cp-bench.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 4,
    "figures": 20,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "aeration",
+    "crosses recorded",
+    "days at or below 10 °C",
+    "dissolved solids left in the pot",
+    "germination overall",
+    "latest reading",
+    "longest unbroken run",
+    "losses recorded",
+    "nutrient load",
+    "observations",
+    "of your target",
+    "plants",
+    "readings",
+    "readings logged",
+    "same as one watering at",
+    "seed collected",
+    "set seed",
+    "water evaporated",
+    "water holding",
+    "without a source"
+   ]
   },
   "deployment-log.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 3,
    "figures": 22,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "GSD",
+    "as a distance",
+    "audio recorded",
+    "card lasts",
+    "card needed",
+    "clock may be out by",
+    "deployment",
+    "duty cycle",
+    "fills after",
+    "flight lines",
+    "flying time",
+    "footprint",
+    "full coverage",
+    "images",
+    "interval",
+    "memory holds",
+    "minimum useful",
+    "readings",
+    "records up to",
+    "sample rate",
+    "shot every",
+    "with GPS sync"
+   ]
   },
   "eco-protocol-library.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 1,
    "figures": 0,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": []
   },
   "ecology-lab.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 19,
    "declared": {
     "effective species": "a Terrarium reading: this page's two live demonstrations are driven with sliders and redraw on every drag, so the figure is a picture of a parameter you are moving rather than a record of anything that happened. There is nothing to carry away -- the run that produced a number is the position of a slider, and the numbers that ARE a record are the stations' and the workbench's, both of which now leave with their own export (ADR-213, ADR-214).",
@@ -56,73 +173,245 @@
    },
    "exports": 4,
    "figures": 47,
-   "lost": []
+   "lost": [],
+   "raw": [
+    "effective species",
+    "evenness J′",
+    "extinctions",
+    "immigrations",
+    "mean residence",
+    "residents / capacity"
+   ],
+   "seen": [
+    "95% CI",
+    "Bray–Curtis",
+    "Chao1 est.",
+    "Chao1 est. #2",
+    "Chao1 est. richness",
+    "Chao1 est. richness #2",
+    "Chapman N̂",
+    "Jaccard",
+    "J′ — even grazing",
+    "J′ — hot-patch grazing",
+    "Levins predicted occupancy",
+    "Lincoln–Petersen N̂",
+    "Morisita",
+    "Shannon H′",
+    "Sørensen",
+    "avg turnover per generation",
+    "capacity (island area)",
+    "carrying capacity K",
+    "completed lives",
+    "depth",
+    "effective species",
+    "effective species #2",
+    "effective species #3",
+    "effective species #4",
+    "evenness J′",
+    "evenness J′ #2",
+    "extinctions",
+    "extinctions #2",
+    "growth rate r (per op)",
+    "immigrations",
+    "immigrations #2",
+    "keys inherited / generation",
+    "local extinctions",
+    "mean age at death",
+    "mean residence",
+    "observed occupancy",
+    "p",
+    "physical nodes inherited",
+    "q",
+    "recolonizations",
+    "residents / capacity",
+    "species",
+    "strata on record",
+    "taxa",
+    "turnover / interval",
+    "variance/mean",
+    "χ² (df 1)"
+   ]
   },
   "ethogram.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 5,
    "figures": 9,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "Cohen's κ",
+    "bouts",
+    "categories",
+    "elapsed",
+    "expected by chance",
+    "observed",
+    "out of sight",
+    "raw agreement",
+    "samples"
+   ]
   },
   "experiment-guide.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 7,
    "figures": 0,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": []
   },
   "farm-scout.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 3,
    "figures": 10,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "avg / plant",
+    "effective types",
+    "evenness",
+    "germination",
+    "pests counted",
+    "seeds to sow for 120 plants",
+    "spread (var/mean)",
+    "stops",
+    "visitor types",
+    "visits"
+   ]
   },
   "field-notebook.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 3,
    "figures": 18,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "2nd catch (C)",
+    "Marked (M)",
+    "Morisita",
+    "Recaptured (R)",
+    "Shannon H′",
+    "Shannon H′ #2",
+    "behaviors",
+    "effective (behaviors)",
+    "effective (species)",
+    "evenness J′",
+    "evenness J′ #2",
+    "individuals",
+    "individuals #2",
+    "mean / quadrat",
+    "observations",
+    "quadrats",
+    "species",
+    "variance / mean"
+   ]
   },
   "food-web.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 3,
    "figures": 5,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "connectance L/S²",
+    "feeding links",
+    "longest chain",
+    "producers",
+    "species"
+   ]
   },
   "greenhouse.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 5,
    "figures": 16,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "DLI integrated from your log",
+    "DLI, constant-PPFD formula",
+    "PPFD at canopy",
+    "VPD range",
+    "absolute humidity",
+    "average draw",
+    "baseline mean",
+    "dew point, last reading",
+    "electricity cost per gram",
+    "electricity for that energy",
+    "energy over the log",
+    "grams per RATED watt",
+    "grams per kilowatt hour",
+    "mean leaf VPD",
+    "of TIME outside the band",
+    "readings"
+   ]
   },
   "micro-bench.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 5,
    "figures": 12,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "CFU/mL (mean of countable)",
+    "Poisson CV",
+    "colonies counted",
+    "countable plates",
+    "doubling time",
+    "doubling time #2",
+    "each step",
+    "lands in 30–300",
+    "log₁₀ per step",
+    "points in fit",
+    "r²",
+    "specific growth rate µ"
+   ]
   },
   "ordination.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 3,
    "figures": 11,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "cells recorded",
+    "dimensions",
+    "pairs fitted",
+    "sites",
+    "sites #2",
+    "sites #3",
+    "species",
+    "starts agreeing",
+    "stress",
+    "stress-1",
+    "zeroes"
+   ]
   },
   "pheno-tracker.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 3,
    "figures": 8,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "closest ratio",
+    "keeper mean",
+    "keepers",
+    "observed (80 plants)",
+    "run mean",
+    "scored",
+    "selection differential S",
+    "χ² (cutoff 3.84)"
+   ]
   },
   "releve.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "declared": {
     "families": "families in the loaded pack, not in the plot; the plot's own family count is the anStats tile next to it and that one is carried",
@@ -130,45 +419,148 @@
    },
    "exports": 7,
    "figures": 22,
-   "lost": []
+   "lost": [],
+   "raw": [
+    "families",
+    "taxa in pack"
+   ],
+   "seen": [
+    "FQI",
+    "Shannon H′",
+    "adjusted FQI",
+    "bare ground",
+    "effective taxa",
+    "evenness J′",
+    "families",
+    "families #2",
+    "flagged non-native",
+    "hits recorded",
+    "mean C (native)",
+    "natives scored",
+    "non-native taxa",
+    "non-native taxa #2",
+    "points planned",
+    "prevalence index",
+    "taxa",
+    "taxa in pack",
+    "taxa scored",
+    "total foliar cover",
+    "vs threshold",
+    "with C-values"
+   ]
   },
   "selection-log.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 3,
    "figures": 9,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "SD before (sample, n−1)",
+    "SE of β",
+    "differential S mm",
+    "gradient β (univariate)",
+    "intensity i (SD units)",
+    "mean after",
+    "mean before mm",
+    "measured",
+    "with fitness"
+   ]
   },
   "soil-bench.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 2,
    "figures": 14,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "aeration",
+    "blended C:N",
+    "cation exchange",
+    "days logged at ≥55 °C",
+    "dry mass",
+    "green : brown by volume",
+    "moisture as built",
+    "nutrient load",
+    "peak",
+    "readings",
+    "total volume",
+    "turnings while hot",
+    "water holding",
+    "wet mass"
+   ]
   },
   "soil-recipes.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 2,
    "figures": 0,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": []
   },
   "stand-sheet.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "declared": {
     "known interactions": "a count of the interaction records in the loaded species pack, not of anything measured in this stand; the pack is exported as itself and the stand sheet carries the interactions actually recorded on the plot"
    },
    "exports": 7,
    "figures": 22,
-   "lost": []
+   "lost": [],
+   "raw": [
+    "known interactions"
+   ],
+   "seen": [
+    "QMD cm",
+    "SDI (Reineke)",
+    "for US protocols",
+    "heights measured",
+    "horizontal distance",
+    "interaction types",
+    "known interactions",
+    "links",
+    "live BA m²/ha",
+    "live stems",
+    "live stems/ha",
+    "m³/ha",
+    "pieces crossed",
+    "regions",
+    "seen in the field",
+    "snag BA m²/ha",
+    "snags",
+    "species loaded",
+    "taxa involved",
+    "top height m",
+    "total height",
+    "transect m"
+   ]
   },
   "survey-design.html": {
-   "at": 1789539666,
+   "at": 1789700989,
    "ceiling": 0,
    "exports": 6,
    "figures": 14,
-   "lost": []
+   "lost": [],
+   "raw": [],
+   "seen": [
+    "Humboldt rows",
+    "absences refused",
+    "absences written",
+    "absent",
+    "duplicate IDs",
+    "event rows",
+    "events",
+    "found",
+    "not assessed",
+    "occurrence rows",
+    "on the list",
+    "plots",
+    "sites",
+    "visits"
+   ]
   }
  }
 }

@@ -2,7 +2,7 @@
  "_comment": "Written by tools/audit_destructive.py. Per page: every control the gateway calls DESTRUCTIVE, how many records one tap of it took, whether the page asked first, and the ceiling the unasked bulk removers may not rise above (ADR-209).",
  "pages": {
   "breeding-bench.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 4,
@@ -13,10 +13,17 @@
     "nothing": 1,
     "one": 2,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "keepBox/Forget this device's copy",
+    "rUndo",
+    "tClear",
+    "tUndo"
+   ]
   },
   "cell-bench.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 4,
@@ -27,10 +34,17 @@
     "nothing": 1,
     "one": 1,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "keepBox/Forget this device's copy",
+    "miReset",
+    "miUndo",
+    "stClear"
+   ]
   },
   "collection-sheet.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 4,
@@ -41,10 +55,17 @@
     "nothing": 1,
     "one": 3,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "cClear",
+    "cList/✕",
+    "cUndo",
+    "keepBox/Forget this device's copy"
+   ]
   },
   "cp-bench.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 7,
@@ -55,10 +76,20 @@
     "nothing": 1,
     "one": 4,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "cUndo",
+    "keepBox/Forget this device's copy",
+    "mClear",
+    "oUndo",
+    "pList/✕",
+    "sUndo",
+    "wUndo"
+   ]
   },
   "cp-characters.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 1,
@@ -69,10 +100,14 @@
     "nothing": 1,
     "one": 0,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "kReset"
+   ]
   },
   "deployment-log.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 2,
@@ -83,10 +118,15 @@
     "nothing": 1,
     "one": 1,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "keepBox/Forget this device's copy",
+    "undo"
+   ]
   },
   "ecology-lab.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 2,
@@ -97,10 +137,15 @@
     "nothing": 2,
     "one": 0,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "workbench/remove last",
+    "workbench/✕"
+   ]
   },
   "ethogram.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 6,
@@ -114,10 +159,21 @@
    },
    "declared": {
     "rUndo": "The loss it reads is its own history entry plus the record that entry names: two things leave the autosave and the person loses one. Every Undo in this kit that keeps a stack reads the same way, and a rule that called them bulk deletes would be turned off within a week."
-   }
+   },
+   "raw": [
+    "rUndo"
+   ],
+   "seen": [
+    "ethoList/✕",
+    "kClear",
+    "keepBox/Forget this device's copy",
+    "rUndo",
+    "subjEdit/F-blue ✕",
+    "subjEdit/subject 1 ✕"
+   ]
   },
   "experiment-guide.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 8,
@@ -128,10 +184,21 @@
     "nothing": 3,
     "one": 3,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "cl-clear",
+    "d-list/Remove graze · cattail=18 duckweed=44",
+    "eco-reset",
+    "eng-reset",
+    "keepBox/Forget this device's copy",
+    "p-list/Remove graze uniform 1000",
+    "vd-clear",
+    "x-list/Remove evenness(graze) > 0.8"
+   ]
   },
   "farm-scout.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 4,
@@ -142,10 +209,17 @@
     "nothing": 2,
     "one": 2,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "bedGrid/✕",
+    "keepBox/Forget this device's copy",
+    "poUndo",
+    "scClear"
+   ]
   },
   "field-notebook.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 5,
@@ -156,10 +230,18 @@
     "nothing": 4,
     "one": 0,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "ethoUndo",
+    "keepBox/Forget this device's copy",
+    "quadClear",
+    "specUndo",
+    "treset"
+   ]
   },
   "food-web.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 2,
@@ -170,10 +252,15 @@
     "nothing": 1,
     "one": 0,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "webClear",
+    "webUndo"
+   ]
   },
   "fungal-characters.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 1,
@@ -184,10 +271,14 @@
     "nothing": 1,
     "one": 0,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "fkreset"
+   ]
   },
   "greenhouse.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 3,
@@ -198,10 +289,16 @@
     "nothing": 0,
     "one": 1,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "keepBox/Forget this device's copy",
+    "runWipe",
+    "srcClear"
+   ]
   },
   "micro-bench.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 5,
@@ -212,10 +309,18 @@
     "nothing": 1,
     "one": 3,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "grClear",
+    "grList/✕",
+    "keepBox/Forget this device's copy",
+    "plList/✕",
+    "zList/✕"
+   ]
   },
   "ordination.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 2,
@@ -226,10 +331,15 @@
     "nothing": 1,
     "one": 0,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "clearBtn",
+    "keepBox/Forget this device's copy"
+   ]
   },
   "pheno-tracker.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 6,
@@ -240,10 +350,19 @@
     "nothing": 2,
     "one": 1,
     "unreachable": 2
-   }
+   },
+   "raw": [],
+   "seen": [
+    "crossList/✕",
+    "keepBox/Forget this device's copy",
+    "pCull",
+    "rankBoard/✕",
+    "runReset",
+    "traitChips/✕"
+   ]
   },
   "plant-characters.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 1,
@@ -254,10 +373,14 @@
     "nothing": 1,
     "one": 0,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "kclear"
+   ]
   },
   "releve.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 6,
@@ -268,10 +391,19 @@
     "nothing": 1,
     "one": 5,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "keepBox/Forget this device's copy",
+    "lList/✕",
+    "lUndo",
+    "rList/✕",
+    "rUndo",
+    "vList/✕"
+   ]
   },
   "selection-log.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 6,
@@ -282,10 +414,19 @@
     "nothing": 1,
     "one": 2,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "iList/✕",
+    "iUndo",
+    "keepBox/Forget this device's copy",
+    "mUndo",
+    "pUndo",
+    "traitList/✕"
+   ]
   },
   "soil-bench.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 5,
@@ -296,10 +437,18 @@
     "nothing": 1,
     "one": 2,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "cUndo",
+    "mClear",
+    "rClear",
+    "rList/✕",
+    "tBox/Start over"
+   ]
   },
   "stand-sheet.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 5,
@@ -310,10 +459,18 @@
     "nothing": 2,
     "one": 3,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "iList/✕",
+    "kReset",
+    "keepBox/Forget this device's copy",
+    "tTable/✕",
+    "tUndo"
+   ]
   },
   "survey-design.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 3,
@@ -324,10 +481,16 @@
     "nothing": 2,
     "one": 0,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "keepBox/Forget this device's copy",
+    "tree/remove",
+    "txClear"
+   ]
   },
   "tree-proofs.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 1,
@@ -338,10 +501,14 @@
     "nothing": 1,
     "one": 0,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "spReset"
+   ]
   },
   "tree-visualizer.html": {
-   "at": 1789540321,
+   "at": 1789701735,
    "bare": [],
    "ceiling": 0,
    "controls": 2,
@@ -352,7 +519,12 @@
     "nothing": 2,
     "one": 0,
     "unreachable": 0
-   }
+   },
+   "raw": [],
+   "seen": [
+    "bClear",
+    "bDel"
+   ]
   }
  }
 }
