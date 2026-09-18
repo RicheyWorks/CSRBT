@@ -55,6 +55,24 @@ ONE DOOR, MANY INVOCATIONS (ADR-191)
         {"observe": "csrbt-page", "since": "s6c984d475ebd"}
 
     which asks the door for what CHANGED rather than for the snapshot again.
+
+TWO THINGS A COMMAND MAY SAY ABOUT ITSELF (ADR-222, offered here in ADR-228)
+    A `call` move may carry either or both of:
+
+        {"call": "csrbt_page__activate", "arguments": {"selector": "@Undo"},
+         "if_stamp": "s6c984d475ebd"}
+
+        {"call": "csrbt_organism__put", "arguments": {"key": 11, "attr": 1},
+         "expires_at": "2026-09-18T09:00:00+00:00"}
+
+    `if_stamp` is a stamp the operator read on a snapshot or a report: ACT ONLY
+    IF THE TARGET IS STILL THAT. The door takes one look, and if the target has
+    moved it refuses `stale` naming the stamp it was bound to and the stamp the
+    target has now, instead of acting on a page that changed under the plan.
+    `expires_at` is an ISO-8601 instant with an offset; at or after it the
+    command is refused `stale` rather than run late. Both are optional, neither
+    is part of the command's identity (a retry with a fresh deadline is the
+    same request), and a move that names neither is a plain call.
 """
 import argparse, errno, io, json, os, re, secrets, socket, subprocess, sys, tempfile, time
 from urllib.parse import quote
@@ -167,7 +185,17 @@ def play(door, moves):
                 uri += "?since=" + quote(str(m["since"]), safe="")
             r = door.rpc("resources/read", {"uri": uri})
         elif "call" in m:
-            r = door.rpc("tools/call", {"name": m["call"], "arguments": m.get("arguments") or {}})
+            # ADR-228: the two things a command may say ABOUT itself -- a
+            # deadline (`expires_at`, ADR-222) and the stamp it was decided from
+            # (`if_stamp`, ADR-188/222) -- ride in `_meta`, exactly where the
+            # MCP transport takes them from a host. A move that names neither
+            # sends no `_meta`, so a host that has never heard of them is the
+            # default and nothing about the call changes.
+            params = {"name": m["call"], "arguments": m.get("arguments") or {}}
+            meta = {k: m[k] for k in ("expires_at", "if_stamp") if m.get(k) is not None}
+            if meta:
+                params["_meta"] = meta
+            r = door.rpc("tools/call", params)
         else:
             r = {"error": {"message": "a move is one of list, call, read, observe: %r" % m}}
         out.append({"move": i, "asked": m, "answer": r, "ms": int((time.time() - t0) * 1000)})

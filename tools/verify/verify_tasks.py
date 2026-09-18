@@ -1208,6 +1208,88 @@ ck(len(_dest) == 2 and all(
    "this time -- ADR-194 recorded those two scores as lower bounds because its console could "
    "not grant what its own briefs promised: %s" % _dest)
 
+# ---- F6. the sixth blind trial (ADR-228) -------------------------------------
+#
+# The first five trials ran the SAME four pages to measure the door as it
+# changed. This one turns the loop outward: four pages no blind operator had
+# ever touched -- greenhouse, soil bench, survey design, tree visualizer --
+# each of whose goals ends in an irreversible act, so each was run with the
+# fourth rung. Its subject is ADR-228: the console can now carry `if_stamp` and
+# `expires_at`, the two things ADR-222 gave the gateway and no operator could
+# send, and every operator guarded its destructive act with one.
+BLIND6 = os.path.join(T.TRACES_DIR, "blind6")
+b6 = sorted(glob.glob(os.path.join(BLIND6, "*.jsonl.gz")))
+by6 = T.protocol_of(BLIND6)
+SIXTH = {"page-greenhouse-science": (18, 24, 96, 107), "page-soil-bench-science": (11, 17, 41, 53),
+         "page-survey-design-science": (15, 22, 40, 54), "page-tree-visualizer-science": (11, 15, 62, 71)}
+ck(len(b6) == 4 and {os.path.basename(f).split(".")[0] for f in b6} == set(SIXTH),
+   "the sixth trial's four traces, four pages no blind operator had touched: %s"
+   % [os.path.basename(f) for f in b6])
+_fz6 = os.path.join(BLIND6, "tasks")
+ck(os.path.isdir(_fz6) and len(glob.glob(os.path.join(_fz6, "*.json"))) == 4,
+   "blind6 carries the four task files it was run under, beside its traces")
+p6 = os.path.join(BLIND6, "PROVENANCE.md")
+t6 = io.open(p6, encoding="utf-8").read() if os.path.isfile(p6) else ""
+ck(all(w in t6 for w in ("if_stamp", "expires_at", "removed from the", "DESTRUCTIVE", "floor")) and len(t6) > 4000,
+   "with a provenance that carries the conditions, what it measured about ADR-222's two fields, "
+   "and what it found in the door and the pages")
+_r6 = _c6 = _k6 = 0
+for f in b6:
+    tid = os.path.basename(f).split(".")[0]
+    tr = T.load_trace(f)
+    g6 = T.grade_outcomes(by6[tid], tr)
+    lo = SIXTH[tid]
+    ck(g6["reached"] >= lo[0] and g6["confirmed"] >= lo[2]
+       and g6["outcomes"] == lo[1] and g6["claims"] == lo[3]
+       and g6["verdict"] in ("PARTIAL", "PASS"),
+       "%s: the sixth trial's operator reached %d of %d outcomes (%d of %d claims), at or above "
+       "the floor this first operation set %s" % (tid, g6["reached"], g6["outcomes"], g6["confirmed"],
+                                                  g6["claims"], lo))
+    ck(g6["reached"] > 0 and g6["confirmed"] > 0,
+       "%s: a page operated blind for the FIRST time was reached at all -- the point of the trial "
+       "is the forty tasks no operator had touched, and this is four of them" % tid)
+    _r6 += g6["reached"]; _c6 += g6["confirmed"]; _k6 += g6["calls"]
+    ck(T.grade_trace(by6[tid], tr)["verdict"] == "FAIL",
+       "%s: and graded as a ROUTE it is FAIL, as every blind trial before it -- the operator "
+       "reached the outcomes without walking the script" % tid)
+ck(_r6 >= 55 and _c6 >= 239,
+   "across the four new pages the sixth trial reached %d of 78 outcomes and confirmed %d of 262 "
+   "claims in %d calls, every one in a single attempt" % (_r6, _c6, _k6))
+
+# THE TRIAL'S REAL SUBJECT, measured in the traces and not asserted: every one
+# of the four guarded its irreversible act with `if_stamp`, and the door's
+# refusal is recorded in the operator's own trace. ADR-222 gave the gateway
+# the two fields; until ADR-228 no operator could send either, so this is the
+# first evidence they reach the door in work nobody scripted.
+_guarded = _expired = 0
+for f in b6:
+    for e in T.load_trace(f):
+        if e.get("action") != "activate":
+            continue
+        m = ((e.get("response") or {}).get("message") or "")
+        code = (e.get("response") or {}).get("code")
+        if code == "stale" and "moved since the snapshot stamped s" in m:
+            _guarded += 1          # an if_stamp that no longer matched refused the act
+        if code == "stale" and "expired at" in m:
+            _expired += 1          # an expires_at in the past refused the act
+ck(_guarded >= 4,
+   "on all four pages a destructive `activate` guarded by an `if_stamp` the target had moved "
+   "past was refused `stale`, naming the stamp -- ACT ONLY IF THE TARGET IS STILL THAT, sent by "
+   "an operator for the first time (ADR-228): %d such refusal(s)" % _guarded)
+ck(_expired >= 1,
+   "and at least one `activate` carrying a past `expires_at` was refused as expired rather than "
+   "run late: %d" % _expired)
+_ran = 0
+for f in b6:
+    for e in T.load_trace(f):
+        if (e.get("action") == "activate" and (e.get("response") or {}).get("ok")
+                and (e.get("response") or {}).get("risk") == "DESTRUCTIVE"):
+            _ran += 1
+            break
+ck(_ran == 4,
+   "and after the guard the act itself ran: all four reached a DESTRUCTIVE `activate` that the "
+   "door accepted -- the greenhouse wipe, the soil undo, the survey remove, the tree clear: %d" % _ran)
+
 
 # ---- G. the science (ADR-128) and the whole kit (ADR-129) ---------------------
 DATA_ENTRY = {"collection-sheet.html", "releve.html", "stand-sheet.html", "ethogram.html", "selection-log.html",

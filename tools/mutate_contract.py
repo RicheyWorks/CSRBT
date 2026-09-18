@@ -336,6 +336,15 @@ MUTANTS += [
      '''            if False:
                 uri += "?since=" + quote(str(m["since"]), safe="")''',
      "is still the door's baseline in the next"),
+    # ADR-228: the console offers the two things a command says about itself
+    ("the console strips both fields off a call, so an operator can send neither",
+     '            meta = {k: m[k] for k in ("expires_at", "if_stamp") if m.get(k) is not None}',
+     '            meta = {}',
+     "refused `stale`, naming the deadline"),
+    ("the console forwards a deadline but never a stamp",
+     '            meta = {k: m[k] for k in ("expires_at", "if_stamp") if m.get(k) is not None}',
+     '            meta = {k: m[k] for k in ("expires_at",) if m.get(k) is not None}',
+     "offered to the operator at last"),
     # ---- ADR-194: the rungs are the operator's -----------------------------
     ("the console hands out whatever rungs it likes",
      '''        for rung in (rungs or SUPERVISED):''',

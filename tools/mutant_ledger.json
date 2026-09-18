@@ -1057,7 +1057,7 @@
    "survived": 0
   },
   "mutate_contract": {
-   "at": 1789695328,
+   "at": 1789727428,
    "equivalent": 1,
    "equivalents": [
     {
@@ -1066,8 +1066,8 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 103,
-   "mutants": 103,
+   "killed": 105,
+   "mutants": 105,
    "rows": [
     {
      "detail": "8 failure(s); first: an action that declared mayRise is asked, with this call's ",
@@ -1345,6 +1345,16 @@
      "verdict": "killed"
     },
     {
+     "detail": "3 failure(s); first: a `call` move with an `expires_at` in the past reaches the ",
+     "name": "the console strips both fields off a call, so an operator can send neither",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a `call` move with an `if_stamp` that the target has moved ",
+     "name": "the console forwards a deadline but never a stamp",
+     "verdict": "killed"
+    },
+    {
      "detail": "2 failure(s); first: a session opened with the fourth rung named lists what the ",
      "name": "the console hands out whatever rungs it likes",
      "verdict": "killed"
@@ -1570,7 +1580,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: OVER MCP both ride in the call's `_meta`, which is where th",
+     "detail": "3 failure(s); first: OVER MCP both ride in the call's `_meta`, which is where th",
      "name": "over MCP a call cannot say either",
      "verdict": "killed"
     },

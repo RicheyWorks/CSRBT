@@ -677,7 +677,56 @@ finally:
     shutil.rmtree(sdir, ignore_errors=True)
     senv.pop("CSRBT_FIXTURE_DIE", None)
 
+# -- a call move may carry the two things a command says about itself (ADR-228) --
+#
+# ADR-222 gave the door `if_stamp` and `expires_at` and the fifth trial's
+# operators had no way to send either: every act was a plain call, and an
+# operator who had just read a stamp could not say "act only if the target is
+# still that". The console offers both now, in `_meta`, where the MCP transport
+# takes them. This is the live proof they reach the gateway and are refused
+# `stale`, and that a move naming neither is unchanged.
+sdir_m = tempfile.mkdtemp(prefix="blind-meta-")
+senv_m = dict(os.environ); senv_m["CSRBT_BLIND_DIR"] = sdir_m
+
+
+def meta_console(ms):
+    fh = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, dir=sdir_m)
+    json.dump(list(ms), fh); fh.close()
+    p = subprocess.run([sys.executable, BL, "--target", "fixture", "--moves", fh.name],
+                       capture_output=True, text=True, env=senv_m, timeout=200)
+    return [json.loads(l) for l in p.stdout.strip().split("\n") if l.strip().startswith("{")]
+
+
+try:
+    am = meta_console([{"observe": "csrbt-fixture"},
+                       {"call": "csrbt_fixture__ok", "expires_at": "2001-01-01T00:00:00+00:00"},
+                       {"call": "csrbt_fixture__ok", "if_stamp": "sdeadbeef0000"},
+                       {"call": "csrbt_fixture__ok"}])
+    def _err(x):
+        return (x["answer"].get("error") or {}).get("message", "")
+    def _body(x):
+        r = x["answer"].get("result", {})
+        return json.loads(r["content"][0]["text"]) if "content" in r else {}
+    ck(len(am) == 4, "the meta console played all four moves: %d" % len(am))
+    ck(len(am) == 4 and "stale" in _err(am[1]) and "expired at 2001-01-01T00:00:00+00:00" in _err(am[1]),
+       "a `call` move with an `expires_at` in the past reaches the gateway through _meta and is "
+       "refused `stale`, naming the deadline -- ADR-222's field, which the fifth trial's operators "
+       "could not send: %s" % (_err(am[1])[:90] if len(am) > 1 else "no move 1"))
+    ck(len(am) == 4 and "stale" in _err(am[2]) and "moved since the snapshot stamped sdeadbeef0000" in _err(am[2]),
+       "a `call` move with an `if_stamp` that the target has moved past is refused `stale`, naming "
+       "the stamp: ACT ONLY IF THE TARGET IS STILL THAT, offered to the operator at last: %s"
+       % (_err(am[2])[:90] if len(am) > 2 else "no move 2"))
+    ck(len(am) == 4 and _body(am[3]).get("ok") is True,
+       "and a plain `call`, naming neither, still runs: a host that never heard of the two fields "
+       "is the default: %s" % (_body(am[3]) if len(am) > 3 else "no move 3"))
+finally:
+    shutil.rmtree(sdir_m, ignore_errors=True)
+
 src_bc = io.open(BL, encoding="utf-8").read()
+ck('meta = {k: m[k] for k in ("expires_at", "if_stamp") if m.get(k) is not None}' in src_bc
+   and 'if meta:' in src_bc,
+   "the two fields ride in _meta ONLY when the move names them, so a move that carries neither is "
+   "byte-for-byte the call it always was (ADR-228)")
 ck('SUPERVISED = ("SENSITIVE_READ", "DRAFT", "MUTATE")' in src_bc
    and "rungs or SUPERVISED" in src_bc,
    "and the DEFAULT is still the supervised three: an operator that can wipe the store is not "

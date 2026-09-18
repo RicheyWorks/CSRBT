@@ -1167,10 +1167,15 @@
    "by": "adr227",
    "sha": "d263bb9e69ef350d2d31caf09f4fdf5bcecac2301353f85e7b600ab2d79da282"
   },
+  "docs/ADR-228-the-two-fields-an-operator-could-not-send-2026-09-18.md": {
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "dfb60e86c10737be0a59651626bf0acbca4d3166d6fe041d23f2dabfeb73d19b"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1789718066,
-   "by": "adr227",
-   "sha": "ae0b064e1c5c1576403a28d49f11f35f99fc811e18841b145f082874bc6d289b"
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "f5529bda409824c2a4570bc78f5782bab8d87f5861bf5ea3d4ffd53d6e983c12"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -2274,6 +2279,11 @@
    "by": "adr227",
    "sha": "abb014c3c9e932ecffc282f0fe167f133ed9396a937579440ba21aa8fbeabd82"
   },
+  "docs/CHANGELOG-2026-09-18-adr228-the-two-fields-an-operator-could-not-send.md": {
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "3b83c770e94b9f01f9a97689daa60e25045093b27d1cc3209ed56a7eb890a754"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2980,10 +2990,9 @@
    "sha": "06b1da984558607743a04eded228ec4acf1d43fff04f5bc5ed7a9d03540f06f5"
   },
   "tools/blind_console.py": {
-   "at": 1789690114,
-   "by": "adr194",
-   "evidence": "git",
-   "sha": "251ff2bdfe3accd3ae1d4816e52735185fe42c241eb9722514758443171fb249"
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "5a2a1519cd6baec28abc5929dce1ea14381a9611275ff8d882aedd3cb4f764dc"
   },
   "tools/carried_ledger.json": {
    "at": 1789718066,
@@ -3439,10 +3448,15 @@
    "by": "adr227",
    "sha": "26f405e172ec274c1f1134e8e862569c990dcecf4a82f261ad2306f15c3097a5"
   },
+  "tools/delivery/adr228.json": {
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "8a38fc22ae275ee5864173e1aecc33d7fb49c4dae4b42eeb6c819cc889006d7a"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1789718066,
-   "by": "adr227",
-   "sha": "eb07d8223485ed45ecec2dfd6610e98cb89b413e0a7e52293af95dc833ff41ef"
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "7fcc3474a169409f040940125d17ee1430f528fd79b93b761569d15861e23cb7"
   },
   "tools/destructive_ledger.json": {
    "at": 1789718066,
@@ -3553,9 +3567,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1789718066,
-   "by": "adr227",
-   "sha": "fb6be6f8bf1286158745aaf264abc70d314015ef6e1ea3cc76a5c567f164bd81"
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "e6bab107d3a9f6fd55fa8a6a9b1ece152aa2b751f0817a877b019d9274f1ea52"
   },
   "tools/harness_board.py": {
    "at": 1789718066,
@@ -3655,9 +3669,9 @@
    "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
   },
   "tools/mutant_ledger.json": {
-   "at": 1789718066,
-   "by": "adr227",
-   "sha": "56235c3a79de44e44bc8cf1b699f87b4ec64280676f08006165f0c2ef423917a"
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "92a841f8a15abde0cfca0680f570fa6d1af023a8bb8d6c5516b12e5e32941e07"
   },
   "tools/mutant_ledger.py": {
    "at": 1788676926,
@@ -3707,9 +3721,9 @@
    "sha": "a77c8ec78f8f78ca72cceac4281c94b753eea8da683bced1440dbdcf01d36fd4"
   },
   "tools/mutate_contract.py": {
-   "at": 1789711865,
-   "by": "adr222",
-   "sha": "8d48a44665b34d26c000f26003f5534f81efc0dd997e7cf2231dc4b213474874"
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "8506347fdc08201a873c4d437b2bc56f00a3b2eba7f7d77a25459afacde09980"
   },
   "tools/mutate_declared.py": {
    "at": 1789711865,
@@ -3895,9 +3909,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1789718066,
-   "by": "adr227",
-   "sha": "bf7fe5753735abb696854121049e3727523f8cef51e32fca274d1384f88e1866"
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "08a76d58b67f1cb4e11177d22a6e143bcfa6556d98cb23934684ff4dba146e48"
   },
   "tools/push/push-adr225-siblings.ps1": {
    "at": 1789713249,
@@ -4283,6 +4297,51 @@
    "by": "adr187",
    "sha": "645b3bb8979975aa91adc3a89af8b1f55c7abe6e1502520e2a6ddd230d3a14f5"
   },
+  "tools/traces/blind6/PROVENANCE.md": {
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "a4fc1aa4b9d0c4fa756a1d9ee34ba78891b43f3eef5d976358a27736eafce938"
+  },
+  "tools/traces/blind6/page-greenhouse-science.jsonl.gz": {
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "0c5ca5fa6f45a796b086a6fcf0895ebaefa1a400c66415d51163661299b5e2aa"
+  },
+  "tools/traces/blind6/page-soil-bench-science.jsonl.gz": {
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "c042e773c054e7ea8ae77bdd29ee279eba29ae1b344efc2a56c997dcd1c17406"
+  },
+  "tools/traces/blind6/page-survey-design-science.jsonl.gz": {
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "38f063c25ef2147dc0b358946d2c506538d99234623b1ed4791333768bf73c13"
+  },
+  "tools/traces/blind6/page-tree-visualizer-science.jsonl.gz": {
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "7287977ffe3a42de56b0bec7362bf5bcc81dc0e72d2c963347ac0180a80cc95e"
+  },
+  "tools/traces/blind6/tasks/page-greenhouse-science.json": {
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "90f702b8dc2d1d0cbdf074d07da12c56e4e35e6559dacd003a83e4c076f530ac"
+  },
+  "tools/traces/blind6/tasks/page-soil-bench-science.json": {
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "eaaf77bb71dbb4c2d785c214a6c9bbd69bcc283925cd29f4c8cbbc345190c9b3"
+  },
+  "tools/traces/blind6/tasks/page-survey-design-science.json": {
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "06718f7c57e3309d2851e8f7b79ad88b15636ab4e61178becbd0bc08e1dcb7ce"
+  },
+  "tools/traces/blind6/tasks/page-tree-visualizer-science.json": {
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "74bb7dbae3e58aed5ff9678c467de6411be578264c99d911b4f2f54e0dfa3c7f"
+  },
   "tools/verify/README.md": {
    "at": 1788676929,
    "by": "adr146b",
@@ -4304,9 +4363,9 @@
    "sha": "b5a35ba0a1cdc46ec58d68e733a4d59aef5c26fe1ccf964894107a9be47e6ae6"
   },
   "tools/verify/counts.json": {
-   "at": 1789718066,
-   "by": "adr227",
-   "sha": "5cf9048a49a5ebe9ec0daa7fdedb4b9a9f2aa4b47b3a16bb6a36a02925ae0d29"
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "35ca2dde36e8173d2431f6a2c3eb5e0494ccd5bf93732cdb5600d46eeee17fdb"
   },
   "tools/verify/run_all.py": {
    "at": 1789690114,
@@ -4599,10 +4658,9 @@
    "sha": "d1148f5d1030fdfdc018b11083f242b7e746116f621f9e381b570423b2d8a4f5"
   },
   "tools/verify/verify_mcp.py": {
-   "at": 1789690114,
-   "by": "adr194",
-   "evidence": "git",
-   "sha": "26f779adc1db8602837b8dc3b4018b1689541f5f42d572162efebb2fd21b20bf"
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "e4f5cc7394452cda0b5ea850be3c177d45a8a68788d22d74409e6c4b2b5d6d6e"
   },
   "tools/verify/verify_mutate.py": {
    "at": 1788676929,
@@ -4747,10 +4805,9 @@
    "sha": "9330dd1fdd9266f9e1939d672a1a78aa1e7b2b3ff0bdcc0dd7faa51335602c9c"
   },
   "tools/verify/verify_tasks.py": {
-   "at": 1789690114,
-   "by": "adr208",
-   "evidence": "git",
-   "sha": "9d3051cf0a4833bbfebf4a64ccbdc7ef075c10e26a7da541911b39791a40259c"
+   "at": 1789727863,
+   "by": "adr228",
+   "sha": "28780397d3221c7b6614574024a900b4c64580b5a1bab905b09c98abe78fe6ab"
   },
   "tools/verify/verify_tie_render.py": {
    "at": 1788676930,
@@ -4869,6 +4926,7 @@
   "adr224",
   "adr225",
   "adr226",
-  "adr227"
+  "adr227",
+  "adr228"
  ]
 }

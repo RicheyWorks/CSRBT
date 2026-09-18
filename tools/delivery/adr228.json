@@ -1,0 +1,35 @@
+{
+ "body": "ADR-222 gave the gateway if_stamp and expires_at and no operator could send either; blind_console now carries both in _meta, only when a move names them, so a plain call is unchanged. The sixth blind trial spent them on four pages no blind operator had touched -- greenhouse, soil bench, survey design, tree visualizer -- one attempt each, 55 of 78 outcomes and 239 of 285 claims in 171 calls. Every operator guarded its irreversible act with if_stamp and the door's refusal is in the trace: a stamp the target moved past refused stale on all four, a past expires_at refused expired, and after the guard the act ran. Found: every operator confused the report's inner stamp with the door's outer snapshot stamp (the next slice); and tree-visualizer makes 28 nodes where the task holds 24 because its random button draws until a key is new (filed). verify_mcp 93 to 98, verify_tasks 392 to 411, mutate_contract 103 to 105.",
+ "chain": "adr227",
+ "chain_probe": "docs/ADR-227-the-page-that-graded-everything-and-was-graded-by-nothing-2026-09-17.md",
+ "clean": [
+  "adr227"
+ ],
+ "id": "adr228",
+ "once": true,
+ "paths": [
+  "docs/ADR-228-the-two-fields-an-operator-could-not-send-2026-09-18.md",
+  "docs/CHANGELOG-2026-09-18-adr228-the-two-fields-an-operator-could-not-send.md",
+  "tools/blind_console.py",
+  "tools/verify/verify_mcp.py",
+  "tools/verify/verify_tasks.py",
+  "tools/mutate_contract.py",
+  "tools/traces/blind6/PROVENANCE.md",
+  "tools/traces/blind6/page-greenhouse-science.jsonl.gz",
+  "tools/traces/blind6/page-soil-bench-science.jsonl.gz",
+  "tools/traces/blind6/page-survey-design-science.jsonl.gz",
+  "tools/traces/blind6/page-tree-visualizer-science.jsonl.gz",
+  "tools/traces/blind6/tasks/page-greenhouse-science.json",
+  "tools/traces/blind6/tasks/page-soil-bench-science.json",
+  "tools/traces/blind6/tasks/page-survey-design-science.json",
+  "tools/traces/blind6/tasks/page-tree-visualizer-science.json",
+  "tools/delivery/adr228.json",
+  "docs/AI_HARNESS.md",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json"
+ ],
+ "subject": "ADR-228: the two things a command says about itself, given to the operator at last -- and the first four science pages no blind operator had ever driven"
+}
