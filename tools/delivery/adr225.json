@@ -1,0 +1,26 @@
+{
+ "body": "A composite build resolves includeBuild against the directory beside it. WholeHog's CI checks the siblings out one by one, by name, and the list was written when there were eleven; Rub and Sizzle joined settings.gradle.kts and never joined the workflow, so every push since has failed at configuration -- Included build ../Rub does not exist -- a red that looks like a broken build and is a missing directory. The September handoff had it as a known fact and nothing held it, because the two lists live in two files of one repo that nothing compared. ecosystem.py now reads an engine's CI checkouts off its workflow and its composite closure off its settings file, and ci_gap is the difference; a repo with no workflow answers None, which is NOT VERIFIED and not clean. verify_ecosystem holds every engine's gap to empty, one check per engine, written before the fix and failing on WholeHog with exactly Rub and Sizzle, plus a fixture in which a TRANSITIVE include is the one missing; 99 to 116, three mutants in mutate_engines. WholeHog's workflow checks out both now; it travels as WholeHog/ci/ci.yml and is installed by push-adr225-siblings.ps1, the operator's own command, for the reason ADR-223 gives. Thirteen of fourteen engines agreed with their builds; only WholeHog did not. Held: mutate_engines' mutant 'every test class is read under the same name' SURVIVED here and was killed on 3 September -- the check that kills it is NOT VERIFIED on a machine with no engine test results, recorded as found. AND THE OTHER LINE OF THE HANDOFF: SmokeHouse's concurrent-compaction test failure was this -- get() and range() read the log off-lock and re-resolve a bounded eight times when a compaction commit moves the address they hold, and a writer that overwrites the keyset and compacts back to back wins all eight; the ninth read is now taken under the store lock, where a commit cannot intervene, and settles it. 82 of 82. SmokeHouse.java travels in the sibling tarball and push-adr225-siblings.ps1 commits both repos.",
+ "chain": "adr224",
+ "chain_probe": "docs/ADR-224-the-slice-that-arrived-without-itself-2026-09-17.md",
+ "clean": [
+  "adr224"
+ ],
+ "id": "adr225",
+ "once": true,
+ "paths": [
+  "docs/ADR-225-a-build-that-included-thirteen-and-a-ci-that-fetched-eleven-2026-09-17.md",
+  "docs/CHANGELOG-2026-09-17-adr225-a-build-that-included-thirteen-and-a-ci-that-fetched-eleven.md",
+  "tools/ecosystem.py",
+  "tools/verify/verify_ecosystem.py",
+  "tools/mutate_engines.py",
+  "tools/push/push-adr225-siblings.ps1",
+  "tools/delivery/adr225.json",
+  "docs/AI_HARNESS.md",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json"
+ ],
+ "subject": "ADR-225: WholeHog's build includes thirteen siblings and its CI checked out eleven, so every push failed before a test ran"
+}

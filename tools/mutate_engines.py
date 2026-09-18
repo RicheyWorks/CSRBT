@@ -96,6 +96,22 @@ MUTANTS = [
      "an attestation records the engine digest as it stood"),
 ]
 
+MUTANTS += [
+    # ---- ADR-225: every engine's CI checks out what its composite build reaches ----
+    ("only the direct includes are asked for, so a transitive sibling is never missing",
+     '    need = set(composite_closure(repo)) - {repo}',
+     '    need = set(INCLUDE.findall(io.open(os.path.join(repo_dir(repo), "settings.gradle.kts"), encoding="utf-8").read())) if os.path.isfile(os.path.join(repo_dir(repo), "settings.gradle.kts")) else set()',
+     "missing the transitive one"),
+    ("a repo with no workflow reads as clean",
+     '    if not os.path.isdir(d):\n        return None\n    out = set()',
+     '    if not os.path.isdir(d):\n        return set()\n    out = set()',
+     "a repo with no workflow is NOT VERIFIED"),
+    ("the checkouts are read off the wrong line, so every engine is missing everything",
+     'CHECKOUT = re.compile(r"repository:\\s*RicheyWorks/([A-Za-z0-9_-]+)")',
+     'CHECKOUT = re.compile(r"path:\\s*RicheyWorks/([A-Za-z0-9_-]+)")',
+     "CI checks out every sibling its composite build includes"),
+]
+
 KNOWN_EQUIVALENT = []
 
 

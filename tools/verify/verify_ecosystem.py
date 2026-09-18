@@ -33,7 +33,7 @@ Run:  python3 tools/verify/verify_ecosystem.py
 # Declared for tools/mutate.py: the temp dir here holds a fixture LEDGER, not fixture pages: the ratchet's rule is driven against data that would break it (ADR-139)
 MUTATE_ROLE = "subject"
 
-import io, json, os, sys, time
+import io, json, os, shutil, sys, tempfile, time
 
 import _kit
 
@@ -72,6 +72,43 @@ ck(repos <= set(closure) if closure else True,
 siblings = closure
 ck(len(E.ENGINES) == 15 and len(listed) == 15,
    "fifteen suites: fourteen engines, with CSRBT's two modules read separately")
+
+# ---- 1b. every engine's CI checks out what its composite build reaches (ADR-225) ---
+# The closure is read off settings.gradle.kts and the checkouts off the workflow,
+# so the claim is held to two files that each repo owns and nothing this suite
+# remembers. WholeHog's workflow named eleven siblings and its build included
+# thirteen: red on every push since Rub and Sizzle joined, a failure that
+# happens at configuration and never reaches a test.
+if siblings:
+    for _repo in sorted(repos):
+        _gap = E.ci_gap(_repo) if os.path.isdir(E.repo_dir(_repo)) else None
+        if _gap is None:
+            unverified.append("%s: no CI workflow beside this repo to hold to its build" % _repo)
+            continue
+        ck(_gap == [],
+           "%s: CI checks out every sibling its composite build includes -- missing %s" % (_repo, _gap))
+else:
+    unverified.append("CI checkouts: no siblings beside this repo to read")
+_fx = tempfile.mkdtemp(prefix="eco_ci_")
+try:
+    for _r, _inc, _wf in (("Root", ("Mid",), "repository: RicheyWorks/Mid\n"),
+                          ("Mid", ("Leaf",), None),
+                          ("Leaf", (), "repository: RicheyWorks/Nobody\n")):
+        os.makedirs(os.path.join(_fx, _r, ".github", "workflows") if _wf else os.path.join(_fx, _r))
+        io.open(os.path.join(_fx, _r, "settings.gradle.kts"), "w", encoding="utf-8").write(
+            "".join('includeBuild("../%s")\n' % i for i in _inc))
+        if _wf:
+            io.open(os.path.join(_fx, _r, ".github", "workflows", "ci.yml"), "w", encoding="utf-8").write(_wf)
+    _was = E.SIBLINGS
+    E.SIBLINGS = _fx
+    ck(E.ci_gap("Root") == ["Leaf"],
+       "(the fixture) a CI that checks out a direct include and not what that include includes is "
+       "missing the transitive one: %s" % E.ci_gap("Root"))
+    ck(E.ci_gap("Mid") is None, "a repo with no workflow is NOT VERIFIED, not clean: %s" % E.ci_gap("Mid"))
+    ck(E.ci_gap("Leaf") == [], "a repo whose build includes nothing is clean whatever it checks out")
+finally:
+    E.SIBLINGS = _was
+    shutil.rmtree(_fx, ignore_errors=True)
 
 # ---- 2. every listed repo exists ---------------------------------------------
 present = {repo for _, repo, _, _ in E.ENGINES if os.path.isdir(E.repo_dir(repo))}

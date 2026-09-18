@@ -100,6 +100,39 @@ def composite_closure(start="WholeHog"):
     return sorted(seen)
 
 
+CHECKOUT = re.compile(r"repository:\s*RicheyWorks/([A-Za-z0-9_-]+)")
+
+
+def ci_checkouts(repo):
+    """The sibling repos an engine's CI checks out beside itself, read off its
+    workflow files. None when the repo has no workflow -- which is not the same
+    as checking out nothing."""
+    d = os.path.join(repo_dir(repo), ".github", "workflows")
+    if not os.path.isdir(d):
+        return None
+    out = set()
+    for f in sorted(os.listdir(d)):
+        if f.endswith((".yml", ".yaml")):
+            out.update(CHECKOUT.findall(io.open(os.path.join(d, f), encoding="utf-8").read()))
+    return out
+
+
+def ci_gap(repo):
+    """The siblings an engine's composite build reaches that its CI does not
+    check out (ADR-225) -> sorted list, or None with no workflow.
+
+    A composite build resolves `includeBuild("../X")` against the directory
+    beside it, so a CI job that checks out the repo alone -- or eleven of the
+    thirteen it includes -- fails at configuration, on every push, before a
+    single test runs. WholeHog's did, for Rub and Sizzle, from the day those two
+    were included."""
+    got = ci_checkouts(repo)
+    if got is None:
+        return None
+    need = set(composite_closure(repo)) - {repo}
+    return sorted(need - got)
+
+
 def newest_source(repo, module):
     """The newest mtime under the module's src/, or 0. Results older than
     the sources they claim to test are stale evidence, not a shrunken suite."""
