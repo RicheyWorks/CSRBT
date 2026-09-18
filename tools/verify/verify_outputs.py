@@ -258,6 +258,38 @@ ck(rc == 0 and led["declared"]["pr"] == "a print is the browser's, not the page'
 bad2 = A.blind(r, A.declared_of(A.load(), "fixture.html"))
 ck(bad2 == ["behind", "dl", "late"],
    "a declared output leaves the worklist -- and only that one: %s" % bad2)
+
+# ---- THE EXEMPTION RECORDS WHAT IT TOOK OUT (ADR-224) ----------------------
+# Filtering the finding out of the list and writing the filtered list to the
+# ledger discarded the evidence at the moment the exemption was applied, and no
+# reader in the kit could then tell a declaration covering a real finding from
+# one naming a thing the page no longer has. The rule lives in tools/exempt.py
+# and is asserted HERE, through this audit's own reading, so that a copy of it
+# that filtered quietly would fail this suite and not only the reader's.
+with contextlib.redirect_stdout(io.StringIO()):
+    A.main([])
+_row = json.load(io.open(A.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
+ck('pr' in (_row.get("raw") or []) and 'pr' not in (_row.get("unread") or []),
+   "the row records what was flagged BEFORE the exemption under `raw`, beside the filtered "
+   "list it always recorded -- the declared key is in one and not the other: raw %s, filtered %s"
+   % (_row.get("raw"), _row.get("unread")))
+ck(isinstance(_row.get("seen"), list) and set(_row.get("raw") or []) <= set(_row.get("seen") or [])
+   and set(_row.get("unread") or []) <= set(_row.get("raw") or []),
+   "...and everything the reading could have flagged under `seen`, with filtered within raw within "
+   "seen -- without the universe, `this finding is covered` and `this thing is gone` are the same "
+   "absence: seen %s" % _row.get("seen"))
+_live, _e = ["k1"], {}
+A.X.apply(_e, _live, {}, ["k1", "other"])
+_live.append("added after the record was written")
+ck(_e["raw"] == ["k1"] and _e["seen"] == ["k1", "other"],
+   "the record is a COPY, not the audit's live list: a row holding the list the audit goes on "
+   "using would be rewritten by whatever the audit did to it next: %s" % _e["raw"])
+ck(isinstance(_row.get("mute_raw"), list) and isinstance(_row.get("mute_seen"), list)
+   and _row.get("mute_raw") is not _row.get("raw"),
+   "A PAGE WITH TWO RATCHETS KEEPS TWO RAW LISTS, under two keys: mute_raw %s" % _row.get("mute_raw"))
+ck(_row.get("trap") is False,
+   "and the row carries the audit's own VERDICT on the page (trap), so a whole-page declaration "
+   "can be held to it: %s" % _row.get("trap"))
 rc = A.main(["--raise-floors"])
 led = json.load(io.open(A.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
 ck(led.get("ceiling") == 3,
@@ -350,6 +382,10 @@ ck(rc == 0 and led["trap.html"].get("no_outputs")
    % led["trap.html"].get("no_outputs"))
 ck(A.main([]) == 0,
    "a declared page passes. The exemption is a written judgement, not a silence")
+_trow = json.load(io.open(A.LEDGER, encoding="utf-8"))["pages"]["trap.html"]
+ck(_trow.get("trap") is True and _trow.get("buttons") == 0,
+   "...and its row says it IS a trap (the verdict), beside the declaration that excuses it -- "
+   "ADR-224 reads both: %s" % {k: _trow.get(k) for k in ("trap", "buttons", "no_outputs")})
 
 # ---- G. A SILENT BUTTON IS NOT AN OUTPUT (ADR-208) -------------------------
 #

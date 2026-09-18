@@ -16,7 +16,7 @@ import argparse, io, os, shutil, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, "tools")
-SUBJECT = ("audit_restored.py",)
+SUBJECT = ("audit_restored.py", "exempt.py")   # ADR-224: the shared rule is mutated here too
 
 KNOWN_EQUIVALENT = [
     ("the autosave is never flushed before the reload",
@@ -44,8 +44,8 @@ MUTANTS = [
      '        lost = list(lost)',
      "A PAGE THAT KEEPS WHAT IT HOLDS AND REPAINTS IT COMES BACK WHOLE"),
     ("a pane counts, so the same difference is counted twice under its container",
-     '                if k.split("/")[1] not in STATUS and k.split("/")[1] not in panes]',
-     '                if k.split("/")[1] not in STATUS]',
+     '        lost = [k for k in lost\n                if k.split("/")[1] not in STATUS and k.split("/")[1] not in panes]',
+     '        lost = [k for k in lost\n                if k.split("/")[1] not in STATUS]',
      "A PANE IS A CONTAINER, NOT A REPORT"),
     ("the autosave's own strip is taken off the list, so a restored page reports it as a loss",
      '    "keepBox": "the autosave\'s own strip',
@@ -78,14 +78,14 @@ MUTANTS = [
      '    return list(r.get("lost", []))',
      "a declared difference leaves the worklist"),
     ("declaring a difference needs no reason at all",
-     '        if not a.reason.strip():\n'
+     '        except ValueError:\n'
      '            print("declaring a difference expected needs --reason',
-     '        if False:\n'
+     '        except ValueError:\n            pass\n        if False:\n'
      '            print("declaring a difference expected needs --reason',
      "WITHOUT a reason is refused"),
     ("a declared difference keeps no reason, so the ledger says what but never why",
-     '        ledger.setdefault(page, {}).setdefault("declared", {})[key] = a.reason.strip()',
-     '        ledger.setdefault(page, {}).setdefault("declared", {})[key] = "yes"',
+     '        X.declare(state, page, key, a.reason)',
+     '        X.declare(state, page, key, "yes")',
      "THE REASON IS WHAT IS STORED, word for word"),
     ("the ratchet runs upward, so a page that lost something records it as the new normal",
      '        if a.raise_floors and (ceiling is None or len(bad) < ceiling):',
@@ -109,6 +109,31 @@ MUTANTS = [
      'KEEPERS = list(_ke.CONSUMERS)',
      'KEEPERS = ["releve.html"]',
      "THE PAGES THIS AUDIT WALKS ARE THE EMITTER'S LIST"),
+]
+
+
+MUTANTS += [
+    # ---- ADR-224: the shared rule, asserted through THIS audit's own reading ----
+    ("the exemption is applied and nothing is recorded",
+     '    entry[raw] = list(flagged)\n    entry[universe] = sorted(',
+     '    entry[universe] = sorted(',
+     "records what was flagged BEFORE the exemption"),
+    ("the raw list is recorded, and the universe is not",
+     '    entry[universe] = sorted(set(str(k) for k in seen) | set(str(k) for k in flagged))',
+     '    pass',
+     "everything the reading could have flagged"),
+    ("the record is what SURVIVED the filter, not what was flagged",
+     '    return [k for k in flagged if k not in declared]',
+     '    kept = [k for k in flagged if k not in declared]\n    entry[raw] = list(kept)\n    return kept',
+     "records what was flagged BEFORE the exemption"),
+    ("a reason of nothing but spaces will do",
+     '    if not (reason or "").strip():\n        raise ValueError("a declaration needs a reason")',
+     '    if reason is None:\n        raise ValueError("a declaration needs a reason")',
+     "WITHOUT a reason is refused"),
+    ("the row holds the audit's own live list rather than a copy of it",
+     '    flagged = list(flagged)\n    entry[raw] = list(flagged)',
+     '    entry[raw] = flagged',
+     "the record is a COPY"),
 ]
 
 

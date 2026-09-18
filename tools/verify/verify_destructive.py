@@ -367,6 +367,32 @@ ck(rc == 0 and led.get("declared", {}).get("clearBare")
 ck(A.bare(r, A.declared_of(A.load(), "fixture.html")) == [],
    "a declared control leaves the worklist: %s"
    % A.bare(r, A.declared_of(A.load(), "fixture.html")))
+
+# ---- THE EXEMPTION RECORDS WHAT IT TOOK OUT (ADR-224) ----------------------
+# Filtering the finding out of the list and writing the filtered list to the
+# ledger discarded the evidence at the moment the exemption was applied, and no
+# reader in the kit could then tell a declaration covering a real finding from
+# one naming a thing the page no longer has. The rule lives in tools/exempt.py
+# and is asserted HERE, through this audit's own reading, so that a copy of it
+# that filtered quietly would fail this suite and not only the reader's.
+with contextlib.redirect_stdout(io.StringIO()):
+    A.main([])
+_row = json.load(io.open(A.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
+ck('clearBare' in (_row.get("raw") or []) and 'clearBare' not in (_row.get("bare") or []),
+   "the row records what was flagged BEFORE the exemption under `raw`, beside the filtered "
+   "list it always recorded -- the declared key is in one and not the other: raw %s, filtered %s"
+   % (_row.get("raw"), _row.get("bare")))
+ck(isinstance(_row.get("seen"), list) and set(_row.get("raw") or []) <= set(_row.get("seen") or [])
+   and set(_row.get("bare") or []) <= set(_row.get("raw") or []),
+   "...and everything the reading could have flagged under `seen`, with filtered within raw within "
+   "seen -- without the universe, `this finding is covered` and `this thing is gone` are the same "
+   "absence: seen %s" % _row.get("seen"))
+_live, _e = ["k1"], {}
+A.X.apply(_e, _live, {}, ["k1", "other"])
+_live.append("added after the record was written")
+ck(_e["raw"] == ["k1"] and _e["seen"] == ["k1", "other"],
+   "the record is a COPY, not the audit's live list: a row holding the list the audit goes on "
+   "using would be rewritten by whatever the audit did to it next: %s" % _e["raw"])
 ck(A.main([]) == 0,
    "...and the page passes at a ceiling of zero, because the exemption is a written judgement "
    "rather than a silence")

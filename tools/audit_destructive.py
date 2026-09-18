@@ -47,6 +47,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path.insert(0, HERE)
 import harness as H
+import exempt as X
 import audit_states as S
 import harness_plugin_page as PP
 
@@ -91,8 +92,7 @@ def save(state):
 
 
 def declared_of(state, name):
-    return dict((k, v) for k, v in
-                (state.get("pages", {}).get(name, {}).get("declared") or {}).items())
+    return X.declared_of(state, name)
 
 
 def key_of(c):
@@ -494,12 +494,13 @@ def main(argv):
             print("--declare takes PAGE:KEY, e.g. 'ethogram.html:tClear'")
             return 2
         page, key = a.declare.split(":", 1)
-        if not a.reason.strip():
+        try:
+            X.declare(state, page, key, a.reason)
+        except ValueError:
             print("declaring a bulk remover exempt needs --reason: a control that takes a sheet "
                   "without\nasking is either a defect or a judgement, and only the reason says "
                   "which")
             return 2
-        ledger.setdefault(page, {}).setdefault("declared", {})[key] = a.reason.strip()
         save(state)
         print("%s: %s declared right to ask nothing" % (page, key))
         return 0
@@ -522,13 +523,13 @@ def main(argv):
         if not r.get("controls"):
             continue
         dec = declared_of(state, name)
-        bad = bare(r, dec)
+        e = ledger.setdefault(name, {})
+        bad = X.apply(e, bare(r, {}), dec, [x["key"] for x in r["controls"]])   # ADR-224
         c = counts(r)
         tot["bare"] += len(bad)
         tot["n"] += len(r["controls"])
         for k in ("asks", "one", "nothing"):
             tot[k] += c.get(k, 0)
-        e = ledger.setdefault(name, {})
         ceiling = e.get("ceiling")
         if ceiling is not None and len(bad) > ceiling:
             above.append((name, len(bad), ceiling, bad))

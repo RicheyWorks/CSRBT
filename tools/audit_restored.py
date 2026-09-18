@@ -51,6 +51,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path.insert(0, HERE)
 import harness as H
+import exempt as X
 import audit_states as S
 import harness_plugin_page as PP
 
@@ -130,8 +131,7 @@ def save(state):
 
 
 def declared_of(state, name):
-    return dict((k, v) for k, v in
-                (state.get("pages", {}).get(name, {}).get("declared") or {}).items())
+    return X.declared_of(state, name)
 
 
 def flat(rep):
@@ -195,8 +195,10 @@ def measure(ctx, name, tasks_dir=None):
             panes = set()
         lost = [k for k in lost
                 if k.split("/")[1] not in STATUS and k.split("/")[1] not in panes]
+        keys = [k for k in sorted(before)
+                if k.split("/")[1] not in STATUS and k.split("/")[1] not in panes]
         return {"restored": restored, "before": len(before), "after": len(after),
-                "lost": lost, "errors": errs[:3]}
+                "keys": keys, "lost": lost, "errors": errs[:3]}
     except Exception as exc:
         return {"error": str(exc).split("\n")[0][:140]}
     finally:
@@ -255,11 +257,12 @@ def main(argv):
             print("--declare takes PAGE:KEY, e.g. 'releve.html:box/keepBox'")
             return 2
         page, key = a.declare.split(":", 1)
-        if not a.reason.strip():
+        try:
+            X.declare(state, page, key, a.reason)
+        except ValueError:
             print("declaring a difference expected needs --reason: a page that comes back saying "
                   "something\nelse is either broken or right, and only the reason says which")
             return 2
-        ledger.setdefault(page, {}).setdefault("declared", {})[key] = a.reason.strip()
         save(state)
         print("%s: %s declared right to come back different" % (page, key))
         return 0
@@ -280,11 +283,11 @@ def main(argv):
             print("%-30s %6s %6s %6s   %s" % (name, "-", "-", "-", r["error"]))
             continue
         dec = declared_of(state, name)
-        bad = losses(r, dec)
+        e = ledger.setdefault(name, {})
+        bad = X.apply(e, r.get("lost", []), dec, r.get("keys", []))      # ADR-224
         tot["lost"] += len(bad)
         tot["said"] += r.get("before", 0)
         tot["back"] += r.get("after", 0)
-        e = ledger.setdefault(name, {})
         ceiling = e.get("ceiling")
         if ceiling is not None and len(bad) > ceiling:
             above.append((name, len(bad), ceiling, bad))

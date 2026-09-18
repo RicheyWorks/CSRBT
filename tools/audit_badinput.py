@@ -89,6 +89,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path.insert(0, HERE)
 import harness as H
+import exempt as X
 import audit_states as S
 import harness_plugin_page as PP
 
@@ -206,8 +207,7 @@ def save(state):
 
 
 def declared_of(state, name):
-    return dict((k, v) for k, v in
-                (state.get("pages", {}).get(name, {}).get("declared") or {}).items())
+    return X.declared_of(state, name)
 
 
 def _num(s):
@@ -430,12 +430,13 @@ def main(argv):
             print("--declare takes PAGE:ID, e.g. releve.html:rvCover")
             return 2
         page, eid = a.declare.split(":", 1)
-        if not a.reason.strip():
+        try:
+            X.declare(state, page, eid, a.reason)
+        except ValueError:
             print("declaring a box exempt needs --reason: it goes into the ledger, and a list of "
                   "boxes\nthis audit is choosing not to care about is only useful if each line "
                   "says why")
             return 2
-        ledger.setdefault(page, {}).setdefault("declared", {})[eid] = a.reason.strip()
         save(state)
         print("%s: %s declared exempt" % (page, eid))
         return 0
@@ -459,14 +460,14 @@ def main(argv):
         if not r.get("fields"):
             continue
         dec = declared_of(state, name)
-        bad = blind(r, dec)
+        e = ledger.setdefault(name, {})
+        bad = X.apply(e, blind(r, {}), dec, [_key(f) for f in r.get("fields", [])])   # ADR-224
         c = counts(r)
         tot["blind"] += len(bad)
         tot["tells"] += c.get("tells", 0)
         tot["inert"] += c.get("inert", 0)
         tot["unreachable"] += c.get("unreachable", 0)
         tot["nb"] += c.get("no-bad-input", 0)
-        e = ledger.setdefault(name, {})
         ceiling = e.get("ceiling")
         if ceiling is not None and len(bad) > ceiling:
             above.append((name, len(bad), ceiling))

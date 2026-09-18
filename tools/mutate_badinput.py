@@ -16,7 +16,7 @@ import argparse, io, os, shutil, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, "tools")
-SUBJECT = ("audit_badinput.py",)
+SUBJECT = ("audit_badinput.py", "exempt.py")   # ADR-224: the shared rule is mutated here too
 
 MUTANTS = [
     # ---- the subject ----
@@ -100,11 +100,11 @@ MUTANTS = [
      '            if f.get("verdict") == "cannot-tell"]',
      "leaves the worklist"),
     ("a box may be declared exempt with no reason given",
-     '        if not a.reason.strip():',
-     '        if False:',
+     '        except ValueError:\n            print("declaring a box exempt needs --reason',
+     '        except ValueError:\n            pass\n        if False:\n            print("declaring a box exempt needs --reason',
      "WITHOUT a reason is refused"),
     ("the reason is not what is stored",
-     '        ledger.setdefault(page, {}).setdefault("declared", {})[eid] = a.reason.strip()',
+     '        X.declare(state, page, eid, a.reason)',
      '        ledger.setdefault(page, {}).setdefault("declared", {})[eid] = ""',
      "the reason is what is stored"),
     ("a plain run lowers the ceilings, so nothing can ever be above one",
@@ -133,6 +133,31 @@ KNOWN_EQUIVALENT = [
      "the next set-text overwrites it. Typing it would be slower and no fixture can tell the "
      "two apart -- which is the point of ADR-150's own held claim that type-text is for the "
      "cases where the difference matters, not a replacement."),
+]
+
+
+MUTANTS += [
+    # ---- ADR-224: the shared rule, asserted through THIS audit's own reading ----
+    ("the exemption is applied and nothing is recorded",
+     '    entry[raw] = list(flagged)\n    entry[universe] = sorted(',
+     '    entry[universe] = sorted(',
+     "records what was flagged BEFORE the exemption"),
+    ("the raw list is recorded, and the universe is not",
+     '    entry[universe] = sorted(set(str(k) for k in seen) | set(str(k) for k in flagged))',
+     '    pass',
+     "everything the reading could have flagged"),
+    ("the record is what SURVIVED the filter, not what was flagged",
+     '    return [k for k in flagged if k not in declared]',
+     '    kept = [k for k in flagged if k not in declared]\n    entry[raw] = list(kept)\n    return kept',
+     "records what was flagged BEFORE the exemption"),
+    ("a reason of nothing but spaces will do",
+     '    if not (reason or "").strip():\n        raise ValueError("a declaration needs a reason")',
+     '    if reason is None:\n        raise ValueError("a declaration needs a reason")',
+     "WITHOUT a reason is refused"),
+    ("the row holds the audit's own live list rather than a copy of it",
+     '    flagged = list(flagged)\n    entry[raw] = list(flagged)',
+     '    entry[raw] = flagged',
+     "the record is a COPY"),
 ]
 
 

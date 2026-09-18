@@ -33,7 +33,7 @@ things is wrong, so a fixture pins each of them:
 Run:  python3 tools/verify/verify_badinput.py
 """
 MUTATE_ROLE = "subject"
-import io, json, os, sys, tempfile
+import contextlib, io, json, os, sys, tempfile
 
 import _kit
 
@@ -287,6 +287,32 @@ ck(rc == 0 and led["declared"]["nBlind"] == "a rehearsal, not a reading",
 bad2 = B.blind(r, B.declared_of(B.load(), "fixture.html"))
 ck(bad2 == ["nBehind", "nFlip", "nMade"],
    "a declared box leaves the worklist -- and only that box: %s" % bad2)
+
+# ---- THE EXEMPTION RECORDS WHAT IT TOOK OUT (ADR-224) ----------------------
+# Filtering the finding out of the list and writing the filtered list to the
+# ledger discarded the evidence at the moment the exemption was applied, and no
+# reader in the kit could then tell a declaration covering a real finding from
+# one naming a thing the page no longer has. The rule lives in tools/exempt.py
+# and is asserted HERE, through this audit's own reading, so that a copy of it
+# that filtered quietly would fail this suite and not only the reader's.
+with contextlib.redirect_stdout(io.StringIO()):
+    B.main([])
+_row = json.load(io.open(B.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
+ck('nBlind' in (_row.get("raw") or []) and 'nBlind' not in (_row.get("blind") or []),
+   "the row records what was flagged BEFORE the exemption under `raw`, beside the filtered "
+   "list it always recorded -- the declared key is in one and not the other: raw %s, filtered %s"
+   % (_row.get("raw"), _row.get("blind")))
+ck(isinstance(_row.get("seen"), list) and set(_row.get("raw") or []) <= set(_row.get("seen") or [])
+   and set(_row.get("blind") or []) <= set(_row.get("raw") or []),
+   "...and everything the reading could have flagged under `seen`, with filtered within raw within "
+   "seen -- without the universe, `this finding is covered` and `this thing is gone` are the same "
+   "absence: seen %s" % _row.get("seen"))
+_live, _e = ["k1"], {}
+B.X.apply(_e, _live, {}, ["k1", "other"])
+_live.append("added after the record was written")
+ck(_e["raw"] == ["k1"] and _e["seen"] == ["k1", "other"],
+   "the record is a COPY, not the audit's live list: a row holding the list the audit goes on "
+   "using would be rewritten by whatever the audit did to it next: %s" % _e["raw"])
 rc = B.main(["--raise-floors"])
 led = json.load(io.open(B.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
 ck(led.get("ceiling") == 3,

@@ -14,7 +14,7 @@ import argparse, io, os, shutil, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, "tools")
-SUBJECT = ("audit_outputs.py",)
+SUBJECT = ("audit_outputs.py", "exempt.py")   # ADR-224: the shared rule is mutated here too
 
 MUTANTS = [
     # ---- what counts as a candidate ----
@@ -71,12 +71,12 @@ MUTANTS = [
      '        e.update({"unread": bad, "mute": [], "buttons": len(r["buttons"]),',
      "the ledger carries the NAME"),
     ("a silent button can be declared right with no reason given",
-     '        if not a.reason.strip():\n            print("declaring a silent button exempt needs --reason',
-     '        if False:\n            print("declaring a silent button exempt needs --reason',
+     '        except ValueError:\n            print("declaring a silent button exempt needs --reason',
+     '        except ValueError:\n            pass\n        if False:\n            print("declaring a silent button exempt needs --reason',
      "exempt WITHOUT a reason is refused"),
     ("a declared silent button keeps no reason, so the ledger says what but never why",
-     '        ledger.setdefault(page, {}).setdefault("mute_declared", {})[key] = a.reason.strip()',
-     '        ledger.setdefault(page, {}).setdefault("mute_declared", {})[key] = "yes"',
+     '        X.declare(state, page, key, a.reason, "mute_declared")',
+     '        X.declare(state, page, key, "yes", "mute_declared")',
      "THE REASON IS WHAT IS STORED, word for word"),
     ("a risen mute ceiling is printed and the audit still exits zero",
      '    return 1 if (above or traps or loud) else 0',
@@ -114,9 +114,9 @@ MUTANTS = [
      "exempt without a reason is refused"),
     ("a page with no outputs gets no ledger row, only a printed line",
      '            e = ledger.setdefault(name, {})\n'
-     '            e.update({"unread": [], "mute": [], "buttons": 0, "task": r.get("task"),',
+     '            why = e.get("no_outputs")',
      '            e = {}\n'
-     '            e.update({"unread": [], "mute": [], "buttons": 0, "task": r.get("task"),',
+     '            why = e.get("no_outputs")',
      "IN THE LEDGER at zero outputs"),
     ("what a page takes in is counted from a list of its own rather than the kit's",
      'ENTRY_KINDS = frozenset(H.TYPED) | frozenset(["slider", "checkbox", "select"])',
@@ -187,12 +187,18 @@ MUTANTS = [
      "leaves the worklist"),
     ("an output may be declared exempt with no reason given",
      '''        page, key = a.declare.split(":", 1)
-        if not a.reason.strip():''',
+        try:
+            X.declare(state, page, key, a.reason)
+        except ValueError:''',
      '''        page, key = a.declare.split(":", 1)
+        try:
+            X.declare(state, page, key, a.reason)
+        except ValueError:
+            pass
         if False:''',
      "WITHOUT a reason is refused"),
     ("the reason is not what is stored",
-     '        ledger.setdefault(page, {}).setdefault("declared", {})[key] = a.reason.strip()',
+     '        X.declare(state, page, key, a.reason)',
      '        ledger.setdefault(page, {}).setdefault("declared", {})[key] = ""',
      "the reason is what is stored"),
     ("a plain run lowers the ceilings, so nothing can ever be above one",
@@ -220,6 +226,31 @@ KNOWN_EQUIVALENT = [
      "a fixture can reach. The id is preferred because it is what a task's selector usually "
      "names, and a page that grew two buttons with one label would key them together -- which "
      "is a fact about pages that do not exist yet."),
+]
+
+
+MUTANTS += [
+    # ---- ADR-224: the shared rule, asserted through THIS audit's own reading ----
+    ("the exemption is applied and nothing is recorded",
+     '    entry[raw] = list(flagged)\n    entry[universe] = sorted(',
+     '    entry[universe] = sorted(',
+     "records what was flagged BEFORE the exemption"),
+    ("the raw list is recorded, and the universe is not",
+     '    entry[universe] = sorted(set(str(k) for k in seen) | set(str(k) for k in flagged))',
+     '    pass',
+     "everything the reading could have flagged"),
+    ("the record is what SURVIVED the filter, not what was flagged",
+     '    return [k for k in flagged if k not in declared]',
+     '    kept = [k for k in flagged if k not in declared]\n    entry[raw] = list(kept)\n    return kept',
+     "records what was flagged BEFORE the exemption"),
+    ("a reason of nothing but spaces will do",
+     '    if not (reason or "").strip():\n        raise ValueError("a declaration needs a reason")',
+     '    if reason is None:\n        raise ValueError("a declaration needs a reason")',
+     "WITHOUT a reason is refused"),
+    ("the row holds the audit's own live list rather than a copy of it",
+     '    flagged = list(flagged)\n    entry[raw] = list(flagged)',
+     '    entry[raw] = flagged',
+     "the record is a COPY"),
 ]
 
 

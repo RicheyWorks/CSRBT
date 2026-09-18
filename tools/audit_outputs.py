@@ -85,6 +85,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path.insert(0, HERE)
 import harness as H
+import exempt as X
 import audit_states as S
 import harness_plugin_page as PP
 
@@ -156,8 +157,7 @@ def save(state):
 
 
 def declared_of(state, name):
-    return dict((k, v) for k, v in
-                (state.get("pages", {}).get(name, {}).get("declared") or {}).items())
+    return X.declared_of(state, name)
 
 
 def key_of(c):
@@ -322,8 +322,7 @@ def blind(r, declared):
 
 
 def muted_of(state, name):
-    return dict((k, v) for k, v in
-                (state.get("pages", {}).get(name, {}).get("mute_declared") or {}).items())
+    return X.declared_of(state, name, "mute_declared")
 
 
 def mute(r, declared):
@@ -393,12 +392,13 @@ def main(argv):
             print("--declare-mute takes PAGE:KEY, e.g. 'cp-bench.html:Copy recipe'")
             return 2
         page, key = a.declare_mute.split(":", 1)
-        if not a.reason.strip():
+        try:
+            X.declare(state, page, key, a.reason, "mute_declared")
+        except ValueError:
             print("declaring a silent button exempt needs --reason: a button named for handing\n"
                   "something over that hands nothing over is either broken or right, and only "
                   "the\nreason says which")
             return 2
-        ledger.setdefault(page, {}).setdefault("mute_declared", {})[key] = a.reason.strip()
         save(state)
         print("%s: %s declared right to be silent" % (page, key))
         return 0
@@ -408,12 +408,13 @@ def main(argv):
             print("--declare takes PAGE:KEY, e.g. ethogram.html:Copy budget CSV")
             return 2
         page, key = a.declare.split(":", 1)
-        if not a.reason.strip():
+        try:
+            X.declare(state, page, key, a.reason)
+        except ValueError:
             print("declaring an output exempt needs --reason: it goes into the ledger, and a "
                   "list of\noutputs this audit is choosing not to care about is only useful if "
                   "each line says why")
             return 2
-        ledger.setdefault(page, {}).setdefault("declared", {})[key] = a.reason.strip()
         save(state)
         print("%s: %s declared exempt" % (page, key))
         return 0
@@ -450,11 +451,17 @@ def main(argv):
             # hands nothing over is a DATA TRAP and must be declared, with a
             # reason, in the ledger where the judgement can be read.
             e = ledger.setdefault(name, {})
+            why = e.get("no_outputs")
+            # ADR-224: THE VERDICT IS WRITTEN, not only the numbers it is made
+            # from, so a whole-page declaration can be held to it: `trap` is
+            # what this audit would say with no declaration in the way.
             e.update({"unread": [], "mute": [], "buttons": 0, "task": r.get("task"),
                       "entry": r.get("entry", 0),
+                      "trap": bool(r.get("entry", 0) >= TRAP_ENTRY),
                       "counts": {"emits": 0, "held": 0, "silent": 0, "unreachable": 0},
                       "at": int(time.time())})
-            why = e.get("no_outputs")
+            X.apply(e, [], {}, [], raw="raw", universe="seen")
+            X.apply(e, [], {}, [], raw="mute_raw", universe="mute_seen")
             if r.get("entry", 0) >= TRAP_ENTRY and not why:
                 traps.append((name, r.get("entry", 0)))
             print("%-30s %6s %6d %6d %6d   %s"
@@ -466,15 +473,18 @@ def main(argv):
                                 % r.get("entry", 0))))
             continue
         dec = declared_of(state, name)
-        bad = blind(r, dec)
         mdec = muted_of(state, name)
-        qui = mute(r, mdec)
+        e = ledger.setdefault(name, {})
+        # ADR-224: A PAGE WITH TWO RATCHETS KEEPS TWO RAW LISTS, under two keys.
+        keys = [b["key"] for b in r.get("buttons", [])]
+        bad = X.apply(e, blind(r, {}), dec, keys)
+        qui = X.apply(e, mute(r, {}), mdec, keys, raw="mute_raw", universe="mute_seen")
+        e["trap"] = False
         c = counts(r)
         tot["blind"] += len(bad)
         tot["mute"] += len(qui)
         for k in ("emits", "held", "silent"):
             tot[k] += c.get(k, 0)
-        e = ledger.setdefault(name, {})
         ceiling = e.get("ceiling")
         if ceiling is not None and len(bad) > ceiling:
             above.append((name, len(bad), ceiling))

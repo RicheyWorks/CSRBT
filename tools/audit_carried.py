@@ -72,6 +72,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 sys.path.insert(0, HERE)
 import harness as H
+import exempt as X
 import audit_states as S
 import harness_plugin_page as PP
 import audit_outputs as AO
@@ -195,8 +196,7 @@ def save(state):
 
 
 def declared_of(state, name):
-    return dict((k, v) for k, v in
-                (state.get("pages", {}).get(name, {}).get("declared") or {}).items())
+    return X.declared_of(state, name)
 
 
 def payloads(pg, plug, name, tasks_dir=None, budget=24):
@@ -262,16 +262,16 @@ def measure(ctx, name, tasks_dir=None):
             return {"exports": len(got), "figures": 0, "lost": [], "noexport": True}
         pool = nums(blob)
         figs = (report(plug).get("figures") or {})
-        lost, n = [], 0
+        lost, labels = [], []
         for lab in sorted(figs):
             c = carried(figs[lab], pool)
             if c is None:
                 continue
-            n += 1
+            labels.append(lab)
             if not c:
                 lost.append(lab)
-        return {"exports": len(got), "bytes": len(blob), "figures": n,
-                "lost": lost, "noexport": False}
+        return {"exports": len(got), "bytes": len(blob), "figures": len(labels),
+                "labels": labels, "lost": lost, "noexport": False}
     except Exception as exc:
         return {"error": str(exc).split("\n")[0][:140]}
     finally:
@@ -325,12 +325,13 @@ def main(argv):
             print("--declare takes PAGE:LABEL, e.g. 'releve.html:taxa in pack'")
             return 2
         page, key = a.declare.split(":", 1)
-        if not a.reason.strip():
+        try:
+            X.declare(state, page, key, a.reason)
+        except ValueError:
             print("declaring a figure right to stay needs --reason: a number the page works out "
                   "and\nnever lets you take is either a defect or a property of the reference "
                   "data, and\nonly the reason says which")
             return 2
-        ledger.setdefault(page, {}).setdefault("declared", {})[key] = a.reason.strip()
         save(state)
         print("%s: %s declared right to stay on the screen" % (page, key))
         return 0
@@ -353,10 +354,12 @@ def main(argv):
         if r.get("noexport"):
             continue
         dec = declared_of(state, name)
-        bad = losses(r, dec)
+        e = ledger.setdefault(name, {})
+        # ADR-224: the exemption is applied by the one function that also
+        # records what it took out (raw) and what it could have (seen).
+        bad = X.apply(e, r.get("lost", []), dec, r.get("labels", []))
         tot["lost"] += len(bad)
         tot["figs"] += r.get("figures", 0)
-        e = ledger.setdefault(name, {})
         ceiling = e.get("ceiling")
         if ceiling is not None and len(bad) > ceiling:
             above.append((name, len(bad), ceiling, bad))
