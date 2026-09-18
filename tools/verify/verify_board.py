@@ -169,6 +169,31 @@ ck("all_green = all(ok for _n, ok, _t in GATES)" in _src,
    "list appears on the page the same day, where the old conjunction could be extended without "
    "the page ever mentioning it")
 
+# ---- 8. the page is the same page in every time zone (ADR-226) ----
+# Check 1 holds the committed page byte-for-byte to a fresh render, and the
+# stamps were rendered in LOCAL time, so the check was really 'this machine is
+# in the zone the page was rendered in': green in the container, red on the
+# operator's VM seven hours east of it, with every ledger identical.
+import time as _time
+_tz = os.environ.get("TZ")
+_seen = []
+for _zone in ("UTC", "Asia/Tokyo", "America/Los_Angeles"):
+    os.environ["TZ"] = _zone
+    _time.tzset()
+    _seen.append(B.render(L))
+if _tz is None:
+    os.environ.pop("TZ", None)
+else:
+    os.environ["TZ"] = _tz
+_time.tzset()
+ck(_seen[0] == _seen[1] == _seen[2],
+   "THE RENDER DOES NOT DEPEND ON THE MACHINE'S TIME ZONE -- the same ledgers in UTC, Tokyo and "
+   "Los Angeles are the same bytes, or the byte-for-byte check above is a check of where the "
+   "renderer stood")
+ck("every time on this page is UTC" in page, "...and the page says which zone its stamps are in")
+ck(B.when(0) == "—" and B.when(1789689600) == "2026-09-18 00:00",
+   "a stamp is the instant in UTC: %r" % B.when(1789689600))
+
 print("---")
 print("%d/%d" % (P, P + F))
 raise SystemExit(1 if F else 0)

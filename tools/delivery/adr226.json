@@ -1,0 +1,28 @@
+{
+ "body": "Write-Host with a dollar-dir-colon inside a string is a drive-qualified variable to PowerShell and a parse error; the whole file is refused before its first line executes. The main script had printed ADR225 pushed; the sibling one pushed nothing, so WholeHog's workflow and SmokeHouse's fix stayed on the operator's disk. --check compares every generated script to its manifest and the sibling script is hand-written, which is exactly the one nothing else holds. deliver.ps_parse_faults returns every such variable that is not one of the nine qualifiers PowerShell knows, with its line, and --check reads every script under tools/push, generated or not, naming the file, the line and the fix. Both lines are braced now. verify_delivery 76 to 82, mutate_delivery 60 to 63, all killed. Held: a real PowerShell parse; price, a pwsh where --check runs; trigger, the second class of parse fault a script ships with. And delivering it found a second thing: verify_board run on the operator's VM failed its byte-for-byte check with identical ledgers, because the board stamped readings in local time; stamps are UTC now, the footer says so, and verify_board holds the same ledgers to the same bytes under three zones, 118 to 121.",
+ "chain": "adr225",
+ "chain_probe": "docs/ADR-225-a-build-that-included-thirteen-and-a-ci-that-fetched-eleven-2026-09-17.md",
+ "clean": [
+  "adr225"
+ ],
+ "id": "adr226",
+ "once": true,
+ "paths": [
+  "docs/ADR-226-the-script-that-was-refused-before-its-first-line-2026-09-17.md",
+  "docs/CHANGELOG-2026-09-17-adr226-the-script-that-was-refused-before-its-first-line.md",
+  "tools/deliver.py",
+  "tools/verify/verify_delivery.py",
+  "tools/mutate_delivery.py",
+  "tools/push/push-adr225-siblings.ps1",
+  "tools/verify/verify_board.py",
+  "tools/harness_board.py",
+  "tools/delivery/adr226.json",
+  "docs/AI_HARNESS.md",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json"
+ ],
+ "subject": "ADR-226: push-adr225-siblings.ps1 was refused by PowerShell before its first line ran, and nothing in the kit had ever parsed a push script"
+}

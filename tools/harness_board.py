@@ -110,7 +110,12 @@ def esc(x):
 
 
 def when(ts):
-    return time.strftime("%Y-%m-%d %H:%M", time.localtime(ts)) if ts else "—"
+    # UTC, NOT LOCAL TIME. verify_board holds the committed page byte-for-byte to
+    # what the ledgers render, and a page stamped in the renderer's zone is a
+    # different page on every machine in a different one: the copy rendered in
+    # the container (UTC-7) failed that check on the operator's VM (UTC) with
+    # every ledger identical (ADR-226).
+    return time.strftime("%Y-%m-%d %H:%M", time.gmtime(ts)) if ts else "—"
 
 
 def pill(text, kind):
@@ -441,7 +446,7 @@ def render(L):
     o.append('<footer><span>Rendered from the ledgers by <span class="mono">tools/harness_board.py</span>: '
              '<span class="mono">counts.json</span>, <span class="mono">walk_ledger.json</span>, '
              '<span class="mono">task_ledger.json</span>, <span class="mono">mutant_ledger.json</span>, '
-             '<span class="mono">ecosystem_ledger.json</span>, <span class="mono">routes.json</span>; newest reading %s.'
+             '<span class="mono">ecosystem_ledger.json</span>, <span class="mono">routes.json</span>; newest reading %s; every time on this page is UTC.'
              '</span><span class="mono">nothing here was typed.</span></footer>'
              % esc(when(S["newest"])))
     o.append('</div>')

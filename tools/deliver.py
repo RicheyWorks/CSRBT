@@ -60,7 +60,7 @@ THE SECOND RUN (ADR-184)
   committed, and from then on the script's only legitimate work is a push
   that did not complete.
 """
-import argparse, glob, hashlib, io, json, os, subprocess, sys, time
+import argparse, glob, hashlib, io, json, os, re, subprocess, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
@@ -164,6 +164,28 @@ def _quoted_spans(s):
     """The text inside each pair of straight double quotes."""
     parts = s.split('"')
     return [parts[i] for i in range(1, len(parts), 2)]
+
+
+# ADR-225's sibling script never ran: `"!! $dir: git commit failed"` is a PARSE
+# error, because PowerShell reads `$dir:` as a drive-qualified variable (the
+# way `$env:PATH` and `$script:failed` are) and stops before the first line
+# executes. Every scope PowerShell knows is listed here; a variable followed
+# by a colon and anything else is a fault the script cannot survive.
+_PS_SCOPES = ("env", "script", "global", "local", "private", "using", "variable",
+              "function", "alias")
+_PS_DRIVE = re.compile(r"\$([A-Za-z_][A-Za-z0-9_]*):")
+
+
+def ps_parse_faults(text):
+    """-> [(line number, variable)] for every `$name:` that is not a scope. PowerShell
+    refuses the whole file for one of these, so a push script with any is a script
+    that pushes nothing and says so in red the operator was not expecting."""
+    out = []
+    for n, line in enumerate(text.split("\n"), 1):
+        for m in _PS_DRIVE.finditer(line):
+            if m.group(1).lower() not in _PS_SCOPES:
+                out.append((n, m.group(1)))
+    return out
 
 
 def script_text(m, trailer=None):
@@ -455,6 +477,14 @@ def check():
                        for ca in _COAUTHORS for se in _SESSIONS):
                 bad.append("%s: push-%s.ps1 is not what the manifest generates -- it was edited "
                            "by hand, and the two lists have started to disagree again" % (mid, mid))
+    # EVERY script under tools/push, generated or hand-written: a hand-written one is
+    # exactly the one nothing else holds.
+    for sp in sorted(glob.glob(os.path.join(PUSH, "*.ps1"))):
+        text = io.open(sp, encoding="utf-8", newline="").read()
+        for n, var in ps_parse_faults(text):
+            bad.append("%s line %d: `$%s:` is a drive-qualified variable to PowerShell and a PARSE "
+                       "error -- the whole script is refused before its first line runs. Write "
+                       "`${%s}:`" % (os.path.basename(sp), n, var, var))
     return bad
 
 

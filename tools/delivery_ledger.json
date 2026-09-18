@@ -1157,10 +1157,15 @@
    "by": "adr225",
    "sha": "25702660138e4f2e1faddc3cfdfaa0562dbd709370f70c344fa52b2434e073cd"
   },
+  "docs/ADR-226-the-script-that-was-refused-before-its-first-line-2026-09-17.md": {
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "ccac3cef2f8eb8c6c47ab953da89b078b0a8daa36ced23cff955931a85e2502a"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1789711865,
-   "by": "adr225",
-   "sha": "154d0fe4559cf10fe34670a54eee47e624c60709f83ba62702dc1824bc70645c"
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "c2fffeb4731a28c13b59ccc7a1dcf2c3181a7c2e9b5537040d455b66fca6ae67"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -2254,6 +2259,11 @@
    "by": "adr225",
    "sha": "2c0450f532faf7548a4a793a7ac3ecb5c37c8de804ed67489176f00dee639a3b"
   },
+  "docs/CHANGELOG-2026-09-17-adr226-the-script-that-was-refused-before-its-first-line.md": {
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "99c0191035ee0a3fc636224853a32a2b9e0131ce0580217898aee12d110b8307"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2988,9 +2998,9 @@
    "sha": "36ed7b428de4b21bbd8ce5cbc0f563f1c097c0389d6492347a3660f242d34e97"
   },
   "tools/deliver.py": {
-   "at": 1789711865,
-   "by": "adr223",
-   "sha": "003ffbd71dc6dbe38ee46c75aa646da322e71cb2f3082c9a7e3152e2a545b903"
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "e6a5bfc7cba77297fc2bcc165c92bac19d6bc814d26d466843254d3e6e4dc38e"
   },
   "tools/delivery/adr147.json": {
    "at": 1788683836,
@@ -3409,10 +3419,15 @@
    "by": "adr225",
    "sha": "1b78a7b66babc6463837ff161d627eb0356f276520cbf3357dc16a82071b7fc5"
   },
+  "tools/delivery/adr226.json": {
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "7bf4135798081dfbac453fd58b5bbe8f1563ac02d27ca0576fafd6475433ab67"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1789711865,
-   "by": "adr225",
-   "sha": "6b4b9f690c8da7e128aec619fcdd3cb4e845246bcdd589cbc615a866265662a8"
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "1d81bac59fd43ad52cab27fd4ef6fa9c55095fb79a0ccfb863bda7020d0a105e"
   },
   "tools/destructive_ledger.json": {
    "at": 1789711865,
@@ -3523,14 +3538,14 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1789711865,
-   "by": "adr225",
-   "sha": "1b6f5bd74fe0d2b5d548a9c369a729e841bd8fbffb4edf38d7add4013b8c498d"
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "3a954d9769c72b6591bb9d986b36b552c5d05676aa33b9b86a27cd8dcfebbebf"
   },
   "tools/harness_board.py": {
-   "at": 1789711865,
-   "by": "adr221",
-   "sha": "0e35cc9899896328ada88a14a4eafe0d3e892f08855a5cbf53ea3455cb0c94d1"
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "afaf2fd486becb9384d0d1ee871be7c51a37ef9cea4b18b9c977d085495188ac"
   },
   "tools/harness_contract.py": {
    "at": 1789711865,
@@ -3625,9 +3640,9 @@
    "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
   },
   "tools/mutant_ledger.json": {
-   "at": 1789711865,
-   "by": "adr225",
-   "sha": "79c3407e0ea1c6c36330acaa72a2aeaa0865d6e9c7cd3094677b36d5e6b67f49"
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "ffe75d848fb7488abf2e0ad395fce283f63f7f69287710e91faefe6df825f0cc"
   },
   "tools/mutant_ledger.py": {
    "at": 1788676926,
@@ -3682,9 +3697,9 @@
    "sha": "bf90690cc70f79873c16d9e36fb95ad55ae3d0ee096b57d97ed099f3238e7858"
   },
   "tools/mutate_delivery.py": {
-   "at": 1789711865,
-   "by": "adr223",
-   "sha": "f475f5dd6d540d31f83c380d9713ed0baa06c414d8f94e9f5e2e5d64d13cbaa0"
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "58dae3b25642c4157d8d8682a517c59c360b064514665432d432fa8b44f303de"
   },
   "tools/mutate_destructive.py": {
    "at": 1789711865,
@@ -3860,14 +3875,14 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1789711865,
-   "by": "adr225",
-   "sha": "5d2e541c06d20e69c3110ddae47b97958959da395b75f7daa0203be4d9c5d10b"
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "082cb9b18e5c7be27fbddadd22c8498f76f8ddf1b9db08818c71d674d7fb6b20"
   },
   "tools/push/push-adr225-siblings.ps1": {
-   "at": 1789711865,
-   "by": "adr225",
-   "sha": "4dfeb2b142e837594d9fde040490c61d915815aaf816db568d946ef9f4b81c26"
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "396cbbcd503dd422b2f8424f8e2b41b951ffe186dcb741a658e56eb95564cf78"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -4269,9 +4284,9 @@
    "sha": "b5a35ba0a1cdc46ec58d68e733a4d59aef5c26fe1ccf964894107a9be47e6ae6"
   },
   "tools/verify/counts.json": {
-   "at": 1789711865,
-   "by": "adr225",
-   "sha": "0bbd9ff2c847aea27af28d8d9e8b07bced5483e11ea1604191332d4b0c8a9ff4"
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "507ca35a14984ca0a6f50457a5b64114b73302eb2579e36189ebbe839b04078d"
   },
   "tools/verify/run_all.py": {
    "at": 1789690114,
@@ -4300,10 +4315,9 @@
    "sha": "fb0d4bec805d262876683665ce9d12718eef31fb14a87baf1568666b55e5f331"
   },
   "tools/verify/verify_board.py": {
-   "at": 1789690114,
-   "by": "adr216",
-   "evidence": "git",
-   "sha": "1ff2ca647b240eb3de13eac110667b9546e4afb804f7ed7dfe211cd2d1fa4476"
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "76897286bc2142373fd3c1536d3605e0994e24a709fb3ede8382b5d54002f81a"
   },
   "tools/verify/verify_br.py": {
    "at": 1789690114,
@@ -4394,9 +4408,9 @@
    "sha": "7d21caa75bb6b37f651bf125774fcb8e4507999afe6abd234477faed8def73ca"
   },
   "tools/verify/verify_delivery.py": {
-   "at": 1789711865,
-   "by": "adr223",
-   "sha": "5b302be5cd3bd70710b33de67b82e8e2eb745ff61f2323e0ade2fc54f817448c"
+   "at": 1789713249,
+   "by": "adr226",
+   "sha": "ab6fad85365455164ecb6fd0c0d2c0fd0e14064f92339e40ced7a07c06eb1e22"
   },
   "tools/verify/verify_dep.py": {
    "at": 1788996656,
@@ -4833,6 +4847,7 @@
   "adr222",
   "adr223",
   "adr224",
-  "adr225"
+  "adr225",
+  "adr226"
  ]
 }

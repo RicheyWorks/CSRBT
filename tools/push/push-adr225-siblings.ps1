@@ -17,9 +17,9 @@ function Land($dir, $paths, $subject, $body) {
   }
   git -C $repo add -A $paths
   git -C $repo commit -m $subject -m $body -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>" -m "Claude-Session: https://claude.ai/code/session_015Ryyc7gWVh4QXAQ9RAFPF1"
-  if ($LASTEXITCODE -ne 0) { Write-Host "!! $dir: git commit failed ($LASTEXITCODE) -- nothing committed, nothing pushed"; $script:failed += $dir; return }
+  if ($LASTEXITCODE -ne 0) { Write-Host "!! ${dir}: git commit failed ($LASTEXITCODE) -- nothing committed, nothing pushed"; $script:failed += $dir; return }
   git -C $repo push
-  if ($LASTEXITCODE -ne 0) { Write-Host "!! $dir: git push failed ($LASTEXITCODE) -- the commit is local and the remote does not have it"; $script:failed += $dir; return }
+  if ($LASTEXITCODE -ne 0) { Write-Host "!! ${dir}: git push failed ($LASTEXITCODE) -- the commit is local and the remote does not have it"; $script:failed += $dir; return }
   Write-Host "$dir pushed."
 }
 # WholeHog: INSTALLED BY THIS COMMAND (ADR-223's rule) -- the bridge will not write a workflow; the operator's own command does.

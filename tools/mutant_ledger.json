@@ -1598,12 +1598,12 @@
    "survived": 0
   },
   "mutate_delivery": {
-   "at": 1789693333,
+   "at": 1789712953,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 60,
-   "mutants": 60,
+   "killed": 63,
+   "mutants": 63,
    "rows": [
     {
      "detail": "3 failure(s); first: THE COMMIT'S EXIT CODE IS READ BEFORE ANYTHING IS PUSHED: a",
@@ -1643,6 +1643,21 @@
     {
      "detail": "1 failure(s); first: A STRAIGHT QUOTE IS ESCAPED AND A TYPOGRAPHIC ONE IS NOT SE",
      "name": "a typographic quote is sent as it was written, the way ADR-217's first answer sent it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: `$dir:` IS A DRIVE-QUALIFIED VARIABLE TO POWERSHELL: ADR-22",
+     "name": "a drive-qualified variable is never a fault",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: `$dir:` IS A DRIVE-QUALIFIED VARIABLE TO POWERSHELL: ADR-22",
+     "name": "every variable followed by a colon is a fault, the scopes included",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: --check reads EVERY script under tools/push, the hand-writt",
+     "name": "only the generated scripts are read for parse faults",
      "verdict": "killed"
     },
     {

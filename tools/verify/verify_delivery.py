@@ -515,6 +515,23 @@ for _bad, _say in ((dict(INST, install=[{"from": "tools/never.yml", "to": ".gith
        "--check refuses an install that is wrong -- %s: %s" % (_say, [b for b in D.check() if "adr995" in b]))
 os.remove(os.path.join(D.MANIFESTS, "adr995.json"))
 
+# ---- G. a script PowerShell refuses to parse pushes nothing (ADR-225's sibling script) ----
+_faults = D.ps_parse_faults('Write-Host "!! $dir: git commit failed"; $script:failed += $dir; $env:X')
+ck(_faults == [(1, "dir")],
+   "`$dir:` IS A DRIVE-QUALIFIED VARIABLE TO POWERSHELL: ADR-225's sibling script carried two and "
+   "was refused whole, after the main script had printed `ADR225 pushed.` -- found %r" % _faults)
+ck(D.ps_parse_faults("$script:failed = @(); $env:HOME; $Global:x; $using:y") == [],
+   "a scope qualifier is not a fault, in any case")
+ck(D.ps_parse_faults('Write-Host "!! ${dir}: git commit failed"') == [],
+   "the braced form is the fix and passes")
+ck(D.ps_parse_faults("a\nb\n$repo: c\n") == [(3, "repo")], "the line number is the file's")
+put("tools/push/push-adr996-siblings.ps1", 'Write-Host "!! $dir: failed"\n')
+ck(any("push-adr996-siblings.ps1 line 1" in b and "${dir}:" in b for b in D.check()),
+   "--check reads EVERY script under tools/push, the hand-written ones included, and names the "
+   "line and the fix: %s" % [b for b in D.check() if "adr996" in b])
+os.remove(os.path.join(tmp, "tools", "push", "push-adr996-siblings.ps1"))
+ck(not any("adr996" in b for b in D.check()), "...and is quiet once it is fixed")
+
 print("---")
 for u in unverified:
     print("NOT VERIFIED: " + u)
