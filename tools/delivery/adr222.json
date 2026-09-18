@@ -1,0 +1,27 @@
+{
+ "body": "ADR-221 made the door refuse a field it does not know, and the two it refused first were the two a careful client reaches for. FlowersForever's gateway requires a deadline on every physical command and lets a desktop action name the observation it was decided from; both get a meaning here, optional, protocol 1.8. WHY A NAME IS NOT ENOUGH: ADR-188 stamps a positional selector so an index cannot silently mean a different control, and a NAME has no such guard and cannot -- it still resolves after a dialog has opened over the page or the row under it was swapped; what it resolves to is no longer what the caller looked at. if_stamp is the caller handing back the stamp every snapshot has carried since ADR-191: act only if the target is still this. The door takes one look, compares, and refuses stale, naming both stamps and since as the way to see what moved. THAT LOOK IS NOT SERVED AND NOT REMEMBERED -- kept as the session's baseline it would make the caller's next since diff against a snapshot the caller never saw and answer that nothing changed. The rung is checked first, so a caller that may not act is not given a look for asking; a target that cannot be looked at is unavailable and is not run blind; a caller that does not ask pays nothing. expires_at is an ISO-8601 instant WITH AN OFFSET -- not a number, not a quoted number, not a time with no zone -- and the deadline is the first moment a command is unwanted, not the last it is wanted. A RECEIPT IS SERVED WHATEVER THE CLOCK SAYS, because the act it records happened. Neither field is part of the command's identity, so a retry with a new deadline is the same request. Both refusals are stale, ADR-189's code, so the walk and the MCP map already carry it. Over MCP and HTTP both ride in the call's _meta and only those two keys are taken from it. The clock is injected, so the suite holds expired, AT the deadline and one second before without sleeping. verify_contract 196 to 221, mutate_contract 87 to 103, verify_walk holds protocol 1.8.",
+ "chain": "adr221",
+ "chain_probe": "docs/ADR-221-nothing-a-client-sends-closes-a-door-2026-09-17.md",
+ "clean": [
+  "adr221"
+ ],
+ "id": "adr222",
+ "once": true,
+ "paths": [
+  "docs/ADR-222-a-command-says-when-and-from-what-2026-09-17.md",
+  "docs/CHANGELOG-2026-09-17-adr222-a-command-says-when-and-from-what.md",
+  "tools/harness_contract.py",
+  "tools/harness_mcp.py",
+  "tools/mutate_contract.py",
+  "tools/verify/verify_contract.py",
+  "tools/verify/verify_walk.py",
+  "tools/delivery/adr222.json",
+  "docs/AI_HARNESS.md",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json"
+ ],
+ "subject": "ADR-222: a command could not say when it stopped being wanted, or what it had been decided from"
+}
