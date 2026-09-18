@@ -1290,6 +1290,97 @@ ck(_ran == 4,
    "and after the guard the act itself ran: all four reached a DESTRUCTIVE `activate` that the "
    "door accepted -- the greenhouse wipe, the soil undo, the survey remove, the tree clear: %d" % _ran)
 
+# ---- F7. the seventh blind trial (ADR-229) -----------------------------------
+#
+# Four more pages no blind operator had driven -- food web, releve, tree
+# proofs, ethogram -- through the door whose stamps SAY WHICH SERIES THEY ARE.
+# The sixth trial found every operator handing the report's stamp to if_stamp
+# and being told the page had moved when it had not; this trial holds that the
+# same mistake is now answered as the wrong KIND, and that nobody was told a
+# page had moved when it had not.
+BLIND7 = os.path.join(T.TRACES_DIR, "blind7")
+b7 = sorted(glob.glob(os.path.join(BLIND7, "*.jsonl.gz")))
+by7 = T.protocol_of(BLIND7)
+SEVENTH = {"page-food-web-science": (7, 13, 33, 43), "page-releve-science": (18, 31, 64, 83),
+           "page-tree-proofs-science": (10, 12, 169, 176), "page-ethogram-science": (7, 13, 56, 68)}
+ck(len(b7) == 4 and {os.path.basename(f).split(".")[0] for f in b7} == set(SEVENTH),
+   "the seventh trial's four traces, four more pages no blind operator had touched: %s"
+   % [os.path.basename(f) for f in b7])
+ck(not (set(SEVENTH) & set(SIXTH)) and not (set(SEVENTH) & set(FLOORS)),
+   "and none of them is a page an earlier trial ran: the loop is moving outward")
+_fz7 = os.path.join(BLIND7, "tasks")
+ck(os.path.isdir(_fz7) and len(glob.glob(os.path.join(_fz7, "*.json"))) == 4,
+   "blind7 carries the four task files it was run under, beside its traces")
+p7 = os.path.join(BLIND7, "PROVENANCE.md")
+t7 = io.open(p7, encoding="utf-8").read() if os.path.isfile(p7) else ""
+ck(all(w in t7 for w in ("REPORT stamp", "wrong", "one slot deep", "removed from the", "floor")) and len(t7) > 4000,
+   "with a provenance that carries the conditions, what it measured about ADR-229, and the new "
+   "thing every operator found (the one-slot observe baseline)")
+_r7 = _c7 = _k7 = 0
+for f in b7:
+    tid = os.path.basename(f).split(".")[0]
+    tr = T.load_trace(f)
+    g7 = T.grade_outcomes(by7[tid], tr)
+    lo = SEVENTH[tid]
+    ck(g7["reached"] >= lo[0] and g7["confirmed"] >= lo[2]
+       and g7["outcomes"] == lo[1] and g7["claims"] == lo[3]
+       and g7["verdict"] in ("PARTIAL", "PASS"),
+       "%s: the seventh trial's operator reached %d of %d outcomes (%d of %d claims), at or above "
+       "the floor this first operation set %s" % (tid, g7["reached"], g7["outcomes"], g7["confirmed"],
+                                                  g7["claims"], lo))
+    _r7 += g7["reached"]; _c7 += g7["confirmed"]; _k7 += g7["calls"]
+    ck(T.grade_trace(by7[tid], tr)["verdict"] == "FAIL",
+       "%s: and graded as a ROUTE it is FAIL, as every blind trial before it" % tid)
+ck(_r7 >= 42 and _c7 >= 322,
+   "across the four new pages the seventh trial reached %d of 69 outcomes and confirmed %d of 370 "
+   "claims in %d calls, every one in a single attempt" % (_r7, _c7, _k7))
+
+# THE MEASUREMENT: the wrong KIND of stamp is refused as the wrong kind, on
+# every page, before any look -- and nobody is told a page moved when it had
+# not. In the sixth trial's traces the same mistake reads as `stale ... has
+# moved`; here it reads as invalid_argument naming both series.
+_kind = 0; _moved_on_report_stamp = 0
+for f in b7:
+    for e in T.load_trace(f):
+        r = e.get("response") or {}
+        m = r.get("message") or ""
+        if r.get("code") == "invalid_argument" and "REPORT stamp" in m and "SNAPSHOT" in m and "nothing was run" in m:
+            _kind += 1
+        if r.get("code") == "stale" and "moved since the snapshot stamped r" in m:
+            _moved_on_report_stamp += 1
+ck(_kind >= 4,
+   "on all four pages an act guarded by a REPORT stamp was refused as the WRONG KIND -- "
+   "invalid_argument, both series named, the fix in the sentence, nothing run: %d refusal(s)" % _kind)
+ck(_moved_on_report_stamp == 0,
+   "and not once was a report stamp answered `stale ... has moved` -- the sixth trial's four such "
+   "refusals were the door saying the page moved about a page that had not: %d" % _moved_on_report_stamp)
+# and the mistake the other way round is named too
+_rr = sum(1 for f in b7 for e in T.load_trace(f)
+          if e.get("action") == "read-report"
+          and "SNAPSHOT stamp" in str(((e.get("response") or {}).get("output") or {}).get("sinceUnknown", "")))
+ck(_rr >= 1,
+   "and at least one read-report handed a SNAPSHOT stamp as `since` was answered the whole report "
+   "and told which kind it takes: %d" % _rr)
+# the sixth trial, re-read through the same counter, is the before
+_six_moved = sum(1 for f in b6 for e in T.load_trace(f)
+                 if (e.get("response") or {}).get("code") == "stale"
+                 and "moved since the snapshot stamped s" in ((e.get("response") or {}).get("message") or ""))
+ck(_six_moved >= 4,
+   "THE BEFORE, in the sixth trial's own traces: %d guarded acts refused `stale ... has moved` -- "
+   "which the provenance records were report stamps handed to if_stamp, the page unmoved; the "
+   "stamp series were indistinguishable then, so the trace cannot tell them from a real move, "
+   "and this trial's zero is what fixing that looks like" % _six_moved)
+_dest7 = 0
+for f in b7:
+    tid = os.path.basename(f).split(".")[0]
+    if "DESTRUCTIVE" not in T.task_rungs(by7[tid])[0]:
+        continue
+    if any(e.get("action") == "activate" and (e.get("response") or {}).get("ok")
+           and (e.get("response") or {}).get("risk") == "DESTRUCTIVE" for e in T.load_trace(f)):
+        _dest7 += 1
+ck(_dest7 == 3,
+   "and the three tasks that declare the fourth rung reached a DESTRUCTIVE act through the door: %d" % _dest7)
+
 
 # ---- G. the science (ADR-128) and the whole kit (ADR-129) ---------------------
 DATA_ENTRY = {"collection-sheet.html", "releve.html", "stand-sheet.html", "ethogram.html", "selection-log.html",

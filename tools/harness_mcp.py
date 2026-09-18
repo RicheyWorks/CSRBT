@@ -283,7 +283,8 @@ class Server(object):
         return [{"uri": "harness://%s/snapshot" % p["id"], "name": "%s snapshot" % p["id"],
                  "description": "The current observation of %s (redacted unless SENSITIVE_READ). "
                                 "Append ?since=<stamp> -- the `stamp` of the last snapshot this "
-                                "session read -- to get what CHANGED instead of the whole "
+                                "session read (a SNAPSHOT stamp, s + 12 hex; a report's r... stamp "
+                                "is the other kind) -- to get what CHANGED instead of the whole "
                                 "snapshot; an unknown stamp answers with the whole snapshot and "
                                 "says so." % p["title"], "mimeType": "application/json"}
                 for p in self.gw.discover(self.token)]

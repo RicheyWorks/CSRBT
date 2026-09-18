@@ -1057,7 +1057,7 @@
    "survived": 0
   },
   "mutate_contract": {
-   "at": 1789727428,
+   "at": 1789731233,
    "equivalent": 1,
    "equivalents": [
     {
@@ -1066,8 +1066,8 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 105,
-   "mutants": 105,
+   "killed": 111,
+   "mutants": 111,
    "rows": [
     {
      "detail": "8 failure(s); first: an action that declared mayRise is asked, with this call's ",
@@ -1240,7 +1240,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: the manifest states a protocol version (1.8: ADR-222, a com",
+     "detail": "2 failure(s); first: the manifest states a protocol version (1.9: ADR-229, a sta",
      "name": "the manifest still says 1.5",
      "verdict": "killed"
     },
@@ -1275,7 +1275,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and having a baseline is not the same as having THAT one: a",
+     "detail": "3 failure(s); first: observe handed a report stamp as `since` answers the whole ",
      "name": "a stamp the door never issued is diffed against whatever it holds",
      "verdict": "killed"
     },
@@ -1565,7 +1565,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: a command bound to the look it was decided from RUNS while ",
+     "detail": "9 failure(s); first: a command bound to the look it was decided from RUNS while ",
      "name": "a binding is never checked",
      "verdict": "killed"
     },
@@ -1592,6 +1592,36 @@
     {
      "detail": "1 failure(s); first: and the manifest says what both fields mean and what refusi",
      "name": "the manifest does not say what the two fields mean",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: a report stamp is `r` + the same 12 hex the snapshot algori",
+     "name": "every stamp is in the snapshot series, whatever it was asked for",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: a report stamp is `r` + the same 12 hex the snapshot algori",
+     "name": "a report stamp reads as a snapshot stamp",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: if_stamp handed a REPORT stamp is the wrong KIND, not a mov",
+     "name": "if_stamp handed a report stamp goes on to compare it with the snapshot and says the page moved",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: nothing ran, and no look was taken to find that out -- the ",
+     "name": "if_stamp takes a look before deciding the stamp is the wrong kind",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: observe handed a report stamp as `since` answers the whole ",
+     "name": "observe handed a report stamp calls it unknown",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the manifest publishes both series and what a mismatch ",
+     "name": "the manifest does not say which stamp is which",
      "verdict": "killed"
     }
    ],
@@ -4307,12 +4337,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789384743,
+   "at": 1789738652,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 149,
-   "mutants": 149,
+   "killed": 151,
+   "mutants": 151,
    "rows": [
     {
      "detail": "9 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -4360,7 +4390,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a figure names the element it was read from: the value's ow",
+     "detail": "3 failure(s); first: a figure names the element it was read from: the value's ow",
      "name": "a figure's source is its box, never the element itself",
      "verdict": "killed"
     },
@@ -4470,7 +4500,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: and they are the REAL dice, not the seeded generator runnin",
+     "detail": "1 failure(s); first: and they are the REAL dice, not the seeded generator runnin",
      "name": "the shim changes behaviour before anyone asks",
      "verdict": "killed"
     },
@@ -4765,7 +4795,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: and an act can be the first thing a session does -- no lead",
+     "detail": "3 failure(s); first: and an act can be the first thing a session does -- no lead",
      "name": "an act does not settle the page it is about to touch",
      "verdict": "killed"
     },
@@ -4875,17 +4905,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "2 failure(s); first: asked with the current stamp it says nothing changed and do",
      "name": "a report whose stamp did not move is sent anyway, as an empty diff",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "1 failure(s); first: while the stamp from the read just before is current, as it",
      "name": "the baseline is the FIRST report served rather than the last",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a stamp this session did not issue gets the WHOLE report an",
+     "detail": "3 failure(s); first: a stamp this session did not issue gets the WHOLE report an",
      "name": "a stamp this session never issued is diffed against whatever is nearest",
      "verdict": "killed"
     },
@@ -4902,6 +4932,16 @@
     {
      "detail": "1 failure(s); first: and the report uses the contract's OWN stamp and diff -- tw",
      "name": "the report gets a digest of its own instead of the contract's stamp",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a report carries a stamp beside everything it always carrie",
+     "name": "the report's stamp is in the snapshot's series again, so the two cannot be told apart",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: read-report handed a SNAPSHOT stamp as `since` answers the ",
+     "name": "a snapshot stamp handed to read-report is called unknown rather than the wrong kind",
      "verdict": "killed"
     },
     {
@@ -4970,7 +5010,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "1 failure(s); first: A TOP HEIGHT OFF ONE STEM IS NOT A STAND FIGURE -- the tile",
      "name": "the top height loses the sample it was computed from",
      "verdict": "killed"
     },
@@ -4990,7 +5030,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: and an act that WORKED is answered in the same channel, so ",
+     "detail": "4 failure(s); first: AN EXPORT THAT EXPORTED NOTHING SAYS SO IN ITS OWN ANSWER. ",
      "name": "the door hears any div, declared or not",
      "verdict": "killed"
     },

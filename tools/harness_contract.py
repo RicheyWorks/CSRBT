@@ -89,7 +89,7 @@ import copy
 import datetime
 import hashlib, hmac, json, os, re, time
 
-PROTOCOL_VERSION = "1.8"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
+PROTOCOL_VERSION = "1.9"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
                            # 1.2 (ADR-120): snapshotMs on every execute response -- the snapshot, priced
                            # 1.3 (ADR-124): argumentPools may carry argument SETS, keyed by the action alone
                            # 1.6 (ADR-189): `stale` -- a refusal for an argument that was right when
@@ -114,6 +114,11 @@ PROTOCOL_VERSION = "1.8"   # 1.1 (ADR-114): bounds, patterns, examples in argume
                            #                (`if_stamp`); either one failing is `stale`. The
                            #                envelope is strict (ADR-221), the retry rule is
                            #                stated (ADR-220), and the manifest publishes all three.
+                           # 1.9 (ADR-229): a stamp SAYS WHICH SERIES IT IS. A snapshot stamp
+                           #                is `s` + 12 hex, a report stamp `r` + 12 hex; a
+                           #                stamp handed to the wrong door is named as such,
+                           #                and `if_stamp` REFUSES a report stamp rather than
+                           #                comparing it to a snapshot it can never equal.
 REPLAY_CACHE_LIMIT = 256
 REPLAY_CACHE_BYTE_LIMIT = 8 * 1024 * 1024
 # ADR-191: how many entries of one list, in one bucket of one diff, are named
@@ -221,8 +226,32 @@ def _paths(snap, noise):
     return out
 
 
-def stamp_of(snap, spec=None):
+# ADR-229: THE TWO STAMP SERIES, AND WHICH IS WHICH. The snapshot (ADR-191) and
+# the report (ADR-195) each carry a stamp, both were `s` + twelve hex digits,
+# and nothing on the wire said which was which. All four operators of the sixth
+# blind trial (ADR-228) handed the report's stamp to `if_stamp`, which guards
+# the snapshot, and were refused `stale` for a stamp that could never have
+# matched; the fifth trial's operators did the same the other way with
+# `read-report`'s `since`. Never a wrong answer -- the door fails toward
+# refusal -- but a wasted round trip every time, and a message that said
+# "moved" about a page that had not. A stamp now names its series in its first
+# character, and every door that takes one says so when handed the other.
+STAMP_SERIES = {"s": "snapshot", "r": "report"}
+
+
+def series_of(stamp):
+    """'snapshot', 'report', or None for a string that is not a stamp at all."""
+    if not isinstance(stamp, str) or len(stamp) != 13:
+        return None
+    return STAMP_SERIES.get(stamp[0]) if all(c in "0123456789abcdef" for c in stamp[1:]) else None
+
+
+def stamp_of(snap, spec=None, series="s"):
     """A short digest of everything in a snapshot that a reader could notice.
+
+    `series` is the stamp's first character: `s` for a snapshot, `r` for a
+    report (ADR-229). Two documents that happen to digest alike still get
+    different stamps, so a stamp can never be mistaken for the other kind.
 
     Its whole job is to answer "has anything moved since I last looked" in a
     handful of bytes. Paths the plugin declared NOISE are left out -- a replica
@@ -252,7 +281,8 @@ def stamp_of(snap, spec=None):
     body = json.dumps([[k, paths[k]] for k in sorted(paths)],
                       sort_keys=True, default=str, ensure_ascii=False)
     h = hashlib.sha256(body.encode("utf-8")).hexdigest()[:12]
-    return "s" + h
+    assert series in STAMP_SERIES, series
+    return series + h
 
 
 def diff_of(before, after, spec=None, cap=DIFF_CAP):
@@ -1137,6 +1167,14 @@ class Gateway(object):
                                           "command is refused `stale` and is not run",
                               "identity": "neither is part of the command: a retry with a new "
                                           "deadline is the same request"},
+                # ADR-229: which stamp is which, so a client never has to guess.
+                "stamps": {"snapshot": "s + 12 hex: the `stamp` on every snapshot and every "
+                                       "response; observe's `since` and `if_stamp` take this one",
+                           "report": "r + 12 hex: the `stamp` on every read-report answer; "
+                                     "read-report's `since` takes this one",
+                           "mismatch": "observe and read-report answer the whole document and "
+                                       "say which kind they were handed; if_stamp refuses "
+                                       "invalid_argument, and nothing runs"},
                 "tokenMinLength": TOKEN_MIN,
                 "risks": list(RISKS),
                 "policy": dict(self.policy.allow),
@@ -1182,10 +1220,17 @@ class Gateway(object):
         if prev is None or prev[0] != since:
             snap = dict(snap)
             snap["since"] = since
-            snap["sinceUnknown"] = (
-                "this session holds no snapshot stamped %r for %s, so there is nothing to "
-                "compare against and the whole snapshot is here instead"
-                % (since, plugin_id))
+            if series_of(since) == "report":
+                # ADR-229: not unknown -- the WRONG KIND, and the door says so.
+                snap["sinceUnknown"] = (
+                    "%r is a REPORT stamp (read-report's `stamp`, r...), and observe's `since` "
+                    "takes a SNAPSHOT stamp (s..., the `stamp` on every snapshot and every "
+                    "response); the whole snapshot is here instead" % since)
+            else:
+                snap["sinceUnknown"] = (
+                    "this session holds no snapshot stamped %r for %s, so there is nothing to "
+                    "compare against and the whole snapshot is here instead"
+                    % (since, plugin_id))
             return snap
         if st == since:
             head["changed"] = False
@@ -1345,6 +1390,16 @@ class Gateway(object):
             return
         if not isinstance(want, str) or not want:
             raise InvalidArgument("if_stamp is the `stamp` of a snapshot this door served")
+        if series_of(want) == "report":
+            # ADR-229: this guard compares against the SNAPSHOT, and a report
+            # stamp can never equal one. Refusing `stale` here -- which is what
+            # happened to all four operators of the sixth trial -- told them
+            # the page had moved when it had not. It is the wrong KIND, said
+            # before any look is taken, with the fix in the sentence.
+            raise InvalidArgument(
+                "if_stamp guards the SNAPSHOT and %r is a REPORT stamp (read-report's, r...): "
+                "pass the `stamp` a snapshot or a response carried (s...), which is the target "
+                "as you last looked at it -- nothing was run" % want)
         try:
             _snap, _raw, now = self._stamped(plugin, plugin.observe(
                 sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))

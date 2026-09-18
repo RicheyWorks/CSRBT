@@ -34,7 +34,7 @@ sys.path.insert(0, os.path.join(HERE, "verify"))
 import _kit
 import harness as H
 from harness_contract import (ActionSpec, ArgumentSpec, Plugin, PluginDescriptor, diff_of, stamp_of,
-                              Conflict, Failed, HarnessError, InvalidArgument, NotFound,
+                              series_of, Conflict, Failed, HarnessError, InvalidArgument, NotFound,
                               Stale, Unavailable)
 
 # Bytes the harness hands to a file input or a drop zone. Real files, made
@@ -1399,13 +1399,16 @@ class PagePlugin(Plugin):
                            "what CHANGED instead of the whole report (ADR-195).",
                            "SENSITIVE_READ",
                            [ArgumentSpec("since", "string",
-                                         "The `stamp` of the last report this session read. The "
-                                         "answer is then the change -- which figures moved, which "
-                                         "boxes, which lines appeared -- and not the report. A "
-                                         "stamp this session did not issue gets the whole report "
-                                         "and says so.",
-                                         pattern=r"^s[0-9a-f]{12}$",
-                                         examples=["s3f2a91c40b7e"])]),
+                                         "The `stamp` of the last report this session read -- a "
+                                         "REPORT stamp, r + 12 hex, the one every read-report "
+                                         "answer carries (ADR-229). The answer is then the change "
+                                         "-- which figures moved, which boxes, which lines "
+                                         "appeared -- and not the report. A stamp this session did "
+                                         "not issue gets the whole report and says so; a SNAPSHOT "
+                                         "stamp (s...) gets the whole report and is named as the "
+                                         "wrong kind.",
+                                         pattern=r"^[sr][0-9a-f]{12}$",
+                                         examples=["r3f2a91c40b7e"])]),
                 # ---- the environment as an argument (ADR-134) ----
                 #
                 # A page that reads the clock or the dice answers differently
@@ -1636,7 +1639,7 @@ class PagePlugin(Plugin):
         same two functions: `stamp_of` and `diff_of` from the contract, with a
         spec that says what identity means on a report. Two documents, one
         algorithm; a third would be a third thing to get wrong."""
-        st = stamp_of(r, self.REPORT_IDENTITY)
+        st = stamp_of(r, self.REPORT_IDENTITY, series="r")
         served = dict(r)
         served["stamp"] = st
         prev, self._last_report = self._last_report, (st, r)
@@ -1649,6 +1652,15 @@ class PagePlugin(Plugin):
             # holds no report for gets the whole report and the reason, because
             # a diff against a baseline that is not there would be invented.
             served["since"] = since
+            if series_of(since) == "snapshot":
+                # ADR-229: the WRONG KIND, named. Every operator of the fifth
+                # trial did this once; "unknown" sent them looking for a
+                # report they had never read.
+                served["sinceUnknown"] = (
+                    "%r is a SNAPSHOT stamp (s..., the one observe and if_stamp take), and "
+                    "read-report's `since` takes a REPORT stamp (r..., the `stamp` on every "
+                    "read-report answer); the whole report is here instead" % since)
+                return True, "the whole report: %r is a snapshot stamp, not a report stamp" % since, served
             served["sinceUnknown"] = (
                 "this session holds no report stamped %r for %s, so there is nothing to "
                 "compare against and the whole report is here instead" % (since, self.name))

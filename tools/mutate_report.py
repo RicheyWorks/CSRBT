@@ -620,9 +620,18 @@ MUTANTS += [
      '                                "lines/*": "self", "tables/*": "self", "rules": ["t"]},',
      "a table's rows are NOT keyed"),
     ("the report gets a digest of its own instead of the contract's stamp",
-     '        st = stamp_of(r, self.REPORT_IDENTITY)',
-     '        st = "s" + __import__("hashlib").sha256(\n            repr(sorted(r.items())).encode("utf-8")).hexdigest()[:12]',
+     '        st = stamp_of(r, self.REPORT_IDENTITY, series="r")',
+     '        st = "r" + __import__("hashlib").sha256(\n            repr(sorted(r.items())).encode("utf-8")).hexdigest()[:12]',
      "uses the contract's OWN stamp and diff"),
+    # ---- ADR-229: a stamp says which series it is ---------------------------
+    ("the report's stamp is in the snapshot's series again, so the two cannot be told apart",
+     '        st = stamp_of(r, self.REPORT_IDENTITY, series="r")',
+     '        st = stamp_of(r, self.REPORT_IDENTITY, series="s")',
+     "it is a REPORT stamp"),
+    ("a snapshot stamp handed to read-report is called unknown rather than the wrong kind",
+     '            if series_of(since) == "snapshot":',
+     '            if False:',
+     "names the kind it was given and the kind it takes"),
 ]
 
 
@@ -778,16 +787,19 @@ MUTANTS += [
 def main(argv):
     ap = argparse.ArgumentParser()
     ap.add_argument("--list", action="store_true")
+    ap.add_argument("--only", type=int, metavar="N", help="run one mutant by index (0-based); "
+                    "the ledger is NOT written, a partial run is not a reading")
     a = ap.parse_args(argv)
     if a.list:
-        for n, _, _, e in MUTANTS:
-            print("  %-60s must be killed by  %s" % (n, e))
+        for i, (n, _, _, e) in enumerate(MUTANTS):
+            print("  %3d  %-60s must be killed by  %s" % (i, n, e))
         return 0
+    todo = [MUTANTS[a.only]] if a.only is not None else MUTANTS
     print("mutation testing the page reader against verify_report -- %d mutant(s), %d known equivalent\n"
-          % (len(MUTANTS), len(KNOWN_EQUIVALENT)))
+          % (len(todo), len(KNOWN_EQUIVALENT)))
     survived = bad = 0
     rows = []
-    for name, find, repl, expect in MUTANTS:
+    for name, find, repl, expect in todo:
         verdict, detail = run_one(find, repl, expect)
         print("  %-9s %-60s %s" % (verdict, name, detail[:60]))
         rows.append({"name": name, "verdict": verdict, "detail": detail})
@@ -795,10 +807,12 @@ def main(argv):
             survived += 1
         elif verdict != "killed":
             bad += 1
-    import mutant_ledger
-    mutant_ledger.record("mutate_report", rows, KNOWN_EQUIVALENT)
-    print("\n%d killed, %d survived, %d inconclusive, %d equivalent (recorded)"
-          % (len(MUTANTS) - survived - bad, survived, bad, len(KNOWN_EQUIVALENT)))
+    if a.only is None:
+        import mutant_ledger
+        mutant_ledger.record("mutate_report", rows, KNOWN_EQUIVALENT)
+    print("\n%d killed, %d survived, %d inconclusive, %d equivalent%s"
+          % (len(todo) - survived - bad, survived, bad, len(KNOWN_EQUIVALENT),
+             " (recorded)" if a.only is None else " (one mutant: not recorded)"))
     return 1 if (survived or bad) else 0
 
 

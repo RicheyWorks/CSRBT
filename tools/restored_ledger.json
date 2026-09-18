@@ -2,7 +2,7 @@
  "_comment": "Written by tools/audit_restored.py. Per page: what read-report said after the page's own task ran, what it said after the tab was reloaded onto the autosave, and the ceiling the differences may not rise above (ADR-210).",
  "pages": {
   "breeding-bench.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 38,
    "ceiling": 0,
    "lost": [],
@@ -48,7 +48,7 @@
    ]
   },
   "cell-bench.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 49,
    "ceiling": 0,
    "lost": [],
@@ -104,7 +104,7 @@
    ]
   },
   "collection-sheet.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 26,
    "ceiling": 0,
    "declared": {
@@ -143,7 +143,7 @@
    ]
   },
   "cp-bench.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 38,
    "ceiling": 0,
    "lost": [],
@@ -189,7 +189,7 @@
    ]
   },
   "deployment-log.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 43,
    "ceiling": 0,
    "lost": [],
@@ -240,7 +240,7 @@
    ]
   },
   "ethogram.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 31,
    "ceiling": 0,
    "declared": {
@@ -288,7 +288,7 @@
    ]
   },
   "experiment-guide.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 19,
    "ceiling": 0,
    "lost": [],
@@ -315,7 +315,7 @@
    ]
   },
   "farm-scout.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 21,
    "ceiling": 0,
    "lost": [],
@@ -343,7 +343,7 @@
    ]
   },
   "field-notebook.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 29,
    "ceiling": 0,
    "lost": [],
@@ -377,7 +377,7 @@
    ]
   },
   "greenhouse.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 35,
    "ceiling": 0,
    "declared": {
@@ -426,11 +426,15 @@
    ]
   },
   "micro-bench.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 26,
    "ceiling": 0,
-   "lost": [],
-   "raw": [],
+   "lost": [
+    "box/ecoOut"
+   ],
+   "raw": [
+    "box/ecoOut"
+   ],
    "restored": true,
    "said": 26,
    "seen": [
@@ -459,7 +463,7 @@
    ]
   },
   "ordination.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 24,
    "ceiling": 0,
    "lost": [],
@@ -491,7 +495,7 @@
    ]
   },
   "pheno-tracker.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 18,
    "ceiling": 0,
    "declared": {
@@ -523,7 +527,7 @@
    ]
   },
   "releve.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 46,
    "ceiling": 0,
    "declared": {
@@ -584,7 +588,7 @@
    ]
   },
   "selection-log.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 26,
    "ceiling": 0,
    "lost": [],
@@ -618,7 +622,7 @@
    ]
   },
   "stand-sheet.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 48,
    "ceiling": 0,
    "declared": {
@@ -681,7 +685,7 @@
    ]
   },
   "survey-design.html": {
-   "at": 1789715729,
+   "at": 1789732485,
    "back": 34,
    "ceiling": 0,
    "lost": [],

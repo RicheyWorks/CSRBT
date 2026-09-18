@@ -268,6 +268,17 @@ the call and the door does not. Before that, `"dry_run": true` ran for real.
   look, and only a caller that asks pays it. Over MCP both ride in the call's
   `_meta`.
 
+**Two kinds of stamp, and the first character says which** (ADR-229). A
+SNAPSHOT stamp is `s` + twelve hex — the `stamp` on every snapshot and on
+every response; `observe`'s `since` and `if_stamp` take this one. A REPORT
+stamp is `r` + twelve hex — the `stamp` on every `read-report` answer;
+`read-report`'s own `since` takes this one. Both were `s…` until the sixth
+blind trial, where every operator handed the report's stamp to `if_stamp` and
+was told the page had *moved*. Now a door handed the other kind says so by
+name: `observe` and `read-report` answer the whole document and name the kind
+they were given; `if_stamp` refuses `invalid_argument` before any look, and
+nothing runs. The manifest's `stamps` block states all of this.
+
 Every door reads **bytes**, decodes them strictly as UTF-8 whatever the
 machine's code page is, one frame of at most 1 MiB at a time, and parses them
 strictly — a key given twice, `NaN`, a nesting too deep to parse are each

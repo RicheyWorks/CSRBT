@@ -374,6 +374,48 @@ _f = timed(T0)[0].manifest(TOKEN).get("freshness") or {}
 ck(set(_f) == {"expires_at", "if_stamp", "identity"} and "stale" in _f["expires_at"] and "stale" in _f["if_stamp"],
    "and the manifest says what both fields mean and what refusing them looks like: %s" % sorted(_f))
 
+# ---- 4d. a stamp says which series it is (ADR-229) --------------------------
+# The snapshot's stamp and the report's stamp were both `s` + twelve hex, and
+# all four operators of the sixth blind trial handed the report's to if_stamp
+# and were told the page had MOVED when it had not. A stamp names its kind now,
+# and every door that takes one says so when handed the other.
+g, plug, clock = timed(T0)
+s1 = g.observe(TOKEN, "fake")["stamp"]
+ck(C.series_of(s1) == "snapshot" and s1[0] == "s" and len(s1) == 13,
+   "a snapshot stamp is `s` + 12 hex and names itself a snapshot: %r" % s1)
+rs = C.stamp_of({"figures": {"a": 1}}, None, series="r")
+ck(C.series_of(rs) == "report" and rs[0] == "r" and rs[1:] == C.stamp_of({"figures": {"a": 1}})[1:],
+   "a report stamp is `r` + the same 12 hex the snapshot algorithm would give, so the digest is "
+   "one algorithm and the series is one character: %r" % rs)
+ck(C.series_of("x" + s1[1:]) is None and C.series_of("s12") is None and C.series_of(7) is None
+   and C.series_of("s" + "g" * 12) is None,
+   "and a string that is not a stamp is neither kind")
+ran = len(plug.ran); looks = plug.looks
+refused(lambda: g.execute(TOKEN, "fake", {"request_id": "bound-7", "action": "draft", "if_stamp": rs}),
+        "invalid_argument", "if_stamp handed a REPORT stamp is the wrong KIND, not a moved target")
+try:
+    g.execute(TOKEN, "fake", {"request_id": "bound-8", "action": "draft", "if_stamp": rs})
+except C.HarnessError as _e:
+    ck("REPORT stamp" in _e.message and "SNAPSHOT" in _e.message and "nothing was run" in _e.message
+       and rs in _e.message,
+       "...and the refusal names both kinds and the fix, because the old `stale` said the page had "
+       "moved when it had not: %s" % _e.message)
+ck(len(plug.ran) == ran and plug.looks == looks,
+   "nothing ran, and no look was taken to find that out -- the kind is read off the stamp")
+w = g.observe(TOKEN, "fake", since=rs)
+ck("rows" in w and w.get("since") == rs and "REPORT stamp" in (w.get("sinceUnknown") or "")
+   and "SNAPSHOT" in (w.get("sinceUnknown") or ""),
+   "observe handed a report stamp as `since` answers the whole snapshot and NAMES THE KIND, rather "
+   "than 'unknown': %s" % (w.get("sinceUnknown") or "")[:90])
+w2 = g.observe(TOKEN, "fake", since="s" + "0" * 12)
+ck("rows" in w2 and "no snapshot stamped" in (w2.get("sinceUnknown") or ""),
+   "and a snapshot stamp this session never issued is still 'unknown', which is a different "
+   "sentence: %s" % (w2.get("sinceUnknown") or "")[:80])
+_st = g.manifest(TOKEN).get("stamps") or {}
+ck(set(_st) == {"snapshot", "report", "mismatch"} and "s + 12" in _st["snapshot"] and "r + 12" in _st["report"]
+   and "if_stamp" in _st["mismatch"],
+   "and the manifest publishes both series and what a mismatch does at each door: %s" % sorted(_st))
+
 import harness_mcp as _M2
 
 
@@ -619,8 +661,8 @@ ck(set(_rp) == {"rule", "landed", "raised", "refused", "bytesCount"} and "LANDED
 # ---- 6. the manifest is enough to build a client from --------------------
 g, _ = gw(allow={"SENSITIVE_READ": True})
 m = g.manifest(TOKEN)
-ck(m["protocolVersion"] == "1.8",
-   "the manifest states a protocol version (1.8: ADR-222, a command may say when it stops being "
+ck(m["protocolVersion"] == "1.9",
+   "the manifest states a protocol version (1.9: ADR-229, a stamp says which series it is; 1.8 was ADR-222, a command may say when it stops being "
    "wanted and what it was decided from; 1.7 was ADR-191, the session)")
 # ---- ADR-189: the refusal vocabulary says WHICH of the client's problems ----
 #
@@ -1335,7 +1377,7 @@ ck("boxes/k" in _op["approximate"] and "tables/t" in _op["unrestored"],
 
 m = g.manifest(TOKEN)
 sess_facts = m.get("session") or {}
-ck(m["protocolVersion"] == "1.8"
+ck(m["protocolVersion"] == "1.9"
    and set(sess_facts) == {"stamp", "since", "diff", "diffCap"}
    and sess_facts.get("diffCap") == C.DIFF_CAP,
    "and the manifest says the session exists -- a client cannot discover a stamp it was "

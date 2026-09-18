@@ -1500,8 +1500,10 @@ with sync_playwright() as pw:
 
     _ok, _m, r1 = rp.execute("read-report", {})
     nfull = len(json.dumps(r1))
-    ck(isinstance(r1.get("stamp"), str) and r1["stamp"].startswith("s") and r1.get("figures"),
-       "a report carries a stamp beside everything it always carried: %r" % r1.get("stamp"))
+    ck(isinstance(r1.get("stamp"), str) and r1["stamp"].startswith("r") and len(r1["stamp"]) == 13
+       and r1.get("figures"),
+       "a report carries a stamp beside everything it always carried, and it is a REPORT stamp, "
+       "r + 12 hex, so it can never be mistaken for the snapshot's (ADR-229): %r" % r1.get("stamp"))
     _ok, _m, r1b = rp.execute("read-report", {})
     ck(r1b["stamp"] == r1["stamp"],
        "and a report nobody made the page recompute has the same stamp twice: %s vs %s"
@@ -1539,11 +1541,21 @@ with sync_playwright() as pw:
        % list(d["appeared"])[:3])
 
     # a stamp this session did not issue
-    _ok, _m, lost = rp.execute("read-report", {"since": "s000000000000"})
-    ck("figures" in lost and lost.get("sinceUnknown"),
+    _ok, _m, lost = rp.execute("read-report", {"since": "r000000000000"})
+    ck("figures" in lost and lost.get("sinceUnknown") and "no report stamped" in lost["sinceUnknown"],
        "a stamp this session did not issue gets the WHOLE report and the reason -- the same "
        "way observe fails toward more (ADR-191), because a diff against a baseline that is "
        "not there would be invented: %s" % sorted(lost)[:6])
+    # ADR-229: the WRONG KIND is named, not called unknown. Every operator of
+    # the fifth trial handed a snapshot stamp here at least once and was sent
+    # looking for a report it had never read.
+    _snap_st = rp.observe(sensitive=True)
+    _snap_st = C.stamp_of(_snap_st, rp.identity(_snap_st)) if isinstance(_snap_st, dict) else "s" + "0" * 12
+    _ok, _m2, wrong = rp.execute("read-report", {"since": _snap_st})
+    ck("figures" in wrong and "SNAPSHOT stamp" in (wrong.get("sinceUnknown") or "")
+       and "REPORT stamp" in (wrong.get("sinceUnknown") or "") and "snapshot stamp, not a report stamp" in _m2,
+       "read-report handed a SNAPSHOT stamp as `since` answers the whole report and names the kind "
+       "it was given and the kind it takes, instead of 'unknown': %s" % (wrong.get("sinceUnknown") or "")[:100])
 
     # the baseline is the last report SERVED
     _ok, _m, a = rp.execute("read-report", {})
@@ -1576,7 +1588,7 @@ with sync_playwright() as pw:
        "a table's rows are NOT keyed: a row of cells has no identity of its own, so a table "
        "reports that it gained or lost rows rather than pretending row three is the same "
        "row three")
-    ck("stamp_of(r, self.REPORT_IDENTITY)" in src and "diff_of(prev[1], r, self.REPORT_IDENTITY)" in src,
+    ck('stamp_of(r, self.REPORT_IDENTITY, series="r")' in src and "diff_of(prev[1], r, self.REPORT_IDENTITY)" in src,
        "and the report uses the contract's OWN stamp and diff -- two documents, one "
        "algorithm; a third would be a third thing to get wrong")
 
