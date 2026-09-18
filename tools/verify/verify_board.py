@@ -17,7 +17,10 @@ to each other:
      lists, as many recorded equivalents;
   4. the page renders: every ledger's headline number appears in it, every
      pill is one of the three kinds, no NaN or None leaks into the text;
-  5. the renderer is deterministic: two renders are identical.
+  5. the renderer is deterministic: two renders are identical;
+  9. the arithmetic and the rendering hold on a FIXTURE ledger set with every
+     gate broken at known numbers (ADR-227), because the committed ledgers are
+     green and a renderer that miscounts a failure renders them the same.
 
 Run:  python3 tools/verify/verify_board.py
 """
@@ -193,6 +196,156 @@ ck(_seen[0] == _seen[1] == _seen[2],
 ck("every time on this page is UTC" in page, "...and the page says which zone its stamps are in")
 ck(B.when(0) == "—" and B.when(1789689600) == "2026-09-18 00:00",
    "a stamp is the instant in UTC: %r" % B.when(1789689600))
+
+# ---- 9. the arithmetic and the rendering, held on a ledger set that is NOT green (ADR-227) ----
+# Every check above reads the committed ledgers, and the committed ledgers are
+# green: every suite n == of, no mutant survived, no engine failed, every task
+# held. So a renderer that summed `of` where it should sum `n`, or counted every
+# mutant as killed, or rendered every engine's pill good, produces the SAME PAGE
+# here and passes every check above -- the checks cannot fail on a board with
+# nothing wrong in it. This is the ledger set with everything wrong in it, at
+# known numbers, and the render is held clause by clause. mutate_board breaks
+# the renderer and re-renders its own board before this suite runs, so the
+# byte-for-byte check above cannot cover for these.
+FIX = {
+    "counts": {"suites": {
+        "verify_contract": {"n": 7, "of": 7, "green": True, "at": 300},
+        "verify_lab": {"n": 3, "of": 4, "green": False, "unverified": 1, "at": 200},
+        "verify_mcp": {"n": 5, "of": 5, "green": True, "at": 100},
+        "verify_http": {"n": 2, "of": 2, "green": False, "at": 50},
+    }},
+    "walk": {"targets": {
+        "csrbt-lab@stdio": {"identity": "holds", "transport": "stdio", "tools": 2, "commands": 10,
+                            "totals": {"driven": 5, "refused": 5}, "at": 40},
+        "csrbt-lab@mcp": {"identity": "holds", "transport": "mcp", "tools": 2, "commands": 10,
+                          "totals": {"driven": 5, "refused": 4, "failed": 1}, "at": 40},
+        "csrbt-page/x.html": {"identity": "holds", "commands": 7, "totals": {"driven": 7},
+                              "unreachable": ["a", "b"]},
+        "csrbt-page/y.html": {"identity": "moved", "commands": 3, "totals": {"driven": 3}},
+    }},
+    "tasks": {"tasks": {
+        "t1": {"target": "page", "verdict": "PASS", "held": True, "confirmed": 4, "gives": 2, "holds": 3,
+               "claims": 5, "rungs": ["DRAFT"], "at": 10},
+        "t2": {"target": "lab", "verdict": "FAIL", "must": "FAIL", "held": True, "confirmed": 1,
+               "rungs": ["DRAFT", "DESTRUCTIVE"]},
+        "t3": {"target": "page", "verdict": "FAIL", "held": False, "confirmed": 0},
+        "t1@trace": {"verdict": "PASS", "held": True, "calls": 9, "required": 3, "confirmed": 2},
+        "t1@blind": {"verdict": "PASS", "held": True, "calls": 5, "required": 3, "confirmed": 1},
+        "t3@blind": {"verdict": "FAIL", "held": False, "calls": 4, "required": 2},
+    }},
+    "contention": {"suites": {"s1": {"runs": 3, "failed": 0}, "s2": {"runs": 2, "failed": 1}}},
+    "entry": {"pages": {"p": {"fields": 10, "entered": 8}, "q": {"fields": 0, "entered": 0}}},
+    "readable": {"pages": {"p": {"written": 6, "unreadable": ["z", "w"]}, "q": {"written": 2}}},
+    "delivery": {"paths": {"a": {"by": "adr1"}, "b": {"by": "adr1"}, "c": {"by": "adr2"}, "d": {}}},
+    "mutants": {"runners": {
+        "mutate_organism": {"mutants": 4, "killed": 3, "survived": 1, "inconclusive": 0, "equivalent": 1, "at": 400},
+        "mutate_lab": {"mutants": 2, "killed": 1, "survived": 0, "inconclusive": 1, "equivalent": 0},
+    }},
+    "ecosystem": {"engines": {
+        "E1": {"tests": 10, "failures": 1, "errors": 0, "green": False, "floor": 10},
+        "E2": {"tests": 20, "failures": 0, "errors": 2, "green": True, "floor": 19},
+        "E3": {},
+    }},
+    "routes": {"routes": [{"page": "x.html"}, {"page": "y.html"}, {"page": "z.html"}, {"page": "x.html"}]},
+}
+FS = B.summary(FIX)
+WANT = {
+    "checks": 17, "of": 18, "holes": 1, "suites": 4, "green": 2,
+    "targets": 2, "pages": 2, "commands": 30,
+    "tasks": 3, "tasks_held": 2, "traces": 3, "traces_held": 2, "confirmed": 8,
+    "given": 2, "held_readings": 3, "held_claims": 5, "supervised": 1, "rung_known": 2,
+    "fields": 10, "fields_entered": 8, "entry_pages": 1,
+    "written": 8, "unreadable": 2, "blind_pages": 1,
+    "delivered": 4, "slices": 2,
+    "load_readings": 2, "load_clean": 1, "load_runs": 5, "load_failed": 1,
+    "mutants": 6, "killed": 4, "survived": 1, "inconclusive": 1, "equivalent": 1,
+    "engine_tests": 30, "engine_failures": 3, "engines": 3, "newest": 400,
+}
+for _k, _v in sorted(WANT.items()):
+    ck(FS.get(_k) == _v, "summary[%s] on the fixture ledgers is %r, not %r" % (_k, FS.get(_k), _v))
+ck(sorted(FS["bad_walks"]) == ["csrbt-lab@mcp", "csrbt-page/y.html"],
+   "a walk is bad when a command FAILED or its identity did not hold: %s" % sorted(FS["bad_walks"]))
+fp = B.render(FIX)
+ck(fp == B.render(FIX), "the fixture render is deterministic")
+# the verdict: every one of the seven gates is broken here, and each is named
+for _g in ("every suite check passes", "every walk of every target holds", "every task is held",
+           "every trace is held", "no mutant survived", "no mutant was inconclusive",
+           "no engine suite failed"):
+    ck(("%s — NOT MET" % _g) in fp, "on the fixture ledgers the gate is NOT MET and says so: %s" % _g)
+ck("verdict bad" in fp and "verdict good" not in fp, "...and the banner is red")
+# the tiles, each with its numbers
+for _big, _what, _note in (
+        ("17 / 18", "suite checks passing", "4 suites, 2 green, 1 NOT VERIFIED"),
+        ("30", "commands walked", "1 targets × 2 transports, 2 pages"),
+        ("2 / 3", "tasks held", "2 / 3 traces held, 8 expectations confirmed"),
+        ("2", "values handed over", "every value the 3 tasks enter is in the brief an operator is given -- 3 reading(s) and 5 claim(s)"),
+        ("1 / 2", "entered supervised", "no destructive rung"),
+        ("8 / 10", "fields entered", "across 1 page(s)"),
+        ("6 / 8", "figures readable", "1 page(s) still publish one it cannot"),
+        ("4", "files delivered", "across 2 slice(s)"),
+        ("1 / 2", "clean under load", "5 run(s), 1 failed"),
+        ("4 / 6", "mutants killed", "1 survived, 1 inconclusive, 1 recorded equivalent"),
+        ("30", "engine tests", "3 suites, 3 failures")):
+    _row = '<div class="big">%s</div><div class="what">%s</div><p>' % (_big, _what)
+    _i = fp.find(_row)
+    ck(_i >= 0 and _note in fp[_i:_i + 600], "the %s tile reads %s and says %r" % (_what, _big, _note))
+# the suites table: a pill is good only when the suite is green AND whole
+ck('<td class="mono">verify_contract</td>' in fp and
+   'verify_contract</td><td class="role">' in fp and
+   fp.find('verify_contract</td>') < fp.find('<span class="pill good">7 / 7</span>'),
+   "a green, whole suite gets a good pill")
+ck('<span class="pill bad">3 / 4</span></td><td class="num">1</td>' in fp,
+   "a suite with a hole gets a bad pill and its holes are counted beside it")
+ck('<span class="pill bad">2 / 2</span>' in fp,
+   "a suite that is whole and NOT green is still bad: green is the suite's own verdict, not the ratio")
+ck('verify_walk</td><td class="role">the robot, every target, both transports, every page</td><td colspan="3"><span class="pill na">no reading</span>' in fp,
+   "a harness suite with no entry in counts.json is a 'no reading' row, not a zero")
+ck('<td class="num dim">1970-01-01 00:05</td>' in fp and '<td class="num dim">—</td>' not in fp[:fp.find("The robot")],
+   "a suite's stamp is its own `at`, in UTC")
+# the walks
+_lab = fp[fp.find("The robot's walks"):fp.find("Every page")]
+ck(_lab.count('<span class="pill good">holds</span>') == 1 and _lab.count('<span class="pill bad">BAD</span>') == 1,
+   "of the two lab walks the one with a failed command is BAD and the other holds")
+ck('<td class="num">5</td><td class="num">4</td><td class="num">0</td><td class="num">0</td><td class="num">1</td>' in _lab,
+   "driven, refused, declined, chaos, failed are the walk's own totals")
+# the pages
+ck("4 routed pages" not in fp and "3 routed pages · 2 walked" in fp,
+   "routed pages are counted by DISTINCT page: a route listed twice is one page")
+ck('<div class="page bad"><span class="pname">y.html</span>' in fp and '<div class="page "><span class="pname">x.html</span><span class="pnum">7 driven · 0 refused · 2 unreachable' in fp,
+   "a page whose walk failed is red; a page's unreachable count is the length of its list")
+# the tasks
+_tasks = fp[fp.find("Tasks and traces"):fp.find("The mutant runners")]
+ck('<td class="mono">t2</td><td class="mono">lab</td><td><span class="pill good">FAIL · must FAIL</span>' in _tasks,
+   "a canary that must FAIL and did is good, and says so")
+ck('<td class="mono">t3</td><td class="mono">page</td><td><span class="pill bad">FAIL</span></td><td class="num">0</td><td><span class="pill na">no trace</span></td><td><span class="pill bad">FAIL</span></td><td class="num">4 for 2</td>' in _tasks,
+   "a task that failed is bad; its blind trace that failed is bad; the calls column reads the blind trace")
+ck('<td class="mono">t1</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">4</td><td><span class="pill good">PASS</span></td><td><span class="pill good">PASS</span></td><td class="num">5 for 3</td>' in _tasks,
+   "with both a trace and a blind trace, the calls column is the BLIND one's (5 for 3, not 9 for 3)")
+ck('<td class="mono">t2</td>' in _tasks and _tasks[_tasks.find('<td class="mono">t2</td>'):].split("</tr>")[0].endswith(
+       '<td><span class="pill na">no trace</span></td><td><span class="pill na">—</span></td><td class="num">—</td>'),
+   "a task with no trace of either kind says so twice and has no calls")
+# the mutant runners
+_mut = fp[fp.find("The mutant runners"):fp.find("The engines")]
+ck('<td class="mono">mutate_organism</td>' in _mut and '<td class="num">4</td><td class="num"><span class="pill bad">3</span></td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num dim">1970-01-01 00:06</td>' in _mut,
+   "a runner with a survivor is bad, and its row is mutants, killed, survived, inconclusive, equivalent, when")
+ck('<span class="pill bad">1</span></td><td class="num">0</td><td class="num">1</td><td class="num">0</td><td class="num dim">—</td>' in _mut,
+   "a runner with an inconclusive mutant and no survivor is STILL bad, and no `at` is a dash")
+ck(_mut.count('<span class="pill na">no reading</span>') == len(B.RUNNERS) - 2,
+   "every other runner on the board is a 'no reading' row")
+# the engines
+_eng = fp[fp.find("The engines"):fp.find("<footer")]
+ck(_eng.find("E2") < _eng.find("E1") < _eng.find("E3"),
+   "engines are ordered by tests, most first, and an engine with no reading last")
+ck('<span class="ename">E2</span><span class="pill good">20 ✓</span><span class="floor">floor 19</span>' in _eng
+   and '<span class="ename">E1</span><span class="pill bad">10 ✗</span><span class="floor">floor 10</span>' in _eng
+   and '<span class="ename">E3</span><span class="pill na">no reading</span>' in _eng,
+   "an engine's pill is its own green; a floor is printed; no tests is 'no reading'")
+ck("newest reading 1970-01-01 00:06;" in fp,
+   "the newest reading is the newest `at` across every ledger, here a mutant runner's")
+# the kinds: a gate tile says so, a reading tile says what it is
+_fk = re.findall(r'<p class="kind (gate|reading)">(.*?)</p>', fp)
+ck([k for k, _ in _fk] == ["gate", "reading", "gate", "reading", "reading", "reading", "reading", "reading", "reading", "gate", "gate"],
+   "the tiles' kinds, in order: %s" % [k for k, _ in _fk])
 
 print("---")
 print("%d/%d" % (P, P + F))

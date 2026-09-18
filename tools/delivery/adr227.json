@@ -1,0 +1,33 @@
+{
+ "body": "harness_board.py was the one subject in the kit with no mutant runner, and verify_board held it against ledgers that are green, so a renderer that summed of for n or rendered every engine good produced the same page and passed every check; measured on a copy, 121 of 121 with survived forced to zero. The obvious runner would have lied: every mutant that moves a byte dies at the byte-for-byte check and proves only that a byte moved. verify_board section 9 holds a fixture ledger set with every gate broken at known numbers, summary to 39 exact figures and render to the bytes of each row, 121 to 204. tools/mutate_board.py, 43 mutants, each re-rendering its own board before the suite runs so only a rule can kill it; a prose-only mutant survives it, which is the proof. 43 of 43 on the first honest run; the renderer had nothing wrong in it. Held: a second fixture with every gate met and a reading below its ceiling; trigger, the first mutant this runner misses.",
+ "chain": "adr226",
+ "chain_probe": "docs/ADR-226-the-script-that-was-refused-before-its-first-line-2026-09-17.md",
+ "clean": [
+  "adr226"
+ ],
+ "id": "adr227",
+ "once": true,
+ "paths": [
+  "docs/ADR-227-the-page-that-graded-everything-and-was-graded-by-nothing-2026-09-17.md",
+  "docs/CHANGELOG-2026-09-17-adr227-the-page-that-graded-everything-and-was-graded-by-nothing.md",
+  "tools/mutate_board.py",
+  "tools/harness_board.py",
+  "tools/verify/verify_board.py",
+  "tools/delivery/adr227.json",
+  "docs/AI_HARNESS.md",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json",
+  "tools/badinput_ledger.json",
+  "tools/carried_ledger.json",
+  "tools/destructive_ledger.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/readable_ledger.json",
+  "tools/restored_ledger.json",
+  "tools/takeaway_ledger.json"
+ ],
+ "subject": "ADR-227: the board graded everything and was graded by nothing -- a mutant runner for the renderer, and a fixture ledger set with every gate broken"
+}

@@ -102,6 +102,7 @@ RUNNERS = [
     ("mutate_ci", "the CI workflow's path filter, and the matcher that holds it"),
     ("mutate_outbox", "the outbox: what has not left this device"),
     ("mutate_keep", "the local autosave layer, and the sentence it says when it cannot save"),
+    ("mutate_board", "this page: the arithmetic behind every tile, the verdict, and what each row renders"),
 ]
 
 

@@ -2,7 +2,7 @@
  "_comment": "Written by tools/audit_carried.py. Per page: how many of the figures it computes appear in something it hands over, which ones do not, and the ceiling that count may not rise above (ADR-211).",
  "pages": {
   "breeding-bench.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 2,
    "figures": 19,
@@ -31,7 +31,7 @@
    ]
   },
   "cell-bench.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 4,
    "figures": 29,
@@ -70,7 +70,7 @@
    ]
   },
   "collection-sheet.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 7,
    "figures": 10,
@@ -90,7 +90,7 @@
    ]
   },
   "cp-bench.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 4,
    "figures": 20,
@@ -120,7 +120,7 @@
    ]
   },
   "deployment-log.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 3,
    "figures": 22,
@@ -152,7 +152,7 @@
    ]
   },
   "eco-protocol-library.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 1,
    "figures": 0,
@@ -161,7 +161,7 @@
    "seen": []
   },
   "ecology-lab.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 19,
    "declared": {
     "effective species": "a Terrarium reading: this page's two live demonstrations are driven with sliders and redraw on every drag, so the figure is a picture of a parameter you are moving rather than a record of anything that happened. There is nothing to carry away -- the run that produced a number is the position of a slider, and the numbers that ARE a record are the stations' and the workbench's, both of which now leave with their own export (ADR-213, ADR-214).",
@@ -233,7 +233,7 @@
    ]
   },
   "ethogram.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 5,
    "figures": 9,
@@ -252,7 +252,7 @@
    ]
   },
   "experiment-guide.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 7,
    "figures": 0,
@@ -261,7 +261,7 @@
    "seen": []
   },
   "farm-scout.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 3,
    "figures": 10,
@@ -281,7 +281,7 @@
    ]
   },
   "field-notebook.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 3,
    "figures": 18,
@@ -309,7 +309,7 @@
    ]
   },
   "food-web.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 3,
    "figures": 5,
@@ -324,7 +324,7 @@
    ]
   },
   "greenhouse.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 5,
    "figures": 16,
@@ -350,7 +350,7 @@
    ]
   },
   "micro-bench.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 5,
    "figures": 12,
@@ -372,7 +372,7 @@
    ]
   },
   "ordination.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 3,
    "figures": 11,
@@ -393,7 +393,7 @@
    ]
   },
   "pheno-tracker.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 3,
    "figures": 8,
@@ -411,7 +411,7 @@
    ]
   },
   "releve.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "declared": {
     "families": "families in the loaded pack, not in the plot; the plot's own family count is the anStats tile next to it and that one is carried",
@@ -450,7 +450,7 @@
    ]
   },
   "selection-log.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 3,
    "figures": 9,
@@ -469,7 +469,7 @@
    ]
   },
   "soil-bench.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 2,
    "figures": 14,
@@ -493,7 +493,7 @@
    ]
   },
   "soil-recipes.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 2,
    "figures": 0,
@@ -502,7 +502,7 @@
    "seen": []
   },
   "stand-sheet.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "declared": {
     "known interactions": "a count of the interaction records in the loaded species pack, not of anything measured in this stand; the pack is exported as itself and the stand sheet carries the interactions actually recorded on the plot"
@@ -539,7 +539,7 @@
    ]
   },
   "survey-design.html": {
-   "at": 1789700989,
+   "at": 1789715968,
    "ceiling": 0,
    "exports": 6,
    "figures": 14,
