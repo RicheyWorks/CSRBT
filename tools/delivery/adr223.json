@@ -1,0 +1,32 @@
+{
+ "body": "ADR-202 found that every push rebuilt the Java tree on two JDKs, that the last dozen slices held no Java, and that the minutes had run out. It wrote a path filter, a suite that holds the filter to what the build reads, and one sentence: the workflow travels as tools/ci/ci.yml and is copied into place by the same command that pushes the slice. THE COMMAND THAT PUSHED THE SLICE CONTAINS NO SUCH STEP. The workflow in origin is the 1,356-byte file it was before ADR-202, the 2,887-byte filter is beside it in tools/ci, and every push since has rebuilt the tree. verify_ci scores 9 of 14 on a fresh clone while the ledger in the same commit says 14 of 14 -- as with verify_keep in ADR-219 both are true, because the count was taken in a session that had copied the file into place by hand, in a container, where a copy is not a delivery. The delivery bridge refuses to write .github/workflows, rightly, so the one place the file could not be landed by the usual route was also the one place nobody checked that it had landed. NOW a manifest may carry install pairs, and deliver.py generates, BEFORE the add, a Copy-Item of from over to, and STAGES the copy. The to path is not in paths and cannot be: the tarball is made from paths, and a tarball that writes there is what the bridge refuses. --check holds the pair, and names a malformed install rather than letting it crash the generator, which the suite's first run did. The once-guard runs first; a manifest with no install generates the script it always did, so every older script passes --check unregenerated. The supply-chain reasoning stands: nothing remote writes the workflow, the operator's own command does, from a file that is in the diff they are pushing. LAST IN ITS CHAIN ON PURPOSE: a push that changes the workflow needs a credential with the workflow scope, and if it is refused it is refused for the whole push, so ADR-219 to ADR-222 are pushed by their own scripts first and this one's failure costs this slice only. verify_delivery 66 to 76, mutate_delivery 53 to 60 all killed.",
+ "chain": "adr222",
+ "chain_probe": "docs/ADR-222-a-command-says-when-and-from-what-2026-09-17.md",
+ "clean": [
+  "adr222"
+ ],
+ "id": "adr223",
+ "install": [
+  {
+   "from": "tools/ci/ci.yml",
+   "to": ".github/workflows/ci.yml"
+  }
+ ],
+ "once": true,
+ "paths": [
+  "docs/ADR-223-a-filter-that-never-reached-the-workflow-2026-09-17.md",
+  "docs/CHANGELOG-2026-09-17-adr223-a-filter-that-never-reached-the-workflow.md",
+  "tools/ci/ci.yml",
+  "tools/deliver.py",
+  "tools/mutate_delivery.py",
+  "tools/verify/verify_delivery.py",
+  "tools/delivery/adr223.json",
+  "docs/AI_HARNESS.md",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json"
+ ],
+ "subject": "ADR-223: the path filter written to save the Actions minutes sat in tools/ci for fifteen slices, and the workflow never changed"
+}
