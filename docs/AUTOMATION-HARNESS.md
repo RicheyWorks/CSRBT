@@ -237,8 +237,42 @@ either transport — "a transport decides nothing", measured.
 Every command carries a caller-generated `request_id`. Replaying the same id
 with the same body returns the cached response with `replayed: true` and does not
 operate the page twice. Reusing that id with different contents is a `conflict`.
-The cache is bounded to 256 completed commands or 8 MiB of output, whichever
-comes first; durable orchestration should keep its own audit and retry state.
+The cache is bounded to 256 receipts or 8 MiB of **what it holds** — the whole
+retained response, snapshot included (ADR-220; it counted only `output` before,
+and a science page's 256 receipts were 25 MB against a budget reading zero). On
+a page-sized target that is about eighty receipts; durable orchestration should
+keep its own audit and retry state.
+
+**Retrying a `request_id` never runs anything twice** (ADR-220), and the manifest
+says so under `replay`:
+
+| What happened | What the same id gets |
+|---|---|
+| The act landed and the snapshot afterwards could not be taken | the first call is refused `failed` with **LANDED** in the message; the retry is answered from the receipt — completed by looking again, never by acting |
+| The command **raised** | `failed` again, with the original reason and *NOT run again*; a new `request_id` is how to try again |
+| The command was **refused** | judged afresh — a refusal keeps no receipt, because nothing ran |
+
+## The envelope, and the wire under it
+
+A command may carry `request_id` (or `requestId`), `action`, `arguments`, and —
+optionally — `expires_at` and `if_stamp`. **Anything else is refused by name**
+(ADR-221): a field the door does not know is a thing the caller believes about
+the call and the door does not. Before that, `"dry_run": true` ran for real.
+
+- **`expires_at`** (ADR-222) — an ISO-8601 instant *with an offset*. A command
+  that has not run by then is refused `stale` and is not run. A receipt is
+  served whatever the clock says.
+- **`if_stamp`** (ADR-222) — the `stamp` of the snapshot the caller decided
+  from. If the target has moved since, the command is refused `stale` and is
+  not run; `observe` with `since=<that stamp>` says what moved. It costs one
+  look, and only a caller that asks pays it. Over MCP both ride in the call's
+  `_meta`.
+
+Every door reads **bytes**, decodes them strictly as UTF-8 whatever the
+machine's code page is, one frame of at most 1 MiB at a time, and parses them
+strictly — a key given twice, `NaN`, a nesting too deep to parse are each
+refused with a code of their own (`tools/harness_frames.py`, ADR-221). **Nothing
+a client sends closes a door**: a refused frame is followed by the next one.
 
 A replay is **authorised again before it is served**. A response captured while
 `SENSITIVE_READ` was open must not keep flowing after an operator closes it, so

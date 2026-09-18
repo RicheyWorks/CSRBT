@@ -63,7 +63,20 @@ REPLAY SAFETY
     Every command carries a caller-generated request_id. Replaying the same id
     with the same body returns the cached response with replayed=true and does
     not operate the page twice. Reusing that id with a different body is a
-    conflict. The cache is bounded: 256 commands or 8 MiB of output.
+    conflict. The cache is bounded: 256 commands or 8 MiB of what it HOLDS --
+    the whole retained response, snapshot included (ADR-220; it counted only
+    `output` before, and held 25 MB against a budget that read zero).
+
+    THE RECEIPT IS WRITTEN BEFORE THE LOOK (ADR-220). An act that landed is
+    recorded the moment it lands, before the snapshot that rides the response
+    is taken and before anything is sized -- so a target that cannot be looked
+    at afterwards costs the caller a retry, and the retry is answered from the
+    receipt. It used to cost the target the act a second time. And the one
+    outcome nobody knows keeps a receipt too: a command that RAISED may have
+    done half of what it was asked, and it is the last one that should run
+    twice under one id. A refusal keeps none -- nothing ran. Both rules are
+    the FlowersForever gateway's, which learned them after this one was copied
+    from it.
 
     One deliberate divergence from the FlowersForever gateway this mirrors: a
     replay is authorised again before it is served. There, the cache is checked
@@ -73,9 +86,10 @@ REPLAY SAFETY
     the policy takes effect on the next call rather than the next restart.
 """
 import copy
+import datetime
 import hashlib, hmac, json, os, re, time
 
-PROTOCOL_VERSION = "1.7"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
+PROTOCOL_VERSION = "1.8"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
                            # 1.2 (ADR-120): snapshotMs on every execute response -- the snapshot, priced
                            # 1.3 (ADR-124): argumentPools may carry argument SETS, keyed by the action alone
                            # 1.6 (ADR-189): `stale` -- a refusal for an argument that was right when
@@ -95,6 +109,11 @@ PROTOCOL_VERSION = "1.7"   # 1.1 (ADR-114): bounds, patterns, examples in argume
                            #                snapshot this session was served. A plugin says what
                            #                identity means on its own snapshot (identity()); the
                            #                gateway does the diffing, so all three targets diff alike.
+                           # 1.8 (ADR-222): a command may say WHEN it stops being wanted
+                           #                (`expires_at`) and WHAT IT WAS DECIDED FROM
+                           #                (`if_stamp`); either one failing is `stale`. The
+                           #                envelope is strict (ADR-221), the retry rule is
+                           #                stated (ADR-220), and the manifest publishes all three.
 REPLAY_CACHE_LIMIT = 256
 REPLAY_CACHE_BYTE_LIMIT = 8 * 1024 * 1024
 # ADR-191: how many entries of one list, in one bucket of one diff, are named
@@ -111,6 +130,11 @@ BRIEF_CAP = 200
 # field "value" inside a pool called "choose-option".
 PATH_SEP = "/"
 TOKEN_MIN = 24
+# ADR-221: every field a command may carry. Anything else is refused.
+# ADR-222: and two a command MAY carry. Neither is part of the command's
+# identity -- a retry with a fresh deadline is the same command -- so neither is
+# in the body a replay is matched against.
+COMMAND_FIELDS = ("request_id", "requestId", "action", "arguments", "expires_at", "if_stamp")
 SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{0,29}$")
 TOOL_NAME_MAX = 64
 TOOL_NAME_OK = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
@@ -896,7 +920,15 @@ class Policy(object):
         if not self.token or len(self.token) < TOKEN_MIN:
             raise Unauthorized("harness token is unset or shorter than %d characters"
                                % TOKEN_MIN)
-        if not isinstance(token, str) or not hmac.compare_digest(token, self.token):
+        # COMPARED AS BYTES (ADR-221). hmac.compare_digest refuses to compare two
+        # str unless both are ASCII, and says so with a TypeError -- which is not
+        # a HarnessError, so one wrong token with an accent in it went through
+        # every transport's `except HarnessError` and ended the stdio door, from
+        # a caller holding no credentials at all. surrogatepass, so that bytes a
+        # lenient decoder smuggled in are still compared rather than raised on.
+        if not isinstance(token, str) or not hmac.compare_digest(
+                token.encode("utf-8", "surrogatepass"),
+                self.token.encode("utf-8", "surrogatepass")):
             raise Unauthorized("harness token rejected")
 
     def authorize(self, risk):
@@ -984,17 +1016,24 @@ class Registry(object):
 # ---------------------------------------------------------------------------
 
 class _Done(object):
-    __slots__ = ("body", "response", "risk", "nbytes")
+    """A receipt. `response` is None until the look afterwards has succeeded;
+    `outcome` is what the act itself answered; `error` is set instead when the
+    act raised, and is the message it raised with."""
+    __slots__ = ("body", "response", "risk", "nbytes", "outcome", "error")
 
-    def __init__(self, body, response, risk, nbytes):
+    def __init__(self, body, response, risk, nbytes, outcome=None, error=None):
         self.body, self.response, self.risk, self.nbytes = body, response, risk, nbytes
+        self.outcome, self.error = outcome, error
 
 
 class Gateway(object):
     """Token, policy, replay safety. The only thing a transport talks to."""
 
-    def __init__(self, registry, policy):
+    def __init__(self, registry, policy, clock=None):
         self.registry, self.policy = registry, policy
+        # ADR-222: the clock a deadline is read against. Injected, so that the
+        # suite can hold "expired" and "not yet" to the second without sleeping.
+        self._now = clock or time.time
         self._done = {}          # cacheKey -> _Done, insertion-ordered
         self._bytes = 0
         self.audit = []          # (t, plugin, action, risk, outcome)
@@ -1062,6 +1101,17 @@ class Gateway(object):
         return {"protocolVersion": PROTOCOL_VERSION,
                 "replayCacheCommands": REPLAY_CACHE_LIMIT,
                 "replayCacheBytes": REPLAY_CACHE_BYTE_LIMIT,
+                # ADR-220: the retry rule, where a client that reads only the
+                # manifest will find it. One rule, three cases.
+                "replay": {"rule": "retrying a request_id never runs anything twice",
+                           "landed": "an act whose snapshot could not be taken afterwards is "
+                                     "refused `failed` with LANDED in the message; the same "
+                                     "request_id gets its answer, from the receipt",
+                           "raised": "a command that raised keeps a receipt too: the same "
+                                     "request_id is refused `failed` again and is not run; a "
+                                     "new request_id is how to try again",
+                           "refused": "a refusal keeps no receipt -- nothing ran",
+                           "bytesCount": "the whole retained response, snapshot included"},
                 # ADR-191: a client cannot discover a stamp it was never told
                 # about. The manifest says the door keeps one look per target
                 # and what to pass back, so `since` is part of the contract
@@ -1075,6 +1125,18 @@ class Gateway(object):
                                     "the last snapshot this session was served",
                             "diffCap": DIFF_CAP},
                 "strictArguments": True,
+                # ADR-221: and the envelope around them. A client can read what a
+                # command may carry instead of finding out what is ignored.
+                "commandFields": list(COMMAND_FIELDS),
+                # ADR-222: the two optional ones, and what each refusal means.
+                "freshness": {"expires_at": "optional. An ISO-8601 instant with an offset; past "
+                                            "it a command that has not run is refused `stale` "
+                                            "and is not run. A receipt is served regardless",
+                              "if_stamp": "optional. The `stamp` of the snapshot the caller "
+                                          "decided from; if the target's stamp differs the "
+                                          "command is refused `stale` and is not run",
+                              "identity": "neither is part of the command: a retry with a new "
+                                          "deadline is the same request"},
                 "tokenMinLength": TOKEN_MIN,
                 "risks": list(RISKS),
                 "policy": dict(self.policy.allow),
@@ -1135,13 +1197,38 @@ class Gateway(object):
 
     def execute(self, token, plugin_id, command):
         self.policy.authenticate(token)
+        # THE ENVELOPE NAMES ITS FIELDS (ADR-221). Arguments have been strict
+        # since ADR-097 and the envelope around them never was: a command
+        # carrying `"dry_run": true` was run for real, one carrying an
+        # `expires_at` in 2001 was run in 2026, and one carrying both spellings
+        # of its id, disagreeing, was filed under the first. A field this door
+        # does not know is a thing the caller believes about the call and the
+        # door does not, and the only honest answer to that is a refusal.
+        if not isinstance(command, dict):
+            raise InvalidArgument("a command is an object")
+        extra = sorted(k for k in command if k not in COMMAND_FIELDS)
+        if extra:
+            raise InvalidArgument("a command has no field %s; it has %s -- a field this door "
+                                  "does not know is not ignored, because the caller meant "
+                                  "something by it"
+                                  % (", ".join(repr(k) for k in extra), ", ".join(COMMAND_FIELDS)))
+        if ("request_id" in command and "requestId" in command
+                and command["request_id"] != command["requestId"]):
+            raise InvalidArgument("request_id and requestId are two spellings of one field and "
+                                  "this command gives them different values")
         rid = command.get("request_id") or command.get("requestId")
         name = command.get("action")
-        args = command.get("arguments") or {}
+        args = command.get("arguments")
+        if args is None:
+            args = {}
         if not rid or not isinstance(rid, str):
             raise InvalidArgument("every command needs a caller-generated request_id")
+        if not isinstance(name, str):
+            raise InvalidArgument("action must be a string naming one of the plugin's actions")
         if not isinstance(args, dict):
             raise InvalidArgument("arguments must be an object")
+        if not isinstance(plugin_id, str):
+            raise InvalidArgument("a plugin is named by a string")
         plugin = self.registry.find(plugin_id)
         key = plugin_id + "\x00" + rid
         body = json.dumps({"a": name, "g": args}, sort_keys=True)
@@ -1154,10 +1241,25 @@ class Gateway(object):
             # Re-authorised, not merely re-served: a payload captured while a
             # gate was open must not keep flowing after it is closed.
             self.policy.authorize(hit.risk)
+            if hit.error is not None:
+                # ADR-220: IT RAISED, AND IT IS NOT RUN AGAIN. What a command
+                # that raised did to its target is the one thing nobody knows.
+                raise Failed("%s (replayed: request_id %r already ran and raised, and was NOT "
+                             "run again -- send a new request_id to try it again)"
+                             % (hit.error, rid))
+            if hit.response is None:
+                # ADR-220: the act landed and the look afterwards failed. The
+                # receipt is completed now, by looking again -- never by acting.
+                return self._complete(key, plugin, plugin_id, rid, hit, True)
             r = dict(hit.response)
             r["replayed"] = True
             return r
 
+        # ADR-222, AFTER the replay and before anything else: a receipt is
+        # served whatever the clock says, because the act it records happened
+        # and its truth does not expire; a command that has NOT run and has
+        # outlived its deadline is refused before it is even validated.
+        self._fresh(command)
         spec = plugin.descriptor().action(name)
         self._validate(spec, args)
         risk, risk_why = self._risk_of(plugin, spec, args)
@@ -1174,6 +1276,7 @@ class Gateway(object):
                 raise Forbidden("%s -- %s was raised from %s to %s because %s"
                                 % (e.message, spec.name, spec.risk, risk, risk_why))
             raise
+        self._unmoved(plugin, plugin_id, command)
         t0 = time.time()
         try:
             ok, message, output = plugin.execute(spec.name, args)
@@ -1182,8 +1285,85 @@ class Gateway(object):
             raise
         except Exception as e:
             self.audit.append((time.time(), plugin_id, name, risk, "failed"))
-            raise Failed("%s/%s raised: %s" % (plugin_id, name, str(e)[:200]))
+            msg = "%s/%s raised: %s" % (plugin_id, name, str(e)[:200])
+            self._keep(key, _Done(body, None, risk, _held(msg), error=msg))
+            raise Failed(msg)
         ms = int((time.time() - t0) * 1000)
+        # ADR-220: THE RECEIPT BEFORE THE LOOK. From this line on the act has
+        # happened, whatever else goes wrong -- the snapshot, the diff, the
+        # sizing -- and a retry under this id must find that out rather than
+        # do it again.
+        outcome = {"action": spec.name, "declaredRisk": spec.risk, "riskWhy": risk_why,
+                   "ok": bool(ok), "message": message, "output": output, "ms": ms}
+        done = _Done(body, None, risk, _held(outcome), outcome=outcome)
+        self._keep(key, done)
+        self.audit.append((time.time(), plugin_id, name, risk,
+                           "ok" if ok else "no"))
+        return self._complete(key, plugin, plugin_id, rid, done, False)
+
+    def _fresh(self, command):
+        """`expires_at`: the moment after which the caller no longer wants this.
+
+        A command waits -- in a pipe, behind a slow target, in a client's retry
+        loop -- and the caller that sent it may have timed out, looked again and
+        decided something else. Without a deadline the door runs it whenever it
+        arrives. The rule and the strictness are FlowersForever's: an ISO-8601
+        instant WITH an offset, never a number and never a naive time, because
+        a deadline two machines read differently is worse than none."""
+        at = command.get("expires_at")
+        if at is None:
+            return
+        when = None
+        if isinstance(at, str):
+            try:
+                when = datetime.datetime.fromisoformat(at.replace("Z", "+00:00"))
+            except ValueError:
+                when = None
+        if when is None or when.tzinfo is None:
+            raise InvalidArgument("expires_at is an ISO-8601 instant with an offset, such as "
+                                  "2026-09-17T12:00:00Z -- not a number, and not a time with no "
+                                  "zone: %r" % (at,))
+        if self._now() >= when.timestamp():
+            raise Stale("this command expired at %s and was not run: it waited longer than its "
+                        "caller was willing to stand behind it -- read again and decide again"
+                        % at)
+
+    def _unmoved(self, plugin, plugin_id, command):
+        """`if_stamp`: act only if the target is still what the caller looked at.
+
+        ADR-188 stamps a POSITIONAL selector so an index cannot silently mean a
+        different control. A NAME has no such guard: `@Delete` is still `@Delete`
+        after a dialog has opened over the page or a row has been swapped under
+        it. `if_stamp` is the caller saying which look it decided from -- the
+        stamp every snapshot and every response has carried since ADR-191 -- and
+        the door refusing `stale` if the target has moved since. It costs one
+        look, and only a caller that asks pays it. The look is NOT served and
+        NOT remembered: the caller's baseline stays the snapshot it holds, so
+        `observe(since=<that stamp>)` still answers with what moved."""
+        want = command.get("if_stamp")
+        if want is None:
+            return
+        if not isinstance(want, str) or not want:
+            raise InvalidArgument("if_stamp is the `stamp` of a snapshot this door served")
+        try:
+            _snap, _raw, now = self._stamped(plugin, plugin.observe(
+                sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))
+        except Exception as e:
+            raise Unavailable("%s could not be looked at to check if_stamp, so nothing was run: %s"
+                              % (plugin_id, str(e)[:160]))
+        if now != want:
+            raise Stale("%s has moved since the snapshot stamped %s (it is %s now) and nothing "
+                        "was run -- observe with since=%s to see what changed, then decide again"
+                        % (plugin_id, want, now, want))
+
+    def _complete(self, key, plugin, plugin_id, rid, done, replayed):
+        """The look afterwards, and the response. Never the act.
+
+        Called once after the act, and again -- on a retry -- for a receipt
+        whose look failed. A look that fails here leaves the receipt where it
+        is and says so in words a client can act on: the act LANDED, and the
+        same request_id is how to get its answer."""
+        o = done.outcome
         # The snapshot rides every response, and until ADR-120 nobody had said
         # what it costs. Priced here, per response: a client can read how much
         # of a round trip was the action and how much was the target being
@@ -1195,8 +1375,15 @@ class Gateway(object):
         # client actually has ("did my call land, and what moved") rather than
         # handing back a second copy of the page and leaving it to compare.
         before = self._seen.get(plugin_id)
-        snap, raw, st = self._stamped(plugin, plugin.observe(
-            sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))
+        try:
+            snap, raw, st = self._stamped(plugin, plugin.observe(
+                sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))
+        except Exception as e:
+            raise Failed("%s/%s LANDED (ok=%s: %s) and the look afterwards failed: %s -- retry "
+                         "with the same request_id %r: it is answered from the receipt and the "
+                         "act is not run again"
+                         % (plugin_id, o["action"], o["ok"], str(o["message"])[:80],
+                            str(e)[:160], rid))
         if isinstance(snap, dict):
             self._seen[plugin_id] = (st, raw)
         if before is None:
@@ -1208,19 +1395,20 @@ class Gateway(object):
             diff["since"] = before[0]
             diff["changed"] = before[0] != st
         resp = {"protocolVersion": PROTOCOL_VERSION, "requestId": rid,
-                "pluginId": plugin_id, "action": spec.name, "risk": risk,
-                "declaredRisk": spec.risk, "riskWhy": risk_why,
-                "ok": bool(ok), "replayed": False, "message": message,
-                "output": output, "ms": ms,
+                "pluginId": plugin_id, "action": o["action"], "risk": done.risk,
+                "declaredRisk": o["declaredRisk"], "riskWhy": o["riskWhy"],
+                "ok": o["ok"], "replayed": False, "message": o["message"],
+                "output": o["output"], "ms": o["ms"],
                 "snapshotMs": int((time.time() - t1) * 1000),
                 "stamp": st, "diff": diff,
                 "snapshot": snap}
-        n = _bytes(output)
-        self._done[key] = _Done(body, resp, risk, n)
-        self._bytes += n
-        self._trim()
-        self.audit.append((time.time(), plugin_id, name, risk,
-                           "ok" if ok else "no"))
+        # THE BUDGET COUNTS WHAT THE CACHE HOLDS. It counted `output`, and the
+        # response it kept carried the snapshot: 256 receipts from a science
+        # page were 25 MB against a budget that said 0 of 8 MiB.
+        self._keep(key, _Done(done.body, resp, done.risk, _held(resp), outcome=o))
+        if replayed:
+            resp = dict(resp)
+            resp["replayed"] = True
         return resp
 
     # -- internals ----------------------------------------------------------
@@ -1336,6 +1524,18 @@ class Gateway(object):
                 raise InvalidArgument("action %r does not accept argument %r"
                                       % (spec.name, k))
 
+    def _keep(self, key, done):
+        """Write a receipt, or write it again. A receipt being completed moves
+        to the NEWEST position first, so the trim that follows cannot evict
+        the one receipt this call exists to keep -- an old receipt completed
+        late was the oldest entry in the cache at the moment it grew."""
+        old = self._done.pop(key, None)
+        if old is not None:
+            self._bytes -= old.nbytes
+        self._done[key] = done
+        self._bytes += done.nbytes
+        self._trim()
+
     def _trim(self):
         while self._done and (len(self._done) > REPLAY_CACHE_LIMIT
                               or (self._bytes > REPLAY_CACHE_BYTE_LIMIT
@@ -1344,13 +1544,12 @@ class Gateway(object):
             self._bytes -= self._done.pop(k).nbytes
 
 
-def _bytes(v):
-    if v is None:
-        return 0
-    if isinstance(v, str):
-        return len(v.encode("utf-8"))
-    if isinstance(v, dict):
-        return sum(_bytes(k) + _bytes(x) for k, x in v.items())
-    if isinstance(v, (list, tuple)):
-        return sum(_bytes(x) for x in v)
-    return 16
+def _held(v):
+    """What keeping `v` costs, in bytes of JSON -- the form it is served in. A
+    value that cannot be sized is charged the whole budget: it may not sit in
+    the cache for free, and the receipt is already written by the time this is
+    asked, so failing here could only ever lose it."""
+    try:
+        return len(json.dumps(v, default=str, separators=(",", ":")).encode("utf-8"))
+    except Exception:
+        return REPLAY_CACHE_BYTE_LIMIT

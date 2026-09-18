@@ -89,7 +89,19 @@ def refused(fn, code, why):
     except C.HarnessError as e:
         ck(e.code == code, "%s: expected %s, got %s (%s)" % (why, code, e.code, e.message))
         return
+    except Exception as e:
+        # Not a refusal at all: something RAISED that no transport catches. A
+        # failed check, not a crashed suite -- a mutant runner cannot score a crash.
+        ck(False, "%s: expected %s, and the door raised %s instead" % (why, code, type(e).__name__))
+        return
     ck(False, "%s: was allowed" % why)
+
+
+def served(fn):
+    try:
+        return fn()
+    except Exception as e:
+        return {"raised": "%s: %s" % (type(e).__name__, e)}
 
 
 def rid(n):
@@ -161,9 +173,19 @@ ck([a for a, _ in plug.ran] == ["look"],
 # A caller cannot re-label its own risk: there is nowhere to put the claim.
 spec = plug.descriptor().action("press")
 ck(spec.risk == "DESTRUCTIVE", "risk is declared on the action, by the plugin")
+# ADR-221: and since the envelope became strict there LITERALLY is nowhere: the
+# claim is refused as a field a command does not have, before its action's risk
+# is even looked up. It used to be ignored, and the refusal below was `forbidden`
+# only because `press` happened to be blocked under this policy.
 refused(lambda: g.execute(TOKEN, "fake",
                           {"request_id": rid(6), "action": "press", "risk": "READ"}),
-        "forbidden", "a command carrying its own risk claim")
+        "invalid_argument", "a command carrying its own risk claim")
+_open, _op = gw(allow={"MUTATE": True, "DESTRUCTIVE": True})
+refused(lambda: _open.execute(TOKEN, "fake",
+                              {"request_id": rid(7), "action": "press", "risk": "READ"}),
+        "invalid_argument", "a risk claim on a command that WOULD have been allowed -- it is the "
+                            "claim that is refused, not the action")
+ck(_op.ran == [], "and nothing ran: %s" % _op.ran)
 
 # ---- 4. strict arguments -------------------------------------------------
 g, _ = gw(allow={"DRAFT": True})
@@ -190,6 +212,201 @@ refused(lambda: g.execute(TOKEN, "ghost", {"request_id": rid(17), "action": "loo
         "not_found", "a plugin that is not registered")
 refused(lambda: g.execute(TOKEN, "fake", {"action": "look"}),
         "invalid_argument", "a command with no request id")
+
+# ---- 4b. the envelope names its fields (ADR-221) ---------------------------
+# Measured before the fix, through the stdio door: a command carrying
+# `"dry_run": true` and an `expires_at` in 2001 answered ok=True and RAN.
+g, plug = gw(allow={"DRAFT": True})
+refused(lambda: g.execute(TOKEN, "fake", {"request_id": rid(20), "action": "draft",
+                                          "arguments": {"n": 1}, "dry_run": True}),
+        "invalid_argument", "a command carrying dry_run, which this door has never heard of")
+ck(plug.ran == [],
+   "A FIELD THE DOOR DOES NOT KNOW IS NOT IGNORED: the caller meant something by `dry_run`, the "
+   "door would have meant nothing by it, and the command would have run for real: %s" % plug.ran)
+try:
+    g.execute(TOKEN, "fake", {"request_id": rid(21), "action": "draft", "dry_run": True, "when": 1})
+    ck(False, "two unknown fields were accepted")
+except C.HarnessError as _e:
+    ck("'dry_run'" in _e.message and "'when'" in _e.message and "request_id" in _e.message,
+       "the refusal names every unknown field and lists the ones a command has: %s" % _e.message)
+refused(lambda: g.execute(TOKEN, "fake", {"request_id": "A", "requestId": "B", "action": "draft"}),
+        "invalid_argument", "both spellings of the id, disagreeing -- it was filed under the first")
+ck(served(lambda: g.execute(TOKEN, "fake", {"request_id": "same-both", "requestId": "same-both",
+                                            "action": "draft"})).get("requestId") == "same-both",
+   "both spellings AGREEING is one id said twice, and is served")
+ck(g.execute(TOKEN, "fake", {"requestId": "camel", "action": "draft"})["ok"],
+   "and either spelling alone is still taken")
+for _bad, _why in (([1], "a command that is a list"), ("draft", "a command that is a string"),
+                   (None, "a command that is null")):
+    refused(lambda: g.execute(TOKEN, "fake", _bad), "invalid_argument", _why)
+refused(lambda: g.execute(TOKEN, "fake", {"request_id": rid(22), "action": ["draft"]}),
+        "invalid_argument", "an action that is a list")
+refused(lambda: g.execute(TOKEN, ["fake"], {"request_id": rid(23), "action": "draft"}),
+        "invalid_argument", "a plugin named by a list -- it reached a dict lookup and raised "
+                            "TypeError, which no transport catches")
+refused(lambda: g.execute(TOKEN, "fake", {"request_id": rid(24), "action": "draft", "arguments": [1]}),
+        "invalid_argument", "arguments that are a list")
+ck(g.execute(TOKEN, "fake", {"request_id": rid(25), "action": "draft", "arguments": None})["ok"],
+   "arguments given as null are no arguments")
+_m = g.manifest(TOKEN)
+ck(_m.get("commandFields") == list(C.COMMAND_FIELDS)
+   and set(C.COMMAND_FIELDS) == {"request_id", "requestId", "action", "arguments",
+                                 "expires_at", "if_stamp"},
+   "and the manifest lists what a command may carry, so a client can read it instead of finding "
+   "out what is ignored: %s" % _m.get("commandFields"))
+
+# ---- 4c. a command may say when, and from what (ADR-222) --------------------
+# FlowersForever requires a deadline on every physical command and lets a desktop
+# action name the observation it was decided from. Here both are OPTIONAL -- no
+# task, walk or trace written before today carries either -- and both are held.
+class Clock(object):
+    def __init__(self, t):
+        self.t = t
+
+    def __call__(self):
+        return self.t
+
+
+class Moving(Fake):
+    """A target whose snapshot can be moved from outside, as a page is by its user."""
+
+    def __init__(self):
+        Fake.__init__(self)
+        self.rows = 1
+        self.looks = 0
+        self.dead = False
+
+    def observe(self, sensitive=False):
+        self.looks += 1
+        if self.dead:
+            raise RuntimeError("gone")
+        s = Fake.observe(self, sensitive)
+        s["rows"] = self.rows
+        return s
+
+
+def timed(t, **allow):
+    plug = Moving()
+    clock = Clock(t)
+    pol = C.Policy(token=TOKEN, allow=allow or {"DRAFT": True}, enabled=True)
+    return C.Gateway(C.Registry([plug]), pol, clock=clock), plug, clock
+
+
+T0 = 1789689600.0                                   # 2026-09-18T00:00:00Z
+g, plug, clock = timed(T0)
+late = {"request_id": "late", "action": "draft", "expires_at": "2026-09-17T23:59:59Z"}
+refused(lambda: g.execute(TOKEN, "fake", dict(late)), "stale",
+        "a command that arrives one second after its deadline")
+ck(plug.ran == [], "A COMMAND THAT HAS OUTLIVED ITS DEADLINE IS NOT RUN: %s" % plug.ran)
+refused(lambda: g.execute(TOKEN, "fake", dict(late, request_id="edge",
+                                              expires_at="2026-09-18T00:00:00Z")), "stale",
+        "a command that arrives AT its deadline -- the deadline is the first moment it is "
+        "unwanted, not the last it is wanted")
+r = served(lambda: g.execute(TOKEN, "fake", {"request_id": "intime", "action": "draft",
+                                             "expires_at": "2026-09-18T00:00:01Z"}))
+ck(r.get("ok") is True and len(plug.ran) == 1, "one second before it, it runs: %s" % r.get("raised"))
+r = served(lambda: g.execute(TOKEN, "fake", {"request_id": "offset", "action": "draft",
+                                             "expires_at": "2026-09-17T17:00:30-07:00"}))
+ck(r.get("ok") is True and len(plug.ran) == 2,
+   "an offset is read as an offset: 17:00:30-07:00 is thirty seconds from now, not seven hours "
+   "ago: %s" % r.get("raised"))
+for _bad, _why in ((1789689700, "a deadline that is a number"),
+                   ("1789689700", "a deadline that is a number in quotes"),
+                   ("2026-09-18T00:05:00", "a deadline with no zone -- two machines would read it "
+                                           "as two different moments"),
+                   ("tomorrow", "a deadline that is a word"),
+                   (True, "a deadline that is a boolean")):
+    refused(lambda: g.execute(TOKEN, "fake", {"request_id": "bad-at", "action": "draft",
+                                              "expires_at": _bad}), "invalid_argument", _why)
+ck(len(plug.ran) == 2, "and none of those ran: %s" % plug.ran)
+clock.t = T0 + 3600
+r = served(lambda: g.execute(TOKEN, "fake", {"request_id": "intime", "action": "draft",
+                                             "expires_at": "2026-09-18T00:00:01Z"}))
+ck(r.get("replayed") is True and len(plug.ran) == 2,
+   "A RECEIPT IS SERVED WHATEVER THE CLOCK SAYS: the act it records happened, and its truth does "
+   "not expire. The deadline guards a command that has not run: %s" % r)
+r = served(lambda: g.execute(TOKEN, "fake", {"request_id": "intime", "action": "draft",
+                                             "expires_at": "2026-09-18T02:00:00Z"}))
+ck(r.get("replayed") is True and len(plug.ran) == 2,
+   "and a retry with a NEW deadline is the same request, not a conflict -- the deadline is about "
+   "the sending, not part of what was asked: %s" % r)
+
+g, plug, clock = timed(T0)
+s0 = g.observe(TOKEN, "fake")["stamp"]
+looks = plug.looks
+r = served(lambda: g.execute(TOKEN, "fake", {"request_id": "bound-1", "action": "draft", "if_stamp": s0}))
+ck(r.get("ok") is True and len(plug.ran) == 1 and plug.looks == looks + 2,
+   "a command bound to the look it was decided from RUNS while the target is unmoved, and pays "
+   "one extra look for it: %s, %d look(s)" % (r.get("raised"), plug.looks - looks))
+looks = plug.looks
+g.execute(TOKEN, "fake", {"request_id": "unbound", "action": "draft"})
+ck(plug.looks == looks + 1, "a command that does not ask pays nothing: %d look(s)" % (plug.looks - looks))
+plug.rows = 2                                       # somebody else moved the target
+ran = len(plug.ran)
+try:
+    g.execute(TOKEN, "fake", {"request_id": "bound-2", "action": "draft", "if_stamp": s0})
+    ck(False, "a command bound to a look the target has moved past was run")
+except C.HarnessError as _e:
+    ck(_e.code == "stale" and s0 in _e.message and "since=%s" % s0 in _e.message and len(plug.ran) == ran,
+       "THE TARGET MOVED AND NOTHING WAS RUN: refused `stale`, naming the stamp it was bound to and "
+       "how to see what changed: %s" % _e.message)
+d = g.observe(TOKEN, "fake", since=r["stamp"])
+ck(d.get("changed") is True and "rows" in (d.get("diff") or {}).get("fields", {}),
+   "and the refusal's own look was NOT served or remembered: the caller's baseline is still the "
+   "snapshot it holds, so `since` answers with what moved -- rows: %s" % (d.get("diff") or {}).get("fields"))
+refused(lambda: g.execute(TOKEN, "fake", {"request_id": "bound-3", "action": "draft", "if_stamp": 7}),
+        "invalid_argument", "an if_stamp that is a number")
+refused(lambda: g.execute(TOKEN, "fake", {"request_id": "bound-4", "action": "draft", "if_stamp": ""}),
+        "invalid_argument", "an if_stamp that is empty -- it would otherwise read as not asked")
+plug.dead = True
+ran = len(plug.ran)
+refused(lambda: g.execute(TOKEN, "fake", {"request_id": "bound-5", "action": "draft", "if_stamp": s0}),
+        "unavailable", "a bound command whose target cannot be looked at")
+ck(len(plug.ran) == ran, "and it was not run blind: %s" % plug.ran[ran:])
+plug.dead = False
+g.policy.allow["DRAFT"] = False
+looks = plug.looks
+refused(lambda: g.execute(TOKEN, "fake", {"request_id": "bound-6", "action": "draft", "if_stamp": s0}),
+        "forbidden", "a bound command at a closed rung")
+ck(plug.looks == looks,
+   "and a caller that may not act is not given a look for asking: the rung is checked first")
+_f = timed(T0)[0].manifest(TOKEN).get("freshness") or {}
+ck(set(_f) == {"expires_at", "if_stamp", "identity"} and "stale" in _f["expires_at"] and "stale" in _f["if_stamp"],
+   "and the manifest says what both fields mean and what refusing them looks like: %s" % sorted(_f))
+
+import harness_mcp as _M2
+
+
+class _Spy(object):
+    def __init__(self):
+        self.got = None
+
+    def execute(self, token, plugin_id, command):
+        self.got = command
+        raise C.Stale("spied")
+
+    def discover(self, token):
+        return []
+
+    def manifest(self, token):
+        return {"tools": [{"name": "fake_draft", "pluginId": "fake", "action": "draft", "allowed": True,
+                           "risk": "DRAFT", "description": "d", "inputSchema": {}}]}
+
+    def subscribe(self, fn):
+        return fn
+
+
+_spy = _Spy()
+_srv = _M2.Server(_spy, TOKEN, list_changed=False)
+_ans = _srv.handle({"jsonrpc": "2.0", "id": 4, "method": "tools/call",
+                    "params": {"name": "fake_draft", "arguments": {"n": 1},
+                               "_meta": {"expires_at": "2026-09-18T00:00:01Z", "if_stamp": "abc",
+                                         "progressToken": 9}}})
+ck(_spy.got == {"request_id": "mcp-4", "action": "draft", "arguments": {"n": 1},
+                "expires_at": "2026-09-18T00:00:01Z", "if_stamp": "abc"}
+   and (_ans.get("error") or {}).get("code") == _M2.INVALID_PARAMS,
+   "OVER MCP both ride in the call's `_meta`, which is where that protocol puts what a request "
+   "says about itself -- and only those two are taken from it: %s" % _spy.got)
 
 # ---- 5. replay safety ----------------------------------------------------
 g, plug = gw(allow={"DRAFT": True})
@@ -220,13 +437,191 @@ for i in range(C.REPLAY_CACHE_LIMIT + 20):
 ck(len(g._done) <= C.REPLAY_CACHE_LIMIT,
    "the cache does not grow without bound: %d entries" % len(g._done))
 
+# ---- 5b. the receipt is written before the look (ADR-220) -----------------
+#
+# Both rules below are the FlowersForever gateway's. This gateway was copied
+# from that one in ADR-097; that one then spent a week being retried against,
+# and learned two things this one had not: an act that landed must be recorded
+# BEFORE anything fallible happens after it, and the budget must count what the
+# cache holds. Measured here before the fix: one failed snapshot and the act ran
+# twice under one id; 256 receipts from a page-sized target, 25,807,871 bytes
+# held against a budget reading 0 of 8,388,608.
+class Flaky(Fake):
+    """Acts, and can be told to fail the look afterwards, or the act itself."""
+
+    def __init__(self, pad=0):
+        Fake.__init__(self)
+        self.fail_looks = 0
+        self.refuse_once = True
+        self.pad = "x" * pad
+        self.cyclic = False
+
+    def observe(self, sensitive=False):
+        if self.fail_looks:
+            self.fail_looks -= 1
+            raise RuntimeError("the browser went away while being looked at")
+        s = Fake.observe(self, sensitive)
+        if self.pad:
+            s["pad"] = self.pad
+        return s
+
+    def execute(self, action, arguments):
+        if action == "save" and arguments == {} and self.refuse_once is None:
+            self.ran.append((action, "{}"))
+            raise RuntimeError("half way through the write")
+        if action == "go" and self.refuse_once:
+            self.refuse_once = False
+            raise C.InvalidArgument("not yet")
+        ok, msg, out = Fake.execute(self, action, arguments)
+        if self.cyclic:
+            out["self"] = out
+        return ok, msg, out
+
+
+def flaky(pad=0, **allow):
+    plug = Flaky(pad)
+    pol = C.Policy(token=TOKEN, allow=allow or {"DRAFT": True, "MUTATE": True}, enabled=True)
+    return C.Gateway(C.Registry([plug]), pol), plug
+
+
+def answer(fn):
+    try:
+        return fn()
+    except C.HarnessError as e:
+        return e
+
+
+g, plug = flaky()
+cmd = {"request_id": "landed", "action": "draft", "arguments": {"n": 7}}
+plug.fail_looks = 1
+e1 = answer(lambda: g.execute(TOKEN, "fake", dict(cmd)))
+ck(isinstance(e1, C.HarnessError) and e1.code == "failed" and "LANDED" in e1.message
+   and "'landed'" in e1.message and "not run again" in e1.message,
+   "AN ACT WHOSE LOOK AFTERWARDS FAILED says so in words a client can act on: it LANDED, and "
+   "the same request_id is how to get its answer: %s" % getattr(e1, "message", e1))
+ck(len(plug.ran) == 1, "the act ran: %s" % plug.ran)
+refused(lambda: g.execute(TOKEN, "fake", dict(cmd, arguments={"n": 8})), "conflict",
+        "a different command under the id of a receipt still waiting for its look")
+plug.fail_looks = 1
+e2 = answer(lambda: g.execute(TOKEN, "fake", dict(cmd)))
+ck(isinstance(e2, C.HarnessError) and "LANDED" in e2.message and len(plug.ran) == 1,
+   "a look that fails AGAIN leaves the receipt where it is: the retry is refused the same way "
+   "and the act is still not run: %s" % plug.ran)
+r3 = answer(lambda: g.execute(TOKEN, "fake", dict(cmd)))
+ck(isinstance(r3, dict) and r3["ok"] and r3["replayed"] is True and len(plug.ran) == 1
+   and r3["output"] == {"action": "draft", "n": 1} and isinstance(r3.get("snapshot"), dict)
+   and r3.get("stamp"),
+   "THE RETRY IS ANSWERED FROM THE RECEIPT, completed by looking again and never by acting: it "
+   "carries the act's own output, a snapshot and a stamp, says replayed, and the plugin ran "
+   "ONCE -- before ADR-220 it ran twice: %s" % plug.ran)
+r4 = g.execute(TOKEN, "fake", dict(cmd))
+ck(r4["replayed"] is True and r4["output"] == r3["output"] and len(plug.ran) == 1,
+   "and a receipt completed late replays like any other afterwards")
+
+g, plug = flaky()
+plug.refuse_once = None
+boom = {"request_id": "raised", "action": "save"}
+b1 = answer(lambda: g.execute(TOKEN, "fake", dict(boom)))
+b2 = answer(lambda: g.execute(TOKEN, "fake", dict(boom)))
+ck(isinstance(b1, C.HarnessError) and b1.code == "failed" and "replayed" not in b1.message
+   and isinstance(b2, C.HarnessError) and b2.code == "failed" and "NOT run again" in b2.message
+   and "half way" in b2.message and len(plug.ran) == 1,
+   "A COMMAND THAT RAISED KEEPS A RECEIPT: what it did to its target is the one thing nobody "
+   "knows, so it is the last one that should run twice under one id -- the retry is refused "
+   "with the original reason and told to send a new id: ran %s, said %s"
+   % (plug.ran, getattr(b2, "message", b2)))
+b3 = answer(lambda: g.execute(TOKEN, "fake", dict(boom, request_id="raised-2")))
+ck(len(plug.ran) == 2 and isinstance(b3, C.HarnessError),
+   "and a NEW id runs it again -- trying again is a decision, and a new id is how it is made")
+g.policy.allow["MUTATE"] = False
+refused(lambda: g.execute(TOKEN, "fake", dict(boom)), "forbidden",
+        "replaying a FAILED receipt after its rung was closed -- a failure is re-authorised like "
+        "any other replay, or a closed gate still says what happened behind it")
+
+g, plug = flaky(NAVIGATE=True)
+go = {"request_id": "refused", "action": "go", "arguments": {"where": "log"}}
+refused(lambda: g.execute(TOKEN, "fake", dict(go)), "invalid_argument",
+        "the target refusing a command, the first time")
+r = answer(lambda: g.execute(TOKEN, "fake", dict(go)))
+ck(isinstance(r, dict) and r["ok"] and r["replayed"] is False,
+   "A REFUSAL KEEPS NO RECEIPT: nothing ran, so the same id may be sent again and is judged "
+   "afresh -- a receipt for a refusal would make a client's corrected world unreachable under "
+   "the id it is already holding: %s" % r)
+
+
+def held(gw_):
+    return sum(len(json.dumps(d.response if d.response is not None
+                              else (d.outcome if d.outcome is not None else d.error),
+                              default=str, separators=(",", ":")).encode("utf-8"))
+               for d in gw_._done.values())
+
+
+g, plug = flaky(pad=100000)
+for i in range(120):
+    g.execute(TOKEN, "fake", {"request_id": "big%d" % i, "action": "draft"})
+ck(g._bytes == held(g) and g._bytes <= C.REPLAY_CACHE_BYTE_LIMIT,
+   "THE BUDGET COUNTS WHAT THE CACHE HOLDS -- the whole retained response, sized by this suite "
+   "its own way: the door says %d, the suite measures %d, the bound is %d"
+   % (g._bytes, held(g), C.REPLAY_CACHE_BYTE_LIMIT))
+ck(40 < len(g._done) < 120,
+   "and so the byte bound BITES on a page-sized snapshot: 120 commands, %d receipts kept. It "
+   "counted only `output` before, and kept all of them" % len(g._done))
+n_before = len(plug.ran)
+last = g.execute(TOKEN, "fake", {"request_id": "big119", "action": "draft"})
+first = g.execute(TOKEN, "fake", {"request_id": "big0", "action": "draft"})
+ck(last["replayed"] is True and first["replayed"] is False and len(plug.ran) == n_before + 1,
+   "eviction is oldest first: the newest receipt replays and the oldest is gone")
+
+# A RECEIPT COMPLETED LATE MUST SURVIVE ITS OWN COMPLETION. It was written when
+# its act landed, so by the time its look succeeds it is the OLDEST entry in the
+# cache -- and completing it is what makes the cache grow. The FlowersForever
+# gateway evicted the receipt it was completing and ran the act again.
+g, plug = flaky(pad=100000)
+g.execute(TOKEN, "fake", {"request_id": "probe", "action": "draft"})
+per = g._bytes
+g, plug = flaky(pad=100000)
+plug.fail_looks = 1
+answer(lambda: g.execute(TOKEN, "fake", {"request_id": "late", "action": "draft"}))
+_i = 0
+while g._bytes + per + 4096 <= C.REPLAY_CACHE_BYTE_LIMIT and _i < 200:   # bounded: a suite
+    # must not be hangable by its own subject (ADR-192), and a budget that stopped counting
+    # would otherwise keep this loop going for as long as it took to fill 8 MiB with nothing
+    g.execute(TOKEN, "fake", {"request_id": "fill%d" % _i, "action": "draft"})
+    _i += 1
+plug.pad = "x" * 300000            # the late look is of a bigger page than the others were
+ck(g._bytes == held(g),
+   "a receipt still waiting for its look is COUNTED too, at what it holds, and rewriting it "
+   "does not count it twice: the door says %d, the suite measures %d" % (g._bytes, held(g)))
+ck(next(iter(g._done)).endswith("late") and _i > 40
+   and g._bytes + 300000 > C.REPLAY_CACHE_BYTE_LIMIT,
+   "(the fixture: the late receipt is the OLDEST of %d entries, nothing has been evicted yet, "
+   "and completing it overflows the budget)" % len(g._done))
+ran = len(plug.ran)
+l1 = g.execute(TOKEN, "fake", {"request_id": "late", "action": "draft"})
+l2 = g.execute(TOKEN, "fake", {"request_id": "late", "action": "draft"})
+ck(l1["replayed"] and l2["replayed"] and len(plug.ran) == ran and g._bytes <= C.REPLAY_CACHE_BYTE_LIMIT,
+   "a receipt completed late moves to the newest position before the trim, so the trim takes "
+   "the oldest OTHER receipt: it replays, twice, and its act is never run again")
+
+g, plug = flaky()
+plug.cyclic = True
+c1 = g.execute(TOKEN, "fake", {"request_id": "cyc", "action": "draft"})
+c2 = g.execute(TOKEN, "fake", {"request_id": "cyc", "action": "draft"})
+ck(C._held(c1) == C.REPLAY_CACHE_BYTE_LIMIT and c2["replayed"] is True and len(plug.ran) == 1,
+   "a response that CANNOT BE SIZED is charged the whole budget and kept anyway: sizing happens "
+   "after the receipt is written, so failing there could only ever lose the receipt")
+
+_rp = gw()[0].manifest(TOKEN).get("replay") or {}
+ck(set(_rp) == {"rule", "landed", "raised", "refused", "bytesCount"} and "LANDED" in _rp.get("landed", ""),
+   "and the manifest states the retry rule, because a client reads the manifest and not this "
+   "file: %s" % sorted(_rp))
+
 # ---- 6. the manifest is enough to build a client from --------------------
 g, _ = gw(allow={"SENSITIVE_READ": True})
 m = g.manifest(TOKEN)
-ck(m["protocolVersion"] == "1.7",
-   "the manifest states a protocol version (1.7: ADR-191, the session -- a stamp on every "
-   "snapshot, `since` to be told the change rather than the snapshot, and that same change "
-   "on every execute response)")
+ck(m["protocolVersion"] == "1.8",
+   "the manifest states a protocol version (1.8: ADR-222, a command may say when it stops being "
+   "wanted and what it was decided from; 1.7 was ADR-191, the session)")
 # ---- ADR-189: the refusal vocabulary says WHICH of the client's problems ----
 #
 # A client is told to do a different thing by each of these, and a door that
@@ -940,7 +1335,7 @@ ck("boxes/k" in _op["approximate"] and "tables/t" in _op["unrestored"],
 
 m = g.manifest(TOKEN)
 sess_facts = m.get("session") or {}
-ck(m["protocolVersion"] == "1.7"
+ck(m["protocolVersion"] == "1.8"
    and set(sess_facts) == {"stamp", "since", "diff", "diffCap"}
    and sess_facts.get("diffCap") == C.DIFF_CAP,
    "and the manifest says the session exists -- a client cannot discover a stamp it was "

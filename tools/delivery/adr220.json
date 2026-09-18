@@ -1,0 +1,26 @@
+{
+ "body": "This gateway was copied from FlowersForever's in ADR-097 and says so. That gateway then spent a week being retried against and learned two things; this one had learned neither, and nothing here could have told it, because every replay check in verify_contract retried a command whose first call had SUCCEEDED. Measured first: a target whose act lands and whose next observe raises once -- first call raised, effect count 1; retry under the same id, replayed false, effect count 2. execute ran the act, THEN took the snapshot, THEN built the response, THEN wrote the receipt, so the documented remedy for a lost answer -- send it again under the same id -- did it a second time. A command that RAISED had the same shape, and what a command that raised did to its target is the one thing nobody knows. And the bound: the budget sized the action's output while the receipt kept the whole response, snapshot included -- 0 of 8,388,608 bytes reported, 25,807,871 held. ONE RULE NOW, AND THE MANIFEST STATES IT: retrying a request id never runs anything twice. LANDED -- the receipt is written the moment the act returns, before the look and before anything is sized; a look that fails is refused failed with LANDED in the message, and the retry is answered from the receipt, completed by LOOKING again and never by acting. RAISED -- the same id is refused again with the original reason and is not run; a new id is how a client decides to try again; re-authorised like any replay. REFUSED -- no receipt: nothing ran. The budget counts what the cache holds; a response that cannot be sized is charged the whole budget and kept. A receipt completed late moves to the newest position before the trim, or the trim evicts the receipt it is completing -- FlowersForever found that one in its own gateway on 14 September. Cost: on a page-sized target 120 commands keep 83 receipts where 256 were kept and none counted. The runner earned its keep three ways: one mutant SURVIVED and was equivalent for a reason worth fixing (a receipt waiting for its look was counted as zero bytes), one was a bad mutant, and one HUNG the suite because a budget that had stopped counting kept a fixture loop filling 8 MiB with nothing. verify_contract 161 to 180, mutate_contract 74 to 87.",
+ "chain": "adr219",
+ "chain_probe": "docs/ADR-219-a-claim-that-never-expired-2026-09-17.md",
+ "clean": [
+  "adr219"
+ ],
+ "id": "adr220",
+ "once": true,
+ "paths": [
+  "docs/ADR-220-the-receipt-before-the-look-2026-09-17.md",
+  "docs/CHANGELOG-2026-09-17-adr220-the-receipt-before-the-look.md",
+  "docs/AUTOMATION-HARNESS.md",
+  "tools/harness_contract.py",
+  "tools/mutate_contract.py",
+  "tools/verify/verify_contract.py",
+  "tools/delivery/adr220.json",
+  "docs/AI_HARNESS.md",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json"
+ ],
+ "subject": "ADR-220: one failed snapshot and the act ran twice, and the budget that bounds the replay cache read zero while it held 25 MB"
+}
