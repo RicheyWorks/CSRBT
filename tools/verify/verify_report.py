@@ -1557,18 +1557,39 @@ with sync_playwright() as pw:
        "read-report handed a SNAPSHOT stamp as `since` answers the whole report and names the kind "
        "it was given and the kind it takes, instead of 'unknown': %s" % (wrong.get("sinceUnknown") or "")[:100])
 
-    # the baseline is the last report SERVED
+    # ADR-230: THE BASELINE IS A RING. This check used to hold the opposite --
+    # "a stamp two reads old is one the door no longer holds" -- and the fifth
+    # trial's operators were told exactly that, the sixth's and seventh's too.
+    # The last REPORT_RING reports served are all baselines now.
     _ok, _m, a = rp.execute("read-report", {})
     rp.execute("set-text", {"selector": "@control:kSearch", "value": "whitebark"})
     _ok, _m, bb = rp.execute("read-report", {})
-    _ok, _m, stale = rp.execute("read-report", {"since": a["stamp"]})
-    ck(stale.get("sinceUnknown") and "figures" in stale,
-       "and the baseline is the last report this session was SERVED, so a stamp two reads "
-       "old is one the door no longer holds -- said plainly rather than diffed against "
-       "whatever is nearest")
+    _ok, _m, two_old = rp.execute("read-report", {"since": a["stamp"]})
+    ck(two_old.get("changed") is True and two_old.get("since") == a["stamp"] and "figures" not in two_old
+       and (two_old.get("diff") or {}).get("fields"),
+       "A STAMP TWO READS OLD IS STILL A BASELINE: the report is diffed from that read, not "
+       "called unknown (ADR-230): %s" % sorted(two_old))
     _ok, _m, near = rp.execute("read-report", {"since": bb["stamp"]})
     ck(near.get("changed") is False,
        "while the stamp from the read just before is current, as it should be")
+    # and the ring is bounded: REPORT_RING distinct reports later, the first is unknown
+    _first = a["stamp"]
+    _distinct = set()
+    for _v in ("a", "e", "i", "o", "u", "ab", "pin", "fir", "spr", "whi", "b", "c", "d", "f", "g",
+               "l", "m", "n", "p", "r", "s", "t"):
+        rp.execute("set-text", {"selector": "@control:kSearch", "value": _v})
+        _ok, _m, _rr = rp.execute("read-report", {})
+        _distinct.add(_rr["stamp"])
+        if len(_distinct) >= PP.REPORT_RING:
+            break
+    ck(len(_distinct) >= PP.REPORT_RING,
+       "the fixture produced %d distinct reports (needs %d to fill the ring)" % (len(_distinct), PP.REPORT_RING))
+    _ok, _m, gone = rp.execute("read-report", {"since": _first})
+    ck("figures" in gone and gone.get("sinceUnknown") and ("last %d" % PP.REPORT_RING) in gone["sinceUnknown"],
+       "the ring is %d deep: a report served %d reports ago is unknown, and the reason says how "
+       "deep the ring is: %s" % (PP.REPORT_RING, PP.REPORT_RING + 1, (gone.get("sinceUnknown") or "")[:90]))
+    ck(len(rp._reports) == PP.REPORT_RING,
+       "and the plugin holds exactly %d reports, not every report it ever served" % PP.REPORT_RING)
 
     # the two stamps are about different documents
     _ok, _m, before = rp.execute("read-report", {})
@@ -1588,7 +1609,7 @@ with sync_playwright() as pw:
        "a table's rows are NOT keyed: a row of cells has no identity of its own, so a table "
        "reports that it gained or lost rows rather than pretending row three is the same "
        "row three")
-    ck('stamp_of(r, self.REPORT_IDENTITY, series="r")' in src and "diff_of(prev[1], r, self.REPORT_IDENTITY)" in src,
+    ck('stamp_of(r, self.REPORT_IDENTITY, series="r")' in src and "diff_of(base, r, self.REPORT_IDENTITY)" in src,
        "and the report uses the contract's OWN stamp and diff -- two documents, one "
        "algorithm; a third would be a third thing to get wrong")
 

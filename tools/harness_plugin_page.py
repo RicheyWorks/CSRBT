@@ -26,7 +26,7 @@ REDACTION
     what a user typed -- the manifest says so rather than pretending otherwise.
     Values come back only through read-control, which is SENSITIVE_READ.
 """
-import base64, io, json, os, re, sys
+import collections, base64, io, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -1264,6 +1264,10 @@ TAKE_SAID = ("() => (window.__S ? {said: window.__S.said.splice(0), "
 PUSHED = "() => ((window.__S && window.__S.pushed) | 0)"
 
 
+# ADR-230: how many reports a session holds as diff baselines (see BASELINE_RING).
+REPORT_RING = 8
+
+
 class PagePlugin(Plugin):
     """One page, one browser tab, behind the four operations."""
 
@@ -1280,7 +1284,9 @@ class PagePlugin(Plugin):
         # per session, like the gateway's snapshot baseline -- and for the same
         # reason: a diff is "since you last looked", never "since some moment
         # the door picked".
-        self._last_report = None
+        # ADR-230: the last REPORT_RING reports served, stamp -> report, newest
+        # last, so `since` may name any of them and not only the newest.
+        self._reports = collections.OrderedDict()
         self.page = page
         self.name = name
         self._catch()
@@ -1642,12 +1648,16 @@ class PagePlugin(Plugin):
         st = stamp_of(r, self.REPORT_IDENTITY, series="r")
         served = dict(r)
         served["stamp"] = st
-        prev, self._last_report = self._last_report, (st, r)
+        base = self._reports.get(since) if since else None
+        self._reports.pop(st, None)
+        self._reports[st] = r
+        while len(self._reports) > REPORT_RING:
+            self._reports.popitem(last=False)
         if not since:
             return True, ("%d figure(s), %d box(es), %d list(s), %d table(s), %d heading(s)"
                           % (len(r["figures"]), len(r["boxes"]), len(r["rows"]),
                              len(r["tables"]), len(r["headings"]))), served
-        if prev is None or prev[0] != since:
+        if base is None:
             # FAIL TOWARD MORE, exactly as observe does: a stamp this session
             # holds no report for gets the whole report and the reason, because
             # a diff against a baseline that is not there would be invented.
@@ -1662,14 +1672,15 @@ class PagePlugin(Plugin):
                     "read-report answer); the whole report is here instead" % since)
                 return True, "the whole report: %r is a snapshot stamp, not a report stamp" % since, served
             served["sinceUnknown"] = (
-                "this session holds no report stamped %r for %s, so there is nothing to "
-                "compare against and the whole report is here instead" % (since, self.name))
+                "this session holds no report stamped %r for %s among the last %d it was served, "
+                "so there is nothing to compare against and the whole report is here instead"
+                % (since, self.name, REPORT_RING))
             return True, "the whole report: %r is not a stamp this session issued" % since, served
         if st == since:
             return True, "nothing in the report has changed", {
                 "stamp": st, "since": since, "changed": False, "diff": None,
                 "route": r.get("route")}
-        d = diff_of(prev[1], r, self.REPORT_IDENTITY)
+        d = diff_of(base, r, self.REPORT_IDENTITY)
         moved = len(d["fields"]) + len(d["gained"]) + len(d["lost"])
         return True, "%d figure(s) or box(es) moved since %s" % (moved, since), {
             "stamp": st, "since": since, "changed": True, "diff": d,

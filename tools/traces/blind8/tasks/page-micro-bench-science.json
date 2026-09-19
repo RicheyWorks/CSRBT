@@ -1,0 +1,766 @@
+{
+ "id": "page-micro-bench-science",
+ "target": "page",
+ "page": "micro-bench.html",
+ "goal": "On the micro bench: 148 colonies from 0.1 mL plated at 10^-5 is 1.48x10^8 CFU/mL, the plated volume and the serial transfer/diluent volumes set explicitly (1:10 per step, 1.00 log10); a growth curve, and a zone-of-inhibition read against CLSI breakpoints with the medium and organism named -- every pane driven and the figures held against an oracle.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "micro-bench.html"
+   }
+  },
+  {
+   "id": "pl",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-pl"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-plv",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:plEntry/volume plated",
+    "value": "0.1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nA",
+   "action": "press-step",
+   "arguments": {
+    "selector": "@control:plEntry/+",
+    "direction": "up"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cA",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:colonies",
+    "value": "148"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "lA",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:plL",
+    "value": "TSA-A"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "addA",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "plateA",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.rows.#plList": 1,
+    "output.by.plOut.CFU/mL (mean of countable)": "1.48×10⁸",
+    "output.by.plOut.countable plates": "1 / 1",
+    "output.by.plOut.colonies counted": "148",
+    "output.by.plOut.Poisson CV": "±8.2%"
+   }
+  },
+  {
+   "id": "nB",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:plEntry/dilution",
+    "value": "6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cB",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:colonies",
+    "value": "17"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "lB",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:plL",
+    "value": "TSA-B"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "addB",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "plateB",
+   "action": "read-report",
+   "expect": {
+    "output.rows.#plList": 2,
+    "output.boxes.plNote": {
+     "op": "contains",
+     "value": "1 plate excluded"
+    },
+    "output.by.plOut.countable plates": "1 / 2"
+   }
+  },
+  {
+   "id": "nC",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:plEntry/dilution",
+    "value": "5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cC",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:colonies",
+    "value": "50"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "lC",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:plL",
+    "value": "TSA-C"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "addC",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "plateC",
+   "action": "read-report",
+   "expect": {
+    "output.rows.#plList": 3,
+    "output.boxes.plNote": {
+     "op": "contains",
+     "value": "Countable plates disagree by 3.0×"
+    },
+    "output.by.plOut.CFU/mL (mean of countable)": "9.90×10⁷",
+    "output.by.plOut.countable plates": "2 / 3",
+    "output.by.plOut.colonies counted": "198",
+    "output.by.plOut.Poisson CV": "±7.1%"
+   }
+  },
+  {
+   "id": "dil",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-dil"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "titre",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:estimated titre",
+    "value": "100000000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-dvol",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dilEntry/volume plated",
+    "value": "0.1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-dtr",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:transfer volume",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-dbl",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:diluent volume",
+    "value": "9"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "plan",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dilOut": {
+     "op": "contains",
+     "value": "Plate step 5"
+    },
+    "output.by.dilOut.each step": "1:10",
+    "output.by.dilOut.log₁₀ per step": "1.00",
+    "output.by.dilOut.lands in 30–300": "step 5"
+   }
+  },
+  {
+   "id": "gr",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-gr"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gt0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:time",
+    "value": "0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "go0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:OD₆₀₀",
+    "value": "0.05"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gadd0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:grAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gt1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:time",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "go1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:OD₆₀₀",
+    "value": "0.1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gadd1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:grAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gt2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:time",
+    "value": "2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "go2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:OD₆₀₀",
+    "value": "0.2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gadd2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:grAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gt3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:time",
+    "value": "3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "go3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:OD₆₀₀",
+    "value": "0.4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gadd3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:grAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "growth",
+   "action": "read-report",
+   "expect": {
+    "output.rows.#grList": 4,
+    "output.by.grOut.specific growth rate µ": "0.6931 h⁻¹",
+    "output.by.grOut.doubling time": "1.000 h",
+    "output.by.grOut.doubling time #2": "60.0 min",
+    "output.by.grOut.r²": "1.0000",
+    "output.by.grOut.points in fit": "4 / 4"
+   }
+  },
+  {
+   "id": "gt4",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:time",
+    "value": "4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "go4",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:OD₆₀₀",
+    "value": "1.5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gadd4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:grAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dense",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.grOut": {
+     "op": "contains",
+     "value": "Points above OD 0.6 are in the fit."
+    }
+   }
+  },
+  {
+   "id": "zn",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-zn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-zmed",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:zMed",
+    "value": "Mueller-Hinton"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-zorg",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:zOrg",
+    "value": "E. coli ATCC 25922"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "drug",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:zDrug",
+    "value": "ampicillin"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cont",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:zCont",
+    "value": "10 µg"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "zone",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:zone diameter",
+    "value": "18"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "zadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:zAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "measured",
+   "action": "read-report",
+   "expect": {
+    "output.rows.#zList": 1,
+    "output.boxes.zOut": {
+     "op": "contains",
+     "value": "Measurement only"
+    }
+   }
+  },
+  {
+   "id": "zs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:susceptible if ≥",
+    "value": "17"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "zr",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:resistant if ≤",
+    "value": "13"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "src",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:zSrc",
+    "value": "CLSI M100, 2026"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "interpreted",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.zOut": {
+     "op": "contains",
+     "value": "Interpreted against S ≥ 17.0 mm, R ≤ 13.0 mm, CLSI M100, 2026."
+    }
+   }
+  },
+  {
+   "id": "band",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.zOut": {
+     "op": "contains",
+     "value": "13.5–16.5 mm"
+    }
+   }
+  },
+  {
+   "id": "g164-plpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-pl"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-plrep",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.plOut.CFU/mL (mean of countable)": "9.90×10⁷"
+   }
+  },
+  {
+   "id": "g205-pane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-out"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-ecoCopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-ecoCopy-out",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "## Plate counts (3)\n  TSA-A   10^-5   0.10 mL   148 colonies   countable   1.480e+8 CFU/mL\n  TSA-B   10^-6   0.10 mL   17 colonies   TFTC   excluded\n  TSA-C   10^-5   0.10 mL   50 colonies   countable   5.000e+7 CFU/mL\n  countable plates: 2 of 3   colonies counted: 198\n  CFU/mL (mean of countable): 9.900e+7   Poisson CV: ±7.1%\n  1 plate(s) excluded — listed above rather than dropped silently, because which plates you discarded is part of the record\n  COUNTABLE PLATES DISAGREE BY 3.0× — adjacent dilutions should agree within about a factor of two; this points at the dilution series, not the organism\n  this is CFU/mL, not cells/mL: a chain, a clump or a hypha gives one colony\n\n## Dilution plan\n  estimate: 1.000e+8 CFU/mL   plated volume: 0.10 mL\n  transfer 1.00 mL into 9.00 mL blank = 1:10 per step (1.00 log₁₀)\n  plate step 5: ~100 colonies expected\n\n## Growth curve (5 points)\n  0.00 h   OD 0.050   ln(OD) -2.996   in fit\n  1.00 h   OD 0.100   ln(OD) -2.303   in fit\n  2.00 h   OD 0.200   ln(OD) -1.609   in fit\n  3.00 h   OD 0.400   ln(OD) -0.916   in fit\n  4.00 h   OD 1.500   ln(OD) 0.405   in fit\n  fit over 5 of 5 points: ln(OD) = -3.1215 + 0.8189·t   r² = 0.9770\n  specific growth rate µ: 0.8189 h⁻¹   doubling time: 0.846 h (50.8 min)\n  r² below 0.98 — the window probably includes lag or the approach to stationary; narrow it\n  POINTS ABOVE OD 0.6 ARE IN THE FIT — multiple scattering makes a spectrophotometer read low there, which flattens the line and pushes µ down\n  µ is a rate of increase in TURBIDITY; converting to cells/mL needs your own OD-to-CFU calibration for this strain, medium and instrument\n\n## Disc diffusion (1 zone)\n  ampicillin 10 µg   18.0 mm   S\n  interpreted against S ≥ 17.0 mm, R ≤ 13.0 mm, CLSI M100, 2026\n  intermediate band: 13.5–16.5 mm"
+    }
+   }
+  },
+  {
+   "id": "g205-plCopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-plCopy-out",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "label,dilution_exponent,volume_ml,colonies,status,cfu_per_ml\nTSA-A,5,0.1,148,countable,1.480e+8\nTSA-B,6,0.1,17,TFTC,\nTSA-C,5,0.1,50,countable,5.000e+7"
+    }
+   }
+  },
+  {
+   "id": "g205-grCopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:grCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-grCopy-out",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "hours,od,ln_od,in_fit\n0,0.05,-2.9957,yes\n1,0.1,-2.3026,yes\n2,0.2,-1.6094,yes\n3,0.4,-0.9163,yes\n4,1.5,0.4055,yes"
+    }
+   }
+  },
+  {
+   "id": "g205-znCopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:znCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-znCopy-out",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "antimicrobial,disc_content,zone_mm,interpretation,breakpoint_S_mm,breakpoint_R_mm,breakpoint_source\nampicillin,10 µg,18,S,17,13,\"CLSI M100, 2026\""
+    }
+   }
+  },
+  {
+   "id": "g205-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-out/Print / save PDF"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-printed",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g164-dilpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-dil"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-dilrep",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.dilOut.log₁₀ per step": "1.00"
+   }
+  },
+  {
+   "id": "g164-endintact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

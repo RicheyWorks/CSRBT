@@ -214,7 +214,7 @@ MUTANTS += [
      'REFUSAL = ("invalid_argument", "not_found", "conflict")',
      "counts it as a REFUSAL"),
     ("the manifest still says 1.5",
-     'PROTOCOL_VERSION = "1.9"',
+     'PROTOCOL_VERSION = "1.10"',
      'PROTOCOL_VERSION = "1.5"',
      "states a protocol version"),
 ]
@@ -265,8 +265,8 @@ MUTANTS += [
      "a diff never carries a value whole"),
     # The session
     ("a stamp the door never issued is diffed against whatever it holds",
-     '        if prev is None or prev[0] != since:',
-     '        if prev is None:',
+     '        base = self._baseline(plugin_id, since) if since else None',
+     '        base = (self._latest(plugin_id) or (None, None))[1] if since else None',
      "having a baseline is not the same as having THAT one"),
     ("the act is diffed against the page it made rather than the one it was planned from",
      '            diff = diff_of(before[1], raw, self._spec(plugin, raw))',
@@ -275,10 +275,10 @@ MUTANTS += [
     ("an act does not move the session on, so every act diffs from the same morning",
      '''                            str(e)[:160], rid))
         if isinstance(snap, dict):
-            self._seen[plugin_id] = (st, raw)''',
+            self._remember(plugin_id, st, raw)''',
      '''                            str(e)[:160], rid))
         if False:
-            self._seen[plugin_id] = (st, raw)''',
+            self._remember(plugin_id, st, raw)''',
      "a chain of calls is a chain of changes"),
     ("the baseline carries the stamp, so every diff reports the answer changing",
      '        return served, snap, st',
@@ -605,8 +605,8 @@ MUTANTS += [
      "a command bound to a look the target has moved past"),
     ("the look that checks a binding becomes the session's baseline",
      '            _snap, _raw, now = self._stamped(plugin, plugin.observe(\n                sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))\n        except Exception as e:\n            raise Unavailable(',
-     '            _snap, _raw, now = self._stamped(plugin, plugin.observe(\n                sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))\n            self._seen[plugin_id] = (now, _raw)\n        except Exception as e:\n            raise Unavailable(',
-     "was NOT served or remembered"),
+     '            _snap, _raw, now = self._stamped(plugin, plugin.observe(\n                sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))\n            self._remember(plugin_id, now, _raw)\n        except Exception as e:\n            raise Unavailable(',
+     "own look is NOT put on the ring"),
     ("a bound command whose target cannot be looked at is run blind",
      '        except Exception as e:\n            raise Unavailable("%s could not be looked at to check if_stamp',
      '        except Exception as e:\n            return\n            raise Unavailable("%s could not be looked at to check if_stamp',
@@ -664,6 +664,27 @@ MUTANTS += [
      '                "stamps": {"snapshot": "s + 12 hex',
      '                "stampNotes": {"snapshot": "s + 12 hex',
      "the manifest publishes both series"),
+    # ---- ADR-230: the baseline is a ring, not a slot --------------------------
+    ("the ring is one deep again, which is the slot the seventh trial found",
+     "BASELINE_RING = 8\n",
+     "BASELINE_RING = 1\n",
+     "A STAMP FROM THE FIRST LOOK IS STILL A BASELINE"),
+    ("the ring is never trimmed, so a session holds every snapshot it was ever served",
+     "        while len(ring) > BASELINE_RING:\n            ring.popitem(last=False)",
+     "        while False:\n            ring.popitem(last=False)",
+     "the stamp that was served"),
+    ("a stamp served again is a second entry, so re-reading an unchanged target pushes real baselines off",
+     "        ring.pop(st, None)          # the same stamp served again is one entry, moved to newest",
+     "        pass",
+     "A STAMP SERVED AGAIN IS THE NEWEST LOOK"),
+    ("an act diffs against the OLDEST look on the ring rather than the newest",
+     "        st = next(reversed(ring))\n        return st, ring[st]",
+     "        st = next(iter(ring))\n        return st, ring[st]",
+     "against the NEWEST look"),
+    ("the manifest does not say how deep the ring is",
+     '                            "baselines": BASELINE_RING,',
+     '                            "baselineDepth": BASELINE_RING,',
+     "the manifest says the session exists"),
 ]
 
 

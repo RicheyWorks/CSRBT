@@ -413,7 +413,7 @@ ck("rows" in w2 and "no snapshot stamped" in (w2.get("sinceUnknown") or ""),
    "sentence: %s" % (w2.get("sinceUnknown") or "")[:80])
 _st = g.manifest(TOKEN).get("stamps") or {}
 ck(set(_st) == {"snapshot", "report", "mismatch"} and "s + 12" in _st["snapshot"] and "r + 12" in _st["report"]
-   and "if_stamp" in _st["mismatch"],
+   and "output.stamp" in _st["report"] and "top-level" in _st["report"] and "if_stamp" in _st["mismatch"],
    "and the manifest publishes both series and what a mismatch does at each door: %s" % sorted(_st))
 
 import harness_mcp as _M2
@@ -661,8 +661,8 @@ ck(set(_rp) == {"rule", "landed", "raised", "refused", "bytesCount"} and "LANDED
 # ---- 6. the manifest is enough to build a client from --------------------
 g, _ = gw(allow={"SENSITIVE_READ": True})
 m = g.manifest(TOKEN)
-ck(m["protocolVersion"] == "1.9",
-   "the manifest states a protocol version (1.9: ADR-229, a stamp says which series it is; 1.8 was ADR-222, a command may say when it stops being "
+ck(m["protocolVersion"] == "1.10",
+   "the manifest states a protocol version (1.10: ADR-230, the baseline is a ring; 1.9 was ADR-229, a stamp says which series it is; 1.8 was ADR-222, a command may say when it stops being "
    "wanted and what it was decided from; 1.7 was ADR-191, the session)")
 # ---- ADR-189: the refusal vocabulary says WHICH of the client's problems ----
 #
@@ -1229,6 +1229,89 @@ ck(r["diff"].get("since") is None and "no baseline" in (r["diff"].get("why") or 
    "a session that has never observed is TOLD it has no baseline rather than handed a "
    "diff against nothing: %s" % r["diff"])
 
+# ---- 7b. the baseline is a RING, not a slot (ADR-230) ----------------------
+# Every act's response served a snapshot and REPLACED the baseline, so an
+# operator who batched six acts into one call and then asked `since=<the stamp
+# I read first>` was told the door held no such snapshot -- 10 of the seventh
+# blind trial's 14 such asks, on all four pages. The last BASELINE_RING stamps
+# served are all baselines now.
+gR, pR = sgw()
+s_first = gR.observe(TOKEN, "sess")["stamp"]
+stamps = [s_first]
+for i in range(3):
+    stamps.append(gR.execute(TOKEN, "sess", {"request_id": rid(920 + i), "action": "bump",
+                                              "arguments": {}})["stamp"])
+dR = gR.observe(TOKEN, "sess", since=s_first)
+ck(dR.get("changed") is True and (dR.get("diff") or {}).get("fields", {}).get("n") == [0, 3],
+   "A STAMP FROM THE FIRST LOOK IS STILL A BASELINE AFTER THREE ACTS: since=<first> answers the "
+   "change across all three (n 0 -> 3), where the one-slot door answered 'unknown' and the whole "
+   "snapshot: %s" % (dR.get("diff") or dR.get("sinceUnknown")))
+dR2 = gR.observe(TOKEN, "sess", since=stamps[2])
+ck(dR2.get("changed") is True and (dR2.get("diff") or {}).get("fields", {}).get("n") == [2, 3],
+   "and a stamp from the MIDDLE of the batch diffs from there (n 2 -> 3), so an operator picks "
+   "the look it means: %s" % (dR2.get("diff") or {}).get("fields"))
+dR3 = gR.observe(TOKEN, "sess", since=stamps[3])
+ck(dR3.get("changed") is False,
+   "and the newest is still current")
+# the ring is bounded, and the oldest falls off
+gQ, pQ = sgw()
+s0 = gQ.observe(TOKEN, "sess")["stamp"]
+seen_q = [s0]
+for i in range(C.BASELINE_RING):          # RING more distinct snapshots: s0 is the (RING+1)th oldest
+    seen_q.append(gQ.execute(TOKEN, "sess", {"request_id": rid(940 + i), "action": "bump",
+                                              "arguments": {}})["stamp"])
+old_q = gQ.observe(TOKEN, "sess", since=s0)
+ck("rows" in old_q and old_q.get("sinceUnknown") and ("last %d" % C.BASELINE_RING) in old_q["sinceUnknown"],
+   "the ring is %d deep: the stamp that was served %d snapshots ago is unknown, and the reason "
+   "SAYS how deep the ring is so a client can plan its batches: %s"
+   % (C.BASELINE_RING, C.BASELINE_RING + 1, (old_q.get("sinceUnknown") or "")[:100]))
+kept_q = gQ.observe(TOKEN, "sess", since=seen_q[1])
+ck(kept_q.get("changed") is True and (kept_q.get("diff") or {}).get("fields", {}).get("n") == [1, C.BASELINE_RING],
+   "...and the one served %d ago is still a baseline: %s" % (C.BASELINE_RING, (kept_q.get("diff") or {}).get("fields")))
+# the same stamp served twice is ONE entry, moved to newest -- re-reading an unchanged
+# target does not push older baselines off the ring
+gS, pS = sgw()
+sa = gS.observe(TOKEN, "sess")["stamp"]
+sb = gS.execute(TOKEN, "sess", {"request_id": rid(960), "action": "bump", "arguments": {}})["stamp"]
+for _ in range(C.BASELINE_RING + 2):
+    gS.observe(TOKEN, "sess")           # the same snapshot, the same stamp, RING+2 times
+ck(len(gS._seen["sess"]) == 2 and next(reversed(gS._seen["sess"])) == sb,
+   "re-observing an unchanged target %d times keeps the ring at two entries, the newest last: "
+   "%d" % (C.BASELINE_RING + 2, len(gS._seen["sess"])))
+ck(gS.observe(TOKEN, "sess", since=sa).get("changed") is True,
+   "so the stamp before all those re-reads is still a baseline")
+# and a stamp served AGAIN is moved to newest: a target that went back to an earlier
+# state serves the earlier stamp, and the next act must diff against THAT look
+gW, pW = sgw()
+wa = gW.observe(TOKEN, "sess")["stamp"]
+gW.execute(TOKEN, "sess", {"request_id": rid(965), "action": "bump", "arguments": {}})
+pW.n = 0                                   # the target went back to where it started
+w_back = gW.observe(TOKEN, "sess")["stamp"]
+ck(w_back == wa, "a target back at its first state serves its first stamp again: %s / %s" % (wa, w_back))
+w_act = gW.execute(TOKEN, "sess", {"request_id": rid(966), "action": "bump", "arguments": {}})
+ck(w_act["diff"]["since"] == wa and w_act["diff"]["fields"].get("n") == [0, 1],
+   "A STAMP SERVED AGAIN IS THE NEWEST LOOK: the act after it diffs against that look (n 0 -> 1), "
+   "not against the stamp that happened to be served last before it: %s" % w_act["diff"].get("fields"))
+# the guard's look is not remembered (ADR-222's rule survives the ring)
+gU, pU = sgw()
+su = gU.observe(TOKEN, "sess")["stamp"]
+pU.rows[0]["v"] = 9
+try:
+    gU.execute(TOKEN, "sess", {"request_id": rid(970), "action": "bump", "if_stamp": su})
+except C.HarnessError:
+    pass
+ck(len(gU._seen["sess"]) == 1 and su in gU._seen["sess"],
+   "an if_stamp refusal's own look is NOT put on the ring: the caller's baselines are the "
+   "looks it was served, and only those")
+# an act diffs against the NEWEST look, not the oldest on the ring
+gV, pV = sgw()
+gV.observe(TOKEN, "sess")
+v1 = gV.execute(TOKEN, "sess", {"request_id": rid(980), "action": "bump", "arguments": {}})
+v2 = gV.execute(TOKEN, "sess", {"request_id": rid(981), "action": "bump", "arguments": {}})
+ck(v2["diff"]["since"] == v1["stamp"] and v2["diff"]["fields"].get("n") == [1, 2],
+   "an act's own diff is still against the NEWEST look -- the one the call was planned from -- "
+   "and not the oldest thing on the ring: %s" % v2["diff"].get("fields"))
+
 # the stamp covers what was SERVED
 gA, pA = sgw(Sessioned(), allow={"MUTATE": True})
 gB, pB = sgw(pA, allow={"MUTATE": True, "SENSITIVE_READ": True})
@@ -1377,9 +1460,10 @@ ck("boxes/k" in _op["approximate"] and "tables/t" in _op["unrestored"],
 
 m = g.manifest(TOKEN)
 sess_facts = m.get("session") or {}
-ck(m["protocolVersion"] == "1.9"
-   and set(sess_facts) == {"stamp", "since", "diff", "diffCap"}
-   and sess_facts.get("diffCap") == C.DIFF_CAP,
+ck(m["protocolVersion"] == "1.10"
+   and set(sess_facts) == {"stamp", "since", "diff", "diffCap", "baselines"}
+   and sess_facts.get("diffCap") == C.DIFF_CAP and sess_facts.get("baselines") == C.BASELINE_RING
+   and ("last %d stamps" % C.BASELINE_RING) in sess_facts.get("since", ""),
    "and the manifest says the session exists -- a client cannot discover a stamp it was "
    "never told about: %s" % sess_facts)
 

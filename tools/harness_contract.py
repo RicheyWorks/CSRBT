@@ -85,11 +85,11 @@ REPLAY SAFETY
     Here the policy is re-applied to the cached response's risk, so tightening
     the policy takes effect on the next call rather than the next restart.
 """
-import copy
+import collections, copy
 import datetime
 import hashlib, hmac, json, os, re, time
 
-PROTOCOL_VERSION = "1.9"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
+PROTOCOL_VERSION = "1.10"  # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
                            # 1.2 (ADR-120): snapshotMs on every execute response -- the snapshot, priced
                            # 1.3 (ADR-124): argumentPools may carry argument SETS, keyed by the action alone
                            # 1.6 (ADR-189): `stale` -- a refusal for an argument that was right when
@@ -119,6 +119,11 @@ PROTOCOL_VERSION = "1.9"   # 1.1 (ADR-114): bounds, patterns, examples in argume
                            #                stamp handed to the wrong door is named as such,
                            #                and `if_stamp` REFUSES a report stamp rather than
                            #                comparing it to a snapshot it can never equal.
+                           # 1.10 (ADR-230): THE BASELINE IS A RING, NOT A SLOT. `since` takes
+                           #                any of the last BASELINE_RING stamps this session was
+                           #                served, not only the newest; the manifest says how
+                           #                many. A stamp from the first look of a batch of six
+                           #                acts is a baseline, not "unknown".
 REPLAY_CACHE_LIMIT = 256
 REPLAY_CACHE_BYTE_LIMIT = 8 * 1024 * 1024
 # ADR-191: how many entries of one list, in one bucket of one diff, are named
@@ -126,6 +131,15 @@ REPLAY_CACHE_BYTE_LIMIT = 8 * 1024 * 1024
 # snapshot or it is nothing, and an unbounded one on a page that rebuilt every
 # control would be larger than the snapshot it was meant to replace.
 DIFF_CAP = 40
+# ADR-230: HOW MANY BASELINES A SESSION HOLDS, per plugin. The baseline was one
+# slot -- the last snapshot served -- and every act's response serves one, so
+# every operator of the seventh blind trial who batched six acts into a call
+# and then asked `since=<the stamp I read first>` was told the door held no
+# such snapshot: 10 of 14 such asks in that trial. The ring keeps the last N
+# stamps served, each diffable; a stamp older than that is still unknown, and
+# says so. Price: N snapshots of memory per plugin -- a page snapshot is
+# ~100 KB, so under a megabyte.
+BASELINE_RING = 8
 # How much of one side of a moved value a diff carries. Two hundred characters
 # names the box a reader is looking for without paying for the box.
 BRIEF_CAP = 200
@@ -1078,8 +1092,33 @@ class Gateway(object):
         # why a diff is always "since you last looked" and never "since some
         # moment the door picked", and why a session that has never observed is
         # told it has no baseline rather than handed a diff against nothing.
+        # ADR-230: a RING of them -- an OrderedDict per plugin, stamp -> raw
+        # snapshot, newest last, at most BASELINE_RING deep. `since` may name
+        # any stamp in it; an act's diff is against the newest.
         self._seen = {}
         registry.watch(self._changed)
+
+    def _remember(self, plugin_id, st, raw):
+        ring = self._seen.get(plugin_id)
+        if ring is None:
+            ring = self._seen[plugin_id] = collections.OrderedDict()
+        ring.pop(st, None)          # the same stamp served again is one entry, moved to newest
+        ring[st] = raw
+        while len(ring) > BASELINE_RING:
+            ring.popitem(last=False)
+
+    def _latest(self, plugin_id):
+        """(stamp, raw) of the newest snapshot this session was served, or None."""
+        ring = self._seen.get(plugin_id)
+        if not ring:
+            return None
+        st = next(reversed(ring))
+        return st, ring[st]
+
+    def _baseline(self, plugin_id, since):
+        """The raw snapshot this session was served under `since`, or None."""
+        ring = self._seen.get(plugin_id)
+        return ring.get(since) if ring else None
 
     def subscribe(self, fn):
         """Call fn(kind) when the set of tools this session lists changes."""
@@ -1148,9 +1187,12 @@ class Gateway(object):
                 # rather than a trick learned by reading a response closely.
                 "session": {"stamp": "every snapshot carries one; it moves when a value a "
                                      "reader could notice moves",
-                            "since": "pass the last stamp to observe() to get the CHANGE "
-                                     "instead of the snapshot; an unknown stamp gets the "
-                                     "whole snapshot and says so",
+                            "since": "pass any of the last %d stamps this session was served "
+                                     "to observe() to get the CHANGE since that look instead "
+                                     "of the snapshot; an older or unknown stamp gets the "
+                                     "whole snapshot and says so" % BASELINE_RING,
+                            # ADR-230: how deep the ring is, so a client can plan a batch.
+                            "baselines": BASELINE_RING,
                             "diff": "every execute response carries the same diff against "
                                     "the last snapshot this session was served",
                             "diffCap": DIFF_CAP},
@@ -1170,8 +1212,9 @@ class Gateway(object):
                 # ADR-229: which stamp is which, so a client never has to guess.
                 "stamps": {"snapshot": "s + 12 hex: the `stamp` on every snapshot and every "
                                        "response; observe's `since` and `if_stamp` take this one",
-                           "report": "r + 12 hex: the `stamp` on every read-report answer; "
-                                     "read-report's `since` takes this one",
+                           "report": "r + 12 hex: `output.stamp` on every read-report answer "
+                                     "(the answer's top-level `stamp` is the SNAPSHOT's, as on "
+                                     "every response); read-report's `since` takes this one",
                            "mismatch": "observe and read-report answer the whole document and "
                                        "say which kind they were handed; if_stamp refuses "
                                        "invalid_argument, and nothing runs"},
@@ -1208,16 +1251,16 @@ class Gateway(object):
         sensitive = bool(self.policy.allow.get("SENSITIVE_READ"))
         p = self.registry.find(plugin_id)
         snap, raw, st = self._stamped(p, p.observe(sensitive=sensitive))
-        prev = self._seen.get(plugin_id)
+        base = self._baseline(plugin_id, since) if since else None
         if isinstance(snap, dict):
-            self._seen[plugin_id] = (st, raw)
+            self._remember(plugin_id, st, raw)
         if not since:
             return snap
         if not isinstance(snap, dict):
             return snap
         head = {"protocolVersion": PROTOCOL_VERSION, "pluginId": plugin_id,
                 "stamp": st, "since": since, "ready": snap.get("ready")}
-        if prev is None or prev[0] != since:
+        if base is None:
             snap = dict(snap)
             snap["since"] = since
             if series_of(since) == "report":
@@ -1228,16 +1271,16 @@ class Gateway(object):
                     "response); the whole snapshot is here instead" % since)
             else:
                 snap["sinceUnknown"] = (
-                    "this session holds no snapshot stamped %r for %s, so there is nothing to "
-                    "compare against and the whole snapshot is here instead"
-                    % (since, plugin_id))
+                    "this session holds no snapshot stamped %r for %s among the last %d it was "
+                    "served, so there is nothing to compare against and the whole snapshot is "
+                    "here instead" % (since, plugin_id, BASELINE_RING))
             return snap
         if st == since:
             head["changed"] = False
             head["diff"] = None
             return head
         head["changed"] = True
-        head["diff"] = diff_of(prev[1], raw, self._spec(p, raw))
+        head["diff"] = diff_of(base, raw, self._spec(p, raw))
         return head
 
     def execute(self, token, plugin_id, command):
@@ -1429,7 +1472,7 @@ class Gateway(object):
         # client planned this call from -- so the diff answers the question the
         # client actually has ("did my call land, and what moved") rather than
         # handing back a second copy of the page and leaving it to compare.
-        before = self._seen.get(plugin_id)
+        before = self._latest(plugin_id)
         try:
             snap, raw, st = self._stamped(plugin, plugin.observe(
                 sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))
@@ -1440,7 +1483,7 @@ class Gateway(object):
                          % (plugin_id, o["action"], o["ok"], str(o["message"])[:80],
                             str(e)[:160], rid))
         if isinstance(snap, dict):
-            self._seen[plugin_id] = (st, raw)
+            self._remember(plugin_id, st, raw)
         if before is None:
             diff = {"since": None,
                     "why": "this session had not observed %s before this call, so there is "

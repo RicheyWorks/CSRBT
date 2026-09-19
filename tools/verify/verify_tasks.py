@@ -1381,6 +1381,91 @@ for f in b7:
 ck(_dest7 == 3,
    "and the three tasks that declare the fourth rung reached a DESTRUCTIVE act through the door: %d" % _dest7)
 
+# ---- F8. the eighth blind trial (ADR-230) ------------------------------------
+#
+# Four more pages nobody had driven -- micro bench, ordination, field
+# notebook, selection log -- through the door whose observe baseline is a RING
+# of the last BASELINE_RING stamps. The seventh trial's operators asked
+# `since=<a stamp that was not the last served>` fourteen times and were told
+# "unknown" ten times; this trial asks the same thing on purpose and counts.
+BLIND8 = os.path.join(T.TRACES_DIR, "blind8")
+b8 = sorted(glob.glob(os.path.join(BLIND8, "*.jsonl.gz")))
+by8 = T.protocol_of(BLIND8)
+EIGHTH = {"page-micro-bench-science": (9, 18, 32, 45), "page-ordination-science": (14, 19, 43, 51),
+          "page-field-notebook-science": (6, 13, 22, 37), "page-selection-log-science": (6, 13, 19, 42)}
+ck(len(b8) == 4 and {os.path.basename(f).split(".")[0] for f in b8} == set(EIGHTH),
+   "the eighth trial's four traces, four more pages no blind operator had touched: %s"
+   % [os.path.basename(f) for f in b8])
+ck(not (set(EIGHTH) & (set(SEVENTH) | set(SIXTH) | set(FLOORS))),
+   "and none of them is a page an earlier trial ran")
+ck(os.path.isdir(os.path.join(BLIND8, "tasks")) and len(glob.glob(os.path.join(BLIND8, "tasks", "*.json"))) == 4
+   and os.path.isfile(os.path.join(BLIND8, "OPERATOR.md")),
+   "blind8 carries the four task files it was run under AND the manual its operators were handed")
+p8 = os.path.join(BLIND8, "PROVENANCE.md")
+t8 = io.open(p8, encoding="utf-8").read() if os.path.isfile(p8) else ""
+ck(all(w in t8 for w in ("among the last 8", "one slot", "output.stamp", "removed from the", "floor")) and len(t8) > 4000,
+   "with a provenance that carries the conditions, the ring measurement against the seventh trial, "
+   "and what the operators found")
+_r8 = _c8 = _k8 = 0
+for f in b8:
+    tid = os.path.basename(f).split(".")[0]
+    tr = T.load_trace(f)
+    g8 = T.grade_outcomes(by8[tid], tr)
+    lo = EIGHTH[tid]
+    ck(g8["reached"] >= lo[0] and g8["confirmed"] >= lo[2]
+       and g8["outcomes"] == lo[1] and g8["claims"] == lo[3]
+       and g8["verdict"] in ("PARTIAL", "PASS"),
+       "%s: the eighth trial's operator reached %d of %d outcomes (%d of %d claims), at or above "
+       "the floor this first operation set %s" % (tid, g8["reached"], g8["outcomes"], g8["confirmed"],
+                                                  g8["claims"], lo))
+    _r8 += g8["reached"]; _c8 += g8["confirmed"]; _k8 += g8["calls"]
+    ck(T.grade_trace(by8[tid], tr)["verdict"] == "FAIL",
+       "%s: and graded as a ROUTE it is FAIL, as every blind trial before it" % tid)
+ck(_r8 >= 35 and _c8 >= 116,
+   "across the four new pages the eighth trial reached %d of 63 outcomes and confirmed %d of 175 "
+   "claims in %d calls, every one in a single attempt" % (_r8, _c8, _k8))
+
+
+def _since_asks(files):
+    """(asks whose stamp was NOT the last snapshot stamp served, of those answered unknown,
+    the unknown reasons)"""
+    asks = unk = 0
+    why = []
+    for f in files:
+        last = None
+        for e in T.load_trace(f):
+            a = e.get("action"); args = e.get("arguments") or {}; r = e.get("response") or {}
+            if a == "observe":
+                since = args.get("since")
+                st = (r.get("snapshot") or {}).get("stamp")
+                if since and since != last:
+                    asks += 1
+                    u = (r.get("snapshot") or {}).get("sinceUnknown")
+                    if u:
+                        unk += 1
+                        why.append(u)
+            else:
+                st = r.get("stamp")
+            if st:
+                last = st
+    return asks, unk, why
+
+
+_a7, _u7, _w7 = _since_asks(b7)
+_a8, _u8, _w8 = _since_asks(b8)
+ck(_a7 >= 10 and _u7 == _a7,
+   "THE BEFORE, in the seventh trial's own traces: %d asks for the change since a stamp that was not "
+   "the last one served, and EVERY ONE answered 'unknown' -- the one-slot baseline: %d" % (_a7, _u7))
+ck(_a8 >= 30 and _u8 <= 5 and _u8 * 4 < _a8,
+   "THE AFTER: %d such asks in the eighth trial and %d answered 'unknown' -- under a quarter, where "
+   "the seventh's was all of them; every one of these operators batched acts and asked since= the "
+   "stamp before the batch, which is the thing the ring is for" % (_a8, _u8))
+ck(all(("among the last %d" % C.BASELINE_RING) in w for w in _w8),
+   "and every remaining 'unknown' names how deep the ring is, so the operator can plan the next "
+   "batch: %s" % [w[:60] for w in _w8 if ("among the last %d" % C.BASELINE_RING) not in w])
+ck(not any("among the last" in w for w in _w7),
+   "(the seventh trial's reasons did not, because there was no ring to name)")
+
 
 # ---- G. the science (ADR-128) and the whole kit (ADR-129) ---------------------
 DATA_ENTRY = {"collection-sheet.html", "releve.html", "stand-sheet.html", "ethogram.html", "selection-log.html",

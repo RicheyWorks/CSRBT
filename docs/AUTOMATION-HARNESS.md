@@ -268,10 +268,22 @@ the call and the door does not. Before that, `"dry_run": true` ran for real.
   look, and only a caller that asks pays it. Over MCP both ride in the call's
   `_meta`.
 
+**The baseline is a ring, not a slot** (ADR-230). `observe`'s `since` and
+`read-report`'s `since` take any of the last **8** stamps that door served —
+the manifest's `session.baselines` says how many — and answer the change
+since *that* look. It was one slot: every act's response served a snapshot and
+replaced it, so an operator who batched six acts and asked `since=<the stamp
+read before the batch>` was told the door held no such snapshot — every one of
+the ten times the seventh blind trial's operators tried it. A stamp older than
+the ring is still unknown, and the reason names the depth. A stamp served again
+(a target back at an earlier state) moves to newest. The price is eight
+snapshots of memory per plugin.
+
 **Two kinds of stamp, and the first character says which** (ADR-229). A
 SNAPSHOT stamp is `s` + twelve hex — the `stamp` on every snapshot and on
 every response; `observe`'s `since` and `if_stamp` take this one. A REPORT
-stamp is `r` + twelve hex — the `stamp` on every `read-report` answer;
+stamp is `r` + twelve hex — `output.stamp` on every `read-report` answer (the
+answer's top-level `stamp` is the snapshot's, as on every response);
 `read-report`'s own `since` takes this one. Both were `s…` until the sixth
 blind trial, where every operator handed the report's stamp to `if_stamp` and
 was told the page had *moved*. Now a door handed the other kind says so by

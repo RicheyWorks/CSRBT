@@ -1057,7 +1057,7 @@
    "survived": 0
   },
   "mutate_contract": {
-   "at": 1789731233,
+   "at": 1789747157,
    "equivalent": 1,
    "equivalents": [
     {
@@ -1066,8 +1066,8 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 111,
-   "mutants": 111,
+   "killed": 116,
+   "mutants": 116,
    "rows": [
     {
      "detail": "8 failure(s); first: an action that declared mayRise is asked, with this call's ",
@@ -1240,12 +1240,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: the manifest states a protocol version (1.9: ADR-229, a sta",
+     "detail": "2 failure(s); first: the manifest states a protocol version (1.10: ADR-230, the ",
      "name": "the manifest still says 1.5",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: and the same observation twice gets the same stamp -- a sta",
+     "detail": "9 failure(s); first: and the same observation twice gets the same stamp -- a sta",
      "name": "a number that moves on its own moves the stamp with it",
      "verdict": "killed"
     },
@@ -1275,17 +1275,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: observe handed a report stamp as `since` answers the whole ",
+     "detail": "7 failure(s); first: observe handed a report stamp as `since` answers the whole ",
      "name": "a stamp the door never issued is diffed against whatever it holds",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: every execute response carries the diff against the LAST SN",
+     "detail": "4 failure(s); first: every execute response carries the diff against the LAST SN",
      "name": "the act is diffed against the page it made rather than the one it was planned from",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and the next act diffs against THAT, so a chain of calls is",
+     "detail": "5 failure(s); first: and the next act diffs against THAT, so a chain of calls is",
      "name": "an act does not move the session on, so every act diffs from the same morning",
      "verdict": "killed"
     },
@@ -1550,7 +1550,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and the refusal's own look was NOT served or remembered: th",
+     "detail": "1 failure(s); first: an if_stamp refusal's own look is NOT put on the ring: the ",
      "name": "the look that checks a binding becomes the session's baseline",
      "verdict": "killed"
     },
@@ -1622,6 +1622,31 @@
     {
      "detail": "1 failure(s); first: and the manifest publishes both series and what a mismatch ",
      "name": "the manifest does not say which stamp is which",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: A STAMP FROM THE FIRST LOOK IS STILL A BASELINE AFTER THREE",
+     "name": "the ring is one deep again, which is the slot the seventh trial found",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the ring is 8 deep: the stamp that was served 9 snapshots a",
+     "name": "the ring is never trimmed, so a session holds every snapshot it was ever served",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A STAMP SERVED AGAIN IS THE NEWEST LOOK: the act after it d",
+     "name": "a stamp served again is a second entry, so re-reading an unchanged target pushes real baselines off",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: and the next act diffs against THAT, so a chain of calls is",
+     "name": "an act diffs against the OLDEST look on the ring rather than the newest",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the manifest says the session exists -- a client cannot",
+     "name": "the manifest does not say how deep the ring is",
      "verdict": "killed"
     }
    ],
@@ -4337,12 +4362,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789738652,
+   "at": 1789763200,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 151,
-   "mutants": 151,
+   "killed": 153,
+   "mutants": 153,
    "rows": [
     {
      "detail": "9 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -4370,7 +4395,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "21 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *",
+     "detail": "22 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *",
      "name": "boxes are the old five prefixes only",
      "verdict": "killed"
     },
@@ -4390,7 +4415,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a figure names the element it was read from: the value's ow",
+     "detail": "2 failure(s); first: a figure names the element it was read from: the value's ow",
      "name": "a figure's source is its box, never the element itself",
      "verdict": "killed"
     },
@@ -4910,12 +4935,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: while the stamp from the read just before is current, as it",
-     "name": "the baseline is the FIRST report served rather than the last",
+     "detail": "3 failure(s); first: A STAMP TWO READS OLD IS STILL A BASELINE: the report is di",
+     "name": "a report served is never put on the ring, so only the first report is ever a baseline",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a stamp this session did not issue gets the WHOLE report an",
+     "detail": "4 failure(s); first: a stamp this session did not issue gets the WHOLE report an",
      "name": "a stamp this session never issued is diffed against whatever is nearest",
      "verdict": "killed"
     },
@@ -4935,13 +4960,23 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a report carries a stamp beside everything it always carrie",
+     "detail": "3 failure(s); first: a report carries a stamp beside everything it always carrie",
      "name": "the report's stamp is in the snapshot's series again, so the two cannot be told apart",
      "verdict": "killed"
     },
     {
      "detail": "1 failure(s); first: read-report handed a SNAPSHOT stamp as `since` answers the ",
      "name": "a snapshot stamp handed to read-report is called unknown rather than the wrong kind",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A STAMP TWO READS OLD IS STILL A BASELINE: the report is di",
+     "name": "the report ring is one deep again: a stamp two reads old is unknown",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the ring is 8 deep: a report served 9 reports ago is unknow",
+     "name": "the report ring is never trimmed",
      "verdict": "killed"
     },
     {
