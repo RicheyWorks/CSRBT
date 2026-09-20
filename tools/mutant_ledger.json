@@ -1057,7 +1057,7 @@
    "survived": 0
   },
   "mutate_contract": {
-   "at": 1789747157,
+   "at": 1789791116,
    "equivalent": 1,
    "equivalents": [
     {
@@ -1066,8 +1066,8 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 116,
-   "mutants": 116,
+   "killed": 126,
+   "mutants": 126,
    "rows": [
     {
      "detail": "8 failure(s); first: an action that declared mayRise is asked, with this call's ",
@@ -1225,7 +1225,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: a command that arrives one second after its deadline: expec",
+     "detail": "7 failure(s); first: a command that arrives one second after its deadline: expec",
      "name": "stale is a spelling of not_found",
      "verdict": "killed"
     },
@@ -1240,7 +1240,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: the manifest states a protocol version (1.10: ADR-230, the ",
+     "detail": "2 failure(s); first: the manifest states a protocol version (1.11: ADR-231, if_s",
      "name": "the manifest still says 1.5",
      "verdict": "killed"
     },
@@ -1345,12 +1345,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a `call` move with an `expires_at` in the past reaches the ",
+     "detail": "6 failure(s); first: a `call` move with an `expires_at` in the past reaches the ",
      "name": "the console strips both fields off a call, so an operator can send neither",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a `call` move with an `if_stamp` that the target has moved ",
+     "detail": "5 failure(s); first: a `call` move with an `if_stamp` that the target has moved ",
      "name": "the console forwards a deadline but never a stamp",
      "verdict": "killed"
     },
@@ -1545,7 +1545,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a command bound to a look the target has moved past was run",
+     "detail": "4 failure(s); first: a command bound to a look the target has moved past was run",
      "name": "a bound command is run whether or not the target moved",
      "verdict": "killed"
     },
@@ -1565,12 +1565,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "9 failure(s); first: a command bound to the look it was decided from RUNS while ",
+     "detail": "23 failure(s); first: a command bound to the look it was decided from RUNS while",
      "name": "a binding is never checked",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a command bound to the look it was decided from RUNS while ",
+     "detail": "4 failure(s); first: a command bound to the look it was decided from RUNS while ",
      "name": "a caller that may not act is given a look for asking",
      "verdict": "killed"
     },
@@ -1580,7 +1580,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: OVER MCP both ride in the call's `_meta`, which is where th",
+     "detail": "6 failure(s); first: OVER MCP both ride in the call's `_meta`, which is where th",
      "name": "over MCP a call cannot say either",
      "verdict": "killed"
     },
@@ -1590,27 +1590,27 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and the manifest says what both fields mean and what refusi",
+     "detail": "2 failure(s); first: and the manifest says what both fields mean and what refusi",
      "name": "the manifest does not say what the two fields mean",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: a report stamp is `r` + the same 12 hex the snapshot algori",
+     "detail": "14 failure(s); first: a report stamp is `r` + the same 12 hex the snapshot algor",
      "name": "every stamp is in the snapshot series, whatever it was asked for",
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: a report stamp is `r` + the same 12 hex the snapshot algori",
+     "detail": "18 failure(s); first: a report stamp is `r` + the same 12 hex the snapshot algor",
      "name": "a report stamp reads as a snapshot stamp",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: if_stamp handed a REPORT stamp is the wrong KIND, not a mov",
+     "detail": "12 failure(s); first: if_stamp handed a REPORT stamp is the wrong KIND, not a mo",
      "name": "if_stamp handed a report stamp goes on to compare it with the snapshot and says the page moved",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: nothing ran, and no look was taken to find that out -- the ",
+     "detail": "2 failure(s); first: nothing ran, and no look was taken to find that out -- the ",
      "name": "if_stamp takes a look before deciding the stamp is the wrong kind",
      "verdict": "killed"
     },
@@ -1620,7 +1620,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and the manifest publishes both series and what a mismatch ",
+     "detail": "2 failure(s); first: and the manifest publishes both series and what a mismatch ",
      "name": "the manifest does not say which stamp is which",
      "verdict": "killed"
     },
@@ -1647,6 +1647,56 @@
     {
      "detail": "1 failure(s); first: and the manifest says the session exists -- a client cannot",
      "name": "the manifest does not say how deep the ring is",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a command bound to a report the figures have moved past was",
+     "name": "a report-stamped guard looks and ignores the answer: it never refuses stale",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: if_stamp handed a REPORT stamp is the wrong KIND, not a mov",
+     "name": "a target with no report series is compared anyway, so the refusal says the page moved",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: if_stamp 'abc' is not a stamp of either series -- it used t",
+     "name": "a string that is not a stamp of either series is compared to the snapshot and refused stale",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and the same act bound to the REPORT stamp is refused `s",
+     "name": "the report refusal sends the caller to observe, which cannot show which figure moved",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A REPORT STAMP IS A GUARD NOW: a command bound to the repor",
+     "name": "after the report guard passes, the snapshot is compared to the report stamp too, so it never runs",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: if_stamp handed a REPORT stamp is the wrong KIND, not a mov",
+     "name": "the base plugin answers a report stamp for every target, so a fixture is refused stale not by kind",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the manifest says the guard takes either kind, which do",
+     "name": "the manifest says the guard takes only the snapshot",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THE TRACE RECORDS THE GUARD a call carried -- the deadline,",
+     "name": "the trace never records the guard a call carried",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THE TRACE RECORDS THE GUARD a call carried -- the deadline,",
+     "name": "every trace row carries a guard key, empty or not, so older traces no longer read the same",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THE TRACE RECORDS THE GUARD a call carried -- the deadline,",
+     "name": "a refused call's row drops the guard that earned the refusal",
      "verdict": "killed"
     }
    ],
@@ -4362,12 +4412,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789763200,
+   "at": 1789817549,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 153,
-   "mutants": 153,
+   "killed": 162,
+   "mutants": 162,
    "rows": [
     {
      "detail": "9 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -4395,7 +4445,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "22 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *",
+     "detail": "11 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *",
      "name": "boxes are the old five prefixes only",
      "verdict": "killed"
     },
@@ -4425,17 +4475,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: and nothing outside the conventions: ['actBar', 'anBox', 'b",
+     "detail": "7 failure(s); first: and nothing outside the conventions: ['actBar', 'anBox', 'b",
      "name": "every identified element is a box",
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "detail": "11 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *",
      "name": "a box behind a closed tab is dropped again",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a box behind a closed tab is read, and which boxes a reader",
+     "detail": "4 failure(s); first: a box behind a closed tab is read, and which boxes a reader",
      "name": "every box is reported shown",
      "verdict": "killed"
     },
@@ -4925,22 +4975,22 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: asked with the current stamp it says nothing changed and do",
+     "detail": "6 failure(s); first: asked with the current stamp it says nothing changed and do",
      "name": "`since` is ignored, so every read is the whole report again",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: asked with the current stamp it says nothing changed and do",
+     "detail": "4 failure(s); first: asked with the current stamp it says nothing changed and do",
      "name": "a report whose stamp did not move is sent anyway, as an empty diff",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: A STAMP TWO READS OLD IS STILL A BASELINE: the report is di",
+     "detail": "5 failure(s); first: A PANE SWITCH IS NOT THE REPORT MOVING: opening p-trees cha",
      "name": "a report served is never put on the ring, so only the first report is ever a baseline",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a stamp this session did not issue gets the WHOLE report an",
+     "detail": "5 failure(s); first: (an unknown stamp still gets the whole report)",
      "name": "a stamp this session never issued is diffed against whatever is nearest",
      "verdict": "killed"
     },
@@ -4955,12 +5005,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and the report uses the contract's OWN stamp and diff -- tw",
-     "name": "the report gets a digest of its own instead of the contract's stamp",
+     "detail": "5 failure(s); first: THE CLOCK ROLLING OVER IS NOT THE REPORT MOVING: the keep s",
+     "name": "the report gets a digest of its own instead of the contract's stamp -- one that knows no noise, so the clock is in it",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a report carries a stamp beside everything it always carrie",
+     "detail": "4 failure(s); first: a report carries a stamp beside everything it always carrie",
      "name": "the report's stamp is in the snapshot's series again, so the two cannot be told apart",
      "verdict": "killed"
     },
@@ -4977,6 +5027,51 @@
     {
      "detail": "2 failure(s); first: the ring is 8 deep: a report served 9 reports ago is unknow",
      "name": "the report ring is never trimmed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and it serves only the report as a second series",
+     "name": "the plugin answers a stamp for every series, so a snapshot guard is compared to a report",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the plugin can say what its report's stamp is NOW without s",
+     "name": "the guard's look is stamped as a snapshot, so it never equals the report stamp the caller holds",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THE GUARD'S LOOK IS NOT PUT ON THE RING: the report as it s",
+     "name": "the guard's look is put on the report ring, so a baseline the caller never read pushes one it did off",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: the report NAMES its screen chrome -- the keep strip, the o",
+     "name": "the report names no chrome, so the clock in the keep strip moves the stamp",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: THE CLOCK ROLLING OVER IS NOT THE REPORT MOVING: the keep s",
+     "name": "the chrome is named and then compared anyway: the noise list is never filled",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A PANE SWITCH IS NOT THE REPORT MOVING: opening p-trees cha",
+     "name": "`shown` is stamped, so a pane opening -- or a toast coming into view -- moves the report",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A BOX THAT CONTAINS CHROME IS READ WITHOUT IT: the export p",
+     "name": "a box that contains the keep strip carries the clock in its text",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A PANE SWITCH IS NOT THE REPORT MOVING: opening p-trees cha",
+     "name": "`route` is stamped, so a pane switch moves the report",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A PANE SWITCH IS NOT THE REPORT MOVING: opening p-trees cha",
+     "name": "the report's own noise is dropped when the chrome is added, so route is compared again",
      "verdict": "killed"
     },
     {
@@ -5065,7 +5160,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: AN EXPORT THAT EXPORTED NOTHING SAYS SO IN ITS OWN ANSWER. ",
+     "detail": "3 failure(s); first: and an act that WORKED is answered in the same channel, so ",
      "name": "the door hears any div, declared or not",
      "verdict": "killed"
     },

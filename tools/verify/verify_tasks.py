@@ -1466,6 +1466,152 @@ ck(all(("among the last %d" % C.BASELINE_RING) in w for w in _w8),
 ck(not any("among the last" in w for w in _w7),
    "(the seventh trial's reasons did not, because there was no ring to name)")
 
+# ---- F9. the ninth blind trial (ADR-231) -------------------------------------
+#
+# Four more pages nobody had driven -- cell bench, cp bench, deployment log,
+# farm scout -- through the door where `if_stamp` takes a REPORT stamp and
+# guards the figures. Run in two halves on purpose: the first two operators
+# drove the door as first built and were refused ten times in eleven by the
+# screen chrome's clock; the chrome was made noise; the last two drove the
+# fixed door and were refused by figures that had moved, 88 times where the
+# snapshot stamp had not.
+BLIND9 = os.path.join(T.TRACES_DIR, "blind9")
+b9 = sorted(glob.glob(os.path.join(BLIND9, "*.jsonl.gz")))
+by9 = T.protocol_of(BLIND9)
+NINTH = {"page-cell-bench-science": (13, 20, 33, 49), "page-cp-bench-science": (14, 21, 52, 71),
+         "page-deployment-log-science": (32, 50, 71, 114), "page-farm-scout-science": (12, 16, 28, 41)}
+FIRST_HALF = ("page-cell-bench-science", "page-cp-bench-science")
+ck(len(b9) == 4 and {os.path.basename(f).split(".")[0] for f in b9} == set(NINTH),
+   "the ninth trial's four traces, four more pages no blind operator had touched: %s"
+   % [os.path.basename(f) for f in b9])
+ck(not (set(NINTH) & (set(EIGHTH) | set(SEVENTH) | set(SIXTH) | set(FLOORS))),
+   "and none of them is a page an earlier trial ran")
+ck(os.path.isdir(os.path.join(BLIND9, "tasks")) and len(glob.glob(os.path.join(BLIND9, "tasks", "*.json"))) == 4
+   and os.path.isfile(os.path.join(BLIND9, "OPERATOR.md")),
+   "blind9 carries the four task files it was run under AND the manual its operators were handed")
+p9 = os.path.join(BLIND9, "PROVENANCE.md")
+t9 = io.open(p9, encoding="utf-8").read() if os.path.isfile(p9) else ""
+ck(all(w in t9 for w in ("two halves", "chrome", "SNAPSHOT stamp had not moved", "removed from the", "floor",
+                         "MANUAL", "guard"))
+   and len(t9) > 4000,
+   "with a provenance that carries the conditions, the two-half measurement, and what the trial found "
+   "in itself")
+_r9 = _c9 = _k9 = 0
+for f in b9:
+    tid = os.path.basename(f).split(".")[0]
+    tr = T.load_trace(f)
+    g9 = T.grade_outcomes(by9[tid], tr)
+    lo = NINTH[tid]
+    ck(g9["reached"] >= lo[0] and g9["confirmed"] >= lo[2]
+       and g9["outcomes"] == lo[1] and g9["claims"] == lo[3]
+       and g9["verdict"] in ("PARTIAL", "PASS"),
+       "%s: the ninth trial's operator reached %d of %d outcomes (%d of %d claims), at or above "
+       "the floor this first operation set %s" % (tid, g9["reached"], g9["outcomes"], g9["confirmed"],
+                                                  g9["claims"], lo))
+    _r9 += g9["reached"]; _c9 += g9["confirmed"]; _k9 += g9["calls"]
+    ck(T.grade_trace(by9[tid], tr)["verdict"] == "FAIL",
+       "%s: and graded as a ROUTE it is FAIL, as every blind trial before it" % tid)
+ck(_r9 >= 71 and _c9 >= 184,
+   "across the four new pages the ninth trial reached %d of 107 outcomes and confirmed %d of 275 "
+   "claims in %d calls, every one in a single attempt" % (_r9, _c9, _k9))
+
+_CHROME9 = ("keepBox", "sendBox", "toast", "p-out")
+_STALE9 = re.compile(r"report stamped (r[0-9a-f]{12}) \(it is (r[0-9a-f]{12}) now\)")
+
+
+def _report_guards(f):
+    """Every `stale` refusal of a REPORT-stamped guard in one trace, classified by what
+    had actually moved between the report the operator read and the act it bound:
+    {"refusals", "figures", "box", "chrome", "route", "other", "snapshot_unmoved_figures",
+     "named"} -- the last is refusals whose message names the report and the fix."""
+    tr = T.load_trace(f)
+    issued, last = {}, None
+    n = dict(refusals=0, figures=0, box=0, chrome=0, route=0, other=0, snapshot_unmoved_figures=0, named=0)
+    for i, e in enumerate(tr):
+        a = e.get("action"); r = e.get("response") or {}
+        if a == "read-report" and isinstance(r.get("output"), dict) and r["output"].get("stamp"):
+            issued.setdefault(r["output"]["stamp"], (i, r.get("stamp")))
+        if r.get("code") == "stale" and "REPORT" in (r.get("message") or ""):
+            m = _STALE9.search(r["message"])
+            n["refusals"] += 1
+            if not m:
+                n["other"] += 1
+                continue
+            want = m.group(1)
+            if "read-report with since=%s" % want in r["message"]:
+                n["named"] += 1
+            cls = "other"
+            for e2 in tr[i:]:
+                a2 = e2.get("action"); r2 = e2.get("response") or {}; o2 = r2.get("output") or {}
+                if a2 != "read-report" or not isinstance(o2, dict):
+                    continue
+                if (e2.get("arguments") or {}).get("since") == want and isinstance(o2.get("diff"), dict):
+                    d = o2["diff"]
+                    keys = [k for k in list(d.get("fields", {})) + list(d.get("appeared", {}))
+                            + list(d.get("gained", {})) + list(d.get("lost", [])) if k != "stamp"]
+                    if any(k.startswith(("figures/", "by/")) for k in keys):
+                        cls = "figures"
+                    elif any(k.startswith(("boxes/", "lines/", "tables/", "rows/")) and k.split("/")[1] not in _CHROME9
+                             for k in keys):
+                        cls = "box"
+                    elif any("/" in k and k.split("/")[1] in _CHROME9 for k in keys):
+                        cls = "chrome"
+                    elif keys and all(k in ("route", "shown") for k in keys):
+                        cls = "route"
+                    break
+                if not (e2.get("arguments") or {}).get("since") and o2.get("figures") is not None and want in issued:
+                    src = tr[issued[want][0]]["response"]["output"]
+                    if src.get("figures") != o2["figures"]:
+                        cls = "figures"
+                    else:
+                        moved = [k for k in set(src.get("boxes") or {}) | set(o2.get("boxes") or {})
+                                 if (src.get("boxes") or {}).get(k) != (o2.get("boxes") or {}).get(k)]
+                        if any(k not in _CHROME9 for k in moved):
+                            cls = "box"
+                        elif moved:
+                            cls = "chrome"
+                        elif src.get("route") != o2.get("route") or src.get("shown") != o2.get("shown"):
+                            cls = "route"
+                    break
+            n[cls] += 1
+            if cls == "figures" and want in issued and issued[want][1] and last == issued[want][1]:
+                n["snapshot_unmoved_figures"] += 1
+        st = r.get("stamp") if a != "observe" else (r.get("snapshot") or {}).get("stamp")
+        if st:
+            last = st
+    return n
+
+
+_g9 = {os.path.basename(f).split(".")[0]: _report_guards(f) for f in b9}
+_h1 = {k: sum(_g9[t][k] for t in FIRST_HALF) for k in next(iter(_g9.values()))}
+_h2 = {k: sum(_g9[t][k] for t in _g9 if t not in FIRST_HALF) for k in next(iter(_g9.values()))}
+ck(_h1["refusals"] >= 11 and _h1["chrome"] >= 10 and _h1["chrome"] * 10 >= _h1["refusals"] * 9,
+   "THE FIRST HALF, on the door as first built: %d report-stamped guards refused `stale`, %d of them "
+   "by the screen chrome alone -- the keep strip's clock rolling over a minute, a toast fading -- with "
+   "no figure moved: %s" % (_h1["refusals"], _h1["chrome"], _h1))
+ck(_h2["refusals"] >= 100 and _h2["chrome"] == 0,
+   "THE SECOND HALF, with the chrome made noise: %d refusals and NOT ONE by the chrome: %s"
+   % (_h2["refusals"], _h2))
+ck(_h2["figures"] >= 99 and _h2["snapshot_unmoved_figures"] >= 88,
+   "THE MEASUREMENT: %d of the second half's refusals were figures that had moved, and %d of those were "
+   "acts where the SNAPSHOT stamp had not moved since the report was read -- every one of which a "
+   "snapshot-stamped guard would have let through: %s" % (_h2["figures"], _h2["snapshot_unmoved_figures"], _h2))
+ck(_h2["route"] <= 2 and _h1["route"] == 0,
+   "and the pane switch, refused %d time(s) here, is noise now too (verify_report holds it)" % _h2["route"])
+ck(all(_g9[t]["named"] == _g9[t]["refusals"] - _g9[t]["other"] and _g9[t]["other"] == 0 for t in _g9),
+   "every refusal named the report, both stamps, and read-report since=<the stamp> as the way to see "
+   "which figures changed: %s" % {t: (_g9[t]["named"], _g9[t]["refusals"]) for t in _g9})
+_man9 = re.sub(r"\s+", " ", io.open(os.path.join(BLIND9, "OPERATOR.md"), encoding="utf-8").read())
+_man = re.sub(r"\s+", " ", io.open(os.path.join(_kit.ROOT, "docs", "OPERATOR.md"), encoding="utf-8").read()) \
+    if os.path.isfile(os.path.join(_kit.ROOT, "docs", "OPERATOR.md")) else ""
+ck('"text": "5"' in _man9 and "guard every act you expect to change a figure" in _man9,
+   "the manual the ninth trial's operators were handed carries the two faults they found: the wrong "
+   "argument name in its example and the instruction to bind a run of presses to one stamp")
+ck(_man and '"value": "5"' in _man and '"text": "5"' not in _man and "run of presses" in _man
+   and "DEPENDS on the figures" in _man and "do not move the report stamp" in _man,
+   "and docs/OPERATOR.md -- the manual from the tenth trial on -- has both fixed, says which act to "
+   "guard, and says the chrome and a pane switch do not move the report stamp")
+
 
 # ---- G. the science (ADR-128) and the whole kit (ADR-129) ---------------------
 DATA_ENTRY = {"collection-sheet.html", "releve.html", "stand-sheet.html", "ethogram.html", "selection-log.html",

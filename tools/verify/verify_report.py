@@ -1513,6 +1513,81 @@ with sync_playwright() as pw:
     ck(quiet.get("changed") is False and quiet.get("diff") is None and "figures" not in quiet,
        "asked with the current stamp it says nothing changed and does NOT send the report "
        "again: %s" % sorted(quiet))
+
+    # ---- ADR-231: the screen chrome does not move the report ---------------
+    # Two operators of the ninth blind trial were refused `stale` five times
+    # each on a report-stamped guard because the keep strip's "Saved on this
+    # device today 19:09" rolled over a minute, and the toast faded. The
+    # report names its chrome, and the stamp and the diff leave it out.
+    ck(set(r1.get("chrome") or ()) == {"keepBox", "sendBox", "toast"},
+       "the report NAMES its screen chrome -- the keep strip, the outbox strip, the toast: %s"
+       % r1.get("chrome"))
+    ck("keepBox" in r1["boxes"] and "toast" in r1["boxes"] and "keepBox" in r1["lines"],
+       "and still SERVES it: the boxes and lines are read exactly as before")
+    _st_before = r1b["stamp"]
+    pg.evaluate("() => { const p = document.querySelector('#keepBox .st') || document.querySelector('#keepBox');"
+                " p.textContent = 'Saved on this device today 23:59.'; }")
+    _ok, _m, _churn = rp.execute("read-report", {"since": _st_before})
+    ck(_churn.get("changed") is False and _churn["stamp"] == _st_before,
+       "THE CLOCK ROLLING OVER IS NOT THE REPORT MOVING: the keep strip's minute changed and the "
+       "stamp did not: %s" % _churn["stamp"])
+    pg.evaluate("() => { const t = document.getElementById('toast'); t.textContent = 'Logged.'; t.classList.add('on');"
+                " t.style.display = 'block'; }")
+    _ok, _m, _toasted = rp.execute("read-report", {})
+    ck(_toasted["stamp"] == _st_before and "toast" in _toasted["boxes"] and _toasted["boxes"]["toast"] == "Logged.",
+       "a toast raised is served in the report and does not move its stamp -- a toast fading later "
+       "is not the report moving either: %s" % _toasted["stamp"])
+    _ok, _m, _dd = rp.execute("read-report", {"since": "r" + "0" * 12})
+    ck(all(x in (_dd.get("sinceUnknown") or "") for x in ("no report",)),
+       "(an unknown stamp still gets the whole report)")
+    rp.execute("set-text", {"selector": "@control:kSearch", "value": "wh"})
+    _ok, _m, _nd = rp.execute("read-report", {"since": _st_before})
+    ck(_nd.get("changed") is True and {"boxes/keepBox", "lines/keepBox", "boxes/toast", "lines/toast",
+                                        "boxes/sendBox", "lines/sendBox"} <= set((_nd.get("diff") or {}).get("noise") or ()),
+       "and when the report does move, the diff NAMES the chrome it did not compare, the way the "
+       "organism names its replica lag: %s" % (_nd.get("diff") or {}).get("noise"))
+    ck(not any(k.startswith(("boxes/keepBox", "boxes/toast", "lines/keepBox", "lines/toast"))
+               for k in list((_nd.get("diff") or {}).get("fields") or {}) + list((_nd.get("diff") or {}).get("appeared") or {}))
+       and "toast" not in (((_nd.get("diff") or {}).get("appeared") or {}).get("shown") or []),
+       "and no chrome path is in the diff's fields or appearances -- not even the toast coming into "
+       "view under `shown`: %s" % ((_nd.get("diff") or {}).get("appeared") or {}).get("shown"))
+    # a box that CONTAINS chrome is read without it
+    _host = next(i for i in r1["boxes"] if i not in ("keepBox", "sendBox", "toast") and r1["boxes"][i])
+    _st_h = _toasted["stamp"]
+    _ok, _m, _h0 = rp.execute("read-report", {})
+    pg.evaluate("(id) => { const d = document.createElement('div'); d.className = 'keep'; d.id = 'fakeKeep';"
+                " d.textContent = 'Saved on this device today 07:07.'; document.getElementById(id).appendChild(d); }", _host)
+    _ok, _m, _h1 = rp.execute("read-report", {})
+    ck("07:07" not in _h1["boxes"][_host] and _h1["boxes"][_host] == _h0["boxes"][_host]
+       and not any("07:07" in ln for ln in _h1["lines"][_host]) and _h1["stamp"] == _h0["stamp"],
+       "A BOX THAT CONTAINS CHROME IS READ WITHOUT IT: the export pane the strips are mounted in does "
+       "not carry the clock in its text or its lines, and the stamp holds (%s)" % _host)
+    pg.evaluate("() => document.getElementById('fakeKeep').remove()")
+    # a pane switch moves the snapshot, not the report
+    _ok, _m, _pr0 = rp.execute("read-report", {})
+    _panes = [c for c in rp.observe(sensitive=True)["controls"] if c["kind"] == "tab" and not c.get("selected")]
+    _other = (_panes[0].get("pane") or _panes[0].get("target")) if _panes else None
+    _sv0 = C.stamp_of(rp.observe(sensitive=True), rp.identity())
+    _ok, _m, _sw = rp.execute("show-pane", {"pane": _other}) if _other else (False, "no second pane", {})
+    _ok, _m, _pr1 = rp.execute("read-report", {"since": _pr0["stamp"]})
+    _sv1 = C.stamp_of(rp.observe(sensitive=True), rp.identity())
+    ck(bool(_other) and _pr1.get("changed") is False and _pr1["route"] != _pr0["route"] and _sv1 != _sv0,
+       "A PANE SWITCH IS NOT THE REPORT MOVING: opening %s changed the snapshot (%s -> %s) and the "
+       "report's `route` (%s -> %s), and the report stamp held -- the guard is on the figures, and a "
+       "pane opening is the snapshot's business" % (_other, _sv0, _sv1, _pr0["route"], _pr1.get("route")))
+    _ok, _m, _pr2 = rp.execute("read-report", {})
+    ck(set(_pr2.get("shown") or ()) != set(_pr0.get("shown") or ()) and _pr2["stamp"] == _pr0["stamp"],
+       "and `shown` moved with the pane (%d -> %d boxes in view) without moving the stamp: it is served, "
+       "and it is noise" % (len(_pr0.get("shown") or ()), len(_pr2.get("shown") or ())))
+    rp.execute("set-text", {"selector": "@control:kSearch", "value": "pinus"})
+    _ok, _m, _pr3 = rp.execute("read-report", {"since": _pr0["stamp"]})
+    ck({"route", "shown"} <= set((_pr3.get("diff") or {}).get("noise") or ()),
+       "and a diff that does move names route and shown among what it did not compare: %s"
+       % (_pr3.get("diff") or {}).get("noise"))
+    pg.evaluate("() => { const t = document.getElementById('toast'); t.textContent = ''; t.classList.remove('on'); t.style.display = ''; }")
+    rp.execute("set-text", {"selector": "@control:kSearch", "value": ""})
+    _ok, _m, r1b = rp.execute("read-report", {})
+    quiet = {"stamp": r1b["stamp"]}
     ck(len(json.dumps(quiet)) * 50 < nfull,
        "which is the whole saving: %d bytes against a %d-byte report"
        % (len(json.dumps(quiet)), nfull))
@@ -1609,9 +1684,110 @@ with sync_playwright() as pw:
        "a table's rows are NOT keyed: a row of cells has no identity of its own, so a table "
        "reports that it gained or lost rows rather than pretending row three is the same "
        "row three")
-    ck('stamp_of(r, self.REPORT_IDENTITY, series="r")' in src and "diff_of(base, r, self.REPORT_IDENTITY)" in src,
+    ck('stamp_of(r, self._report_spec(r), series="r")' in src and "diff_of(base, r, self._report_spec(r))" in src,
        "and the report uses the contract's OWN stamp and diff -- two documents, one "
        "algorithm; a third would be a third thing to get wrong")
+
+    # ---- ADR-231: if_stamp with a REPORT stamp guards the figures ----------
+    # Through the gateway, on the page the plugin already drives. The eighth
+    # trial's operators wrote the case down: an act that changes every figure
+    # and no control leaves the snapshot stamp where it was, so a guard on
+    # that stamp cannot see what the act was about.
+    _TK = "k" * 40
+    _gj = C.Gateway(C.Registry([rp]), C.Policy(token=_TK, allow={"SENSITIVE_READ": True, "DRAFT": True,
+                                                                  "MUTATE": True}, enabled=True))
+    _rr = _gj.execute(_TK, "csrbt-page", {"request_id": "j-r0", "action": "read-report", "arguments": {}})
+    _r0 = _rr["output"]["stamp"]
+    ck(C.series_of(_r0) == "report" and C.series_of(_rr["stamp"]) == "snapshot",
+       "a read-report response carries the report's stamp at output.stamp and the snapshot's on top")
+    _held = len(rp._reports)
+    ck(rp.stamp("report") == _r0 and len(rp._reports) == _held,
+       "the plugin can say what its report's stamp is NOW without serving it: the same stamp the "
+       "caller was handed, and the ring did not grow (%d held)" % _held)
+    ck(rp.stamp("snapshot") is None and rp.stamp("x") is None,
+       "and it serves only the report as a second series")
+    _a = _gj.execute(_TK, "csrbt-page", {"request_id": "j-g1", "action": "set-text",
+                                        "arguments": {"selector": "#cwdD", "value": "12 8 31 45 9 7"},
+                                        "if_stamp": _r0})
+    ck(_a.get("ok") is True,
+       "a command bound to the report it was decided from runs while the report is unmoved")
+    try:
+        _gj.execute(_TK, "csrbt-page", {"request_id": "j-g2", "action": "set-text",
+                                        "arguments": {"selector": "#cwdD", "value": "12 8 31 45 9 7 3"},
+                                        "if_stamp": _r0})
+        ck(False, "a command bound to a report the figures have moved past was run")
+    except HarnessError as _e:
+        ck(_e.code == "stale" and "REPORT" in _e.message and _r0 in _e.message and "read-report with since=" in _e.message,
+           "on a real page the same act bound to a report stamp the figures have moved past is refused "
+           "`stale`, naming the report: %s" % _e.message[:140])
+    _now = rp.stamp("report")
+    ck(_now != _r0 and _now not in rp._reports and len(rp._reports) == _held,
+       "THE GUARD'S LOOK IS NOT PUT ON THE RING: the report as it stands (%s) is not a baseline until "
+       "the caller reads it, so a look it never asked to be served cannot push one it did read off "
+       "(%d held)" % (_now, len(rp._reports)))
+    _rd = _gj.execute(_TK, "csrbt-page", {"request_id": "j-r1", "action": "read-report",
+                                         "arguments": {"since": _r0}})["output"]
+    ck(_rd.get("changed") is True and (_rd.get("diff") or {}).get("fields"),
+       "and the refusal's look was not served or remembered: read-report since=<that stamp> still "
+       "answers the diff from the read the caller made: %s" % list((_rd.get("diff") or {}).get("fields") or [])[:2])
+    ck(rp.stamp("report") == _rd["stamp"],
+       "the report stamp NOW is the one the last read-report served -- one algorithm, one spec")
+
+    pg.close()
+    ctx.close()
+    b.close()
+
+
+# ---- J2. the case the trials found: figures move, controls do not (ADR-231) --
+#
+# Three trials running noted that a tally pressed again changes every figure
+# and no control. The field notebook is where the eighth trial's operator
+# found it; this holds the page to that shape and the guard to its purpose.
+
+with sync_playwright() as pw:
+    b = pw.chromium.launch()
+    ctx = b.new_context(viewport=H.VIEWPORT)
+    ctx.set_offline(True)
+    ctx.add_init_script(H.STUBS)
+    pg = ctx.new_page()
+    docs = os.environ.get("CSRBT_DOCS_DIR") or os.path.join(_kit.ROOT, "docs")
+    pg.goto("file://" + os.path.join(docs, "field-notebook.html").replace(os.sep, "/"),
+            wait_until="domcontentloaded")
+    fp = PP.PagePlugin(pg, "field-notebook.html")
+    _TK = "k" * 40
+    _gf = C.Gateway(C.Registry([fp]), C.Policy(token=_TK, allow={"SENSITIVE_READ": True, "DRAFT": True,
+                                                                  "MUTATE": True}, enabled=True))
+    _gf.execute(_TK, "csrbt-page", {"request_id": "f-0", "action": "activate",
+                                    "arguments": {"selector": "@control:quadGrid#3"}})
+    _s1 = _gf.observe(_TK, "csrbt-page")["stamp"]
+    _r1 = _gf.execute(_TK, "csrbt-page", {"request_id": "f-r1", "action": "read-report",
+                                          "arguments": {}})["output"]["stamp"]
+    _p2 = _gf.execute(_TK, "csrbt-page", {"request_id": "f-1", "action": "activate",
+                                          "arguments": {"selector": "@control:quadGrid#3"},
+                                          "if_stamp": _s1})
+    _s2 = _p2["stamp"]
+    _r2 = _gf.execute(_TK, "csrbt-page", {"request_id": "f-r2", "action": "read-report",
+                                          "arguments": {}})["output"]["stamp"]
+    ck(_p2.get("ok") is True and _s2 == _s1 and _r2 != _r1,
+       "THE SHAPE THE TRIALS FOUND: a quadrat counter pressed a second time moves the report (%s -> %s) "
+       "and not the snapshot (%s), so a snapshot-stamped guard let it through" % (_r1, _r2, _s1))
+    ck((_p2.get("diff") or {}).get("fields") in (None, {}) and not (_p2.get("diff") or {}).get("appeared"),
+       "and the act's own diff -- control-shaped -- says nothing moved: %s" % sorted((_p2.get("diff") or {}))[:4])
+    try:
+        _gf.execute(_TK, "csrbt-page", {"request_id": "f-2", "action": "activate",
+                                        "arguments": {"selector": "@control:quadGrid#3"}, "if_stamp": _r1})
+        ck(False, "a third press bound to the report before the second was run")
+    except HarnessError as _e:
+        ck(_e.code == "stale" and "REPORT" in _e.message and _r1 in _e.message and _r2 in _e.message,
+           "A REPORT-STAMPED GUARD SEES IT: the same press bound to the report read before the second "
+           "press is refused `stale`, naming both report stamps: %s" % _e.message[:150])
+    _r3 = _gf.execute(_TK, "csrbt-page", {"request_id": "f-r3", "action": "read-report",
+                                          "arguments": {}})["output"]["stamp"]
+    ck(_r3 == _r2, "and the refused press pressed nothing: the report stamp is the second press's")
+    _p3 = _gf.execute(_TK, "csrbt-page", {"request_id": "f-3", "action": "activate",
+                                          "arguments": {"selector": "@control:quadGrid#3"}, "if_stamp": _r2})
+    ck(_p3.get("ok") is True and fp.stamp("report") != _r2,
+       "bound to the report as it stands, the press runs and moves the figures")
 
     pg.close()
     ctx.close()

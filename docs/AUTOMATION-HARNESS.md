@@ -262,11 +262,32 @@ the call and the door does not. Before that, `"dry_run": true` ran for real.
 - **`expires_at`** (ADR-222) — an ISO-8601 instant *with an offset*. A command
   that has not run by then is refused `stale` and is not run. A receipt is
   served whatever the clock says.
-- **`if_stamp`** (ADR-222) — the `stamp` of the snapshot the caller decided
-  from. If the target has moved since, the command is refused `stale` and is
-  not run; `observe` with `since=<that stamp>` says what moved. It costs one
-  look, and only a caller that asks pays it. Over MCP both ride in the call's
-  `_meta`.
+- **`if_stamp`** (ADR-222, ADR-231) — the stamp the caller decided from, of
+  EITHER kind. A SNAPSHOT stamp (`s…`) guards the snapshot — the controls,
+  panes, pools; a REPORT stamp (`r…`) guards the report — the figures, boxes,
+  tables. The door looks at *that* document again and, if its stamp differs,
+  refuses `stale` and runs nothing; `observe since=` or `read-report since=`
+  the stamp says what moved. It costs one look, and only a caller that asks
+  pays it. A report stamp on a target that serves no report (organism, lab,
+  fixture) is refused `invalid_argument` by name; so is a string that is not a
+  stamp of either series. Over MCP both fields ride in the call's `_meta`, and
+  the trace records them as `guard` on the row. The manifest's
+  `freshness.ifStampTakes` lists the two kinds.
+
+**Why the report guard exists** (ADR-231). Three blind trials running noted
+that an act on a data-entry page — a tally, a counter, a value that feeds a
+computed result — moves every figure and no control, so the snapshot stamp
+does not move and a snapshot-stamped guard lets the second press through. In
+the ninth trial the farm scout's operator was refused 88 times on figures that
+had moved while the snapshot stamp had not budged — every one an act a
+snapshot guard would have run. **The report stamp ignores the screen chrome
+and the open pane**: the keep strip ("Saved on this device today 19:09"), the
+outbox strip and the toast are named by the report (`chrome`) and are noise
+for its stamp and diff — served, not compared, and named as such — because
+the first half of that trial was refused ten times in eleven by a minute
+rolling over; and `route`/`shown` are noise because a pane switch is the
+snapshot's business. A box that contains a strip (the export pane) is read
+without it.
 
 **The baseline is a ring, not a slot** (ADR-230). `observe`'s `since` and
 `read-report`'s `since` take any of the last **8** stamps that door served —
@@ -281,15 +302,17 @@ snapshots of memory per plugin.
 
 **Two kinds of stamp, and the first character says which** (ADR-229). A
 SNAPSHOT stamp is `s` + twelve hex — the `stamp` on every snapshot and on
-every response; `observe`'s `since` and `if_stamp` take this one. A REPORT
-stamp is `r` + twelve hex — `output.stamp` on every `read-report` answer (the
-answer's top-level `stamp` is the snapshot's, as on every response);
-`read-report`'s own `since` takes this one. Both were `s…` until the sixth
+every response; `observe`'s `since` takes this one, and `if_stamp` with it
+guards the snapshot. A REPORT stamp is `r` + twelve hex — `output.stamp` on
+every `read-report` answer (the answer's top-level `stamp` is the snapshot's,
+as on every response); `read-report`'s own `since` takes this one, and
+`if_stamp` with it guards the figures (ADR-231). Both were `s…` until the sixth
 blind trial, where every operator handed the report's stamp to `if_stamp` and
 was told the page had *moved*. Now a door handed the other kind says so by
 name: `observe` and `read-report` answer the whole document and name the kind
-they were given; `if_stamp` refuses `invalid_argument` before any look, and
-nothing runs. The manifest's `stamps` block states all of this.
+they were given; `if_stamp` takes either kind and guards that document, and
+refuses `invalid_argument` for a string that is neither. The manifest's
+`stamps` block states all of this.
 
 Every door reads **bytes**, decodes them strictly as UTF-8 whatever the
 machine's code page is, one frame of at most 1 MiB at a time, and parses them

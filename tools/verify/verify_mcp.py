@@ -689,10 +689,13 @@ sdir_m = tempfile.mkdtemp(prefix="blind-meta-")
 senv_m = dict(os.environ); senv_m["CSRBT_BLIND_DIR"] = sdir_m
 
 
+_trace_m = os.path.join(sdir_m, "meta.jsonl")
+
+
 def meta_console(ms):
     fh = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, dir=sdir_m)
     json.dump(list(ms), fh); fh.close()
-    p = subprocess.run([sys.executable, BL, "--target", "fixture", "--moves", fh.name],
+    p = subprocess.run([sys.executable, BL, "--target", "fixture", "--moves", fh.name, "--trace", _trace_m],
                        capture_output=True, text=True, env=senv_m, timeout=200)
     return [json.loads(l) for l in p.stdout.strip().split("\n") if l.strip().startswith("{")]
 
@@ -701,24 +704,43 @@ try:
     am = meta_console([{"observe": "csrbt-fixture"},
                        {"call": "csrbt_fixture__ok", "expires_at": "2001-01-01T00:00:00+00:00"},
                        {"call": "csrbt_fixture__ok", "if_stamp": "sdeadbeef0000"},
-                       {"call": "csrbt_fixture__ok"}])
+                       {"call": "csrbt_fixture__ok"},
+                       {"call": "csrbt_fixture__ok", "if_stamp": "rdeadbeef0000"}])
     def _err(x):
         return (x["answer"].get("error") or {}).get("message", "")
     def _body(x):
         r = x["answer"].get("result", {})
         return json.loads(r["content"][0]["text"]) if "content" in r else {}
-    ck(len(am) == 4, "the meta console played all four moves: %d" % len(am))
-    ck(len(am) == 4 and "stale" in _err(am[1]) and "expired at 2001-01-01T00:00:00+00:00" in _err(am[1]),
+    ck(len(am) == 5, "the meta console played all five moves: %d" % len(am))
+    ck(len(am) == 5 and "stale" in _err(am[1]) and "expired at 2001-01-01T00:00:00+00:00" in _err(am[1]),
        "a `call` move with an `expires_at` in the past reaches the gateway through _meta and is "
        "refused `stale`, naming the deadline -- ADR-222's field, which the fifth trial's operators "
        "could not send: %s" % (_err(am[1])[:90] if len(am) > 1 else "no move 1"))
-    ck(len(am) == 4 and "stale" in _err(am[2]) and "moved since the snapshot stamped sdeadbeef0000" in _err(am[2]),
+    ck(len(am) == 5 and "stale" in _err(am[2]) and "moved since the snapshot stamped sdeadbeef0000" in _err(am[2]),
        "a `call` move with an `if_stamp` that the target has moved past is refused `stale`, naming "
        "the stamp: ACT ONLY IF THE TARGET IS STILL THAT, offered to the operator at last: %s"
        % (_err(am[2])[:90] if len(am) > 2 else "no move 2"))
-    ck(len(am) == 4 and _body(am[3]).get("ok") is True,
+    ck(len(am) == 5 and _body(am[3]).get("ok") is True,
        "and a plain `call`, naming neither, still runs: a host that never heard of the two fields "
        "is the default: %s" % (_body(am[3]) if len(am) > 3 else "no move 3"))
+    # ADR-231: a REPORT stamp reaches the gateway's guard too, and a target
+    # with no report is refused by KIND -- not told it moved.
+    ck(len(am) == 5 and "serves no report" in _err(am[4]) and "rdeadbeef0000" in _err(am[4])
+       and "stale" not in _err(am[4]),
+       "a `call` move with a REPORT stamp as if_stamp on a target that serves no report is refused "
+       "invalid_argument by name, through _meta, and not `stale`: %s" % (_err(am[4])[:100] if len(am) > 4 else "no move 4"))
+    # ADR-231: THE TRACE RECORDS THE GUARD, only when one was named.
+    _rows = [json.loads(l) for l in io.open(_trace_m, encoding="utf-8") if l.strip()] if os.path.exists(_trace_m) else []
+    _calls = [r for r in _rows if r.get("action") == "ok"]
+    ck(len(_calls) == 4 and _calls[0].get("guard") == {"expires_at": "2001-01-01T00:00:00+00:00"}
+       and _calls[1].get("guard") == {"if_stamp": "sdeadbeef0000"} and "guard" not in _calls[2]
+       and _calls[3].get("guard") == {"if_stamp": "rdeadbeef0000"},
+       "THE TRACE RECORDS THE GUARD a call carried -- the deadline, the stamp and its kind -- and a "
+       "plain call's row has no such key, so every older trace reads as it did: %s"
+       % [r.get("guard") for r in _calls])
+    ck(len(_calls) == 4 and _calls[1]["response"].get("code") == "stale" and _calls[3]["response"].get("code") == "invalid_argument",
+       "and the refusal rides the same row as the guard that earned it, so a trial can count guards "
+       "by kind and by outcome from the trace alone")
 finally:
     shutil.rmtree(sdir_m, ignore_errors=True)
 

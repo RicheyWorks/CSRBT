@@ -1,0 +1,852 @@
+{
+ "id": "page-cell-bench-science",
+ "target": "page",
+ "page": "cell-bench.html",
+ "goal": "On the cell bench, count 120 live / 12 dead in 4 large squares at dilution 2 (6.00x10^5 live cells/mL, 90.9% viable), enter the chamber factor, sample and target volumes and confluency explicitly, seed and compute doubling time, build a four-point standard curve and read an unknown, a Beer-Lambert concentration and A260/A280/A230 purity, log two 1:4 passages (cumulative PD 4.0), and score a mitotic index -- every calculator driven and every figure held against an oracle. The seeding block of the bench sheet now carries the cells the seeding needs, 5.000e+5, beside the two volumes.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "cell-bench.html"
+   }
+  },
+  {
+   "id": "g159-sq",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cntEntry/large squares counted",
+    "value": "4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-dil",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cntEntry/dilution factor",
+    "value": "2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-chf",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cntEntry/Neubauer · 0.1 mm (10⁴)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-vol",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cntEntry/sample volume",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "live",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:live cells counted",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dead",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dead cells counted",
+    "value": "12"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "count",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.cntOut.live cells/mL": "6.00×10⁵",
+    "output.by.cntOut.cells per square (all)": "33.0",
+    "output.by.cntOut.viability": "90.9%",
+    "output.by.cntOut.counting CV (Poisson)": "±9.1%",
+    "output.by.cntOut.live counted": "120",
+    "output.by.cntOut.cells in 10\\.0 mL": "6.00×10⁶"
+   }
+  },
+  {
+   "id": "eq",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.cntOut": {
+     "op": "contains",
+     "value": "(120 ÷ 4)"
+    }
+   }
+  },
+  {
+   "id": "live600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:live cells counted",
+    "value": "600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "toomany",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.cntAdvice": {
+     "op": "contains",
+     "value": "too many"
+    }
+   }
+  },
+  {
+   "id": "live120",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:live cells counted",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cul",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-cul"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "stock",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:stock density",
+    "value": "850000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "target",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:target density",
+    "value": "50000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-svol",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:target volume",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "seed",
+   "action": "read-report",
+   "expect": {
+    "output.by.seedOut.stock to add": "0.588 mL",
+    "output.by.seedOut.medium to add": "9.412 mL",
+    "output.by.seedOut.cells needed": "5.00×10⁵"
+   }
+  },
+  {
+   "id": "n0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:N initial",
+    "value": "200000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "n1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:N final",
+    "value": "1600000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "t",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:elapsed",
+    "value": "48"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-conf",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:confluency at harvest",
+    "value": 70
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "grow",
+   "action": "read-report",
+   "expect": {
+    "output.by.growOut.population doublings": "3.00",
+    "output.by.growOut.doubling time": "16.00 h",
+    "output.by.growOut.fold expansion": "8.00×"
+   }
+  },
+  {
+   "id": "asy",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-asy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sc0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:stdEntry/concentration",
+    "value": "0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sa0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:stdEntry/absorbance",
+    "value": "0.041"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sadd0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:stAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sc1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:stdEntry/concentration",
+    "value": "5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sa1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:stdEntry/absorbance",
+    "value": "0.238"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sadd1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:stAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sc2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:stdEntry/concentration",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sa2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:stdEntry/absorbance",
+    "value": "0.442"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sadd2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:stAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sc3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:stdEntry/concentration",
+    "value": "20"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sa3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:stdEntry/absorbance",
+    "value": "0.851"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sadd3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:stAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-stu",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:stU",
+    "value": "µg/mL"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "curve",
+   "action": "read-report",
+   "expect": {
+    "output.rows.#stList": 4,
+    "output.by.curveOut.slope": "0.0406",
+    "output.by.curveOut.intercept": "0.0380",
+    "output.by.curveOut.r²": "0.9999",
+    "output.by.curveOut.standards": "4"
+   }
+  },
+  {
+   "id": "g159-und",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:unkEntry/dilution factor",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "unk",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:unkEntry/absorbance",
+    "value": "0.500"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "unknown",
+   "action": "read-report",
+   "expect": {
+    "output.by.unkOut.concentration in cuvette": "11.3873",
+    "output.by.unkOut.in original sample": "11.3873",
+    "output.by.unkOut.A read": "0.500"
+   }
+  },
+  {
+   "id": "unk3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:unkEntry/absorbance",
+    "value": "3.0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "extrap",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.unkOut": {
+     "op": "contains",
+     "value": "Outside the standard range"
+    }
+   }
+  },
+  {
+   "id": "g159-bll",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:path length",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "bla",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:A",
+    "value": "1.842"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "eps",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:ε",
+    "value": "6500"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "beer",
+   "action": "read-report",
+   "expect": {
+    "output.by.blOut.concentration": "2.83×10⁻⁴ M"
+   }
+  },
+  {
+   "id": "a260",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:A260",
+    "value": "1.842"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a280",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:A280",
+    "value": "0.985"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a230",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:A230",
+    "value": "0.812"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pur",
+   "action": "read-report",
+   "expect": {
+    "output.by.purOut.A260/A280": "1.87",
+    "output.by.purOut.A260/A230": "2.27",
+    "output.by.purOut.if dsDNA (×50)": "9.21×10¹ ng/µL",
+    "output.by.purOut.if RNA (×40)": "7.37×10¹ ng/µL"
+   }
+  },
+  {
+   "id": "mit",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-mit"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ph-interphase",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:phaseGrid/interphase"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ph-prophase",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:phaseGrid/prophase"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ph-metaphase",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:phaseGrid/metaphase"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ph-anaphase",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:phaseGrid/anaphase"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ph-telophase",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:phaseGrid/telophase"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mi",
+   "action": "read-report",
+   "expect": {
+    "output.by.miOut.mitotic index": "80.00%",
+    "output.by.miOut.dividing": "4",
+    "output.by.miOut.cells scored": "5",
+    "output.by.miOut.CV on dividing count": "±50.0%"
+   }
+  },
+  {
+   "id": "cyc",
+   "action": "press-step",
+   "arguments": {
+    "selector": "@control:cycEntry/+",
+    "direction": "up"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "phases",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.miOut": {
+     "op": "contains",
+     "value": "4.80 h"
+    }
+   }
+  },
+  {
+   "id": "g159-culpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-cul"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-pno1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pNo",
+    "value": "5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-psplit1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pSplit",
+    "value": "1:4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-pnote1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pNote",
+    "value": "thawed from vial N2-14"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-padd1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:pAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-pno2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pNo",
+    "value": "6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-psplit2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pSplit",
+    "value": "1:4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-padd2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:pAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-passrep",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.pdStat": {
+     "op": "contains",
+     "value": "2 passages logged"
+    },
+    "output.boxes.pdStat#2": {
+     "op": "contains",
+     "value": "Cumulative population doublings from the split ratios ≈ 4.0"
+    }
+   }
+  },
+  {
+   "id": "g205-pane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-out"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-ecoCopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-ecoCopy-out",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "## Haemocytometer count\n  live: 120   dead: 12   squares: 4\n  chamber factor: 10000 /mL   dilution: 2×\n  live cells/mL: 6.000e+5\n  cells per square (all): 33.0   (within the conventional 20–50)\n  viability: 90.9%\n  counting CV (Poisson, 1/√N): ±9.1%\n  cells in 10.0 mL: 6.000e+6\n\n## Seeding\n  stock: 8.500e+5 cells/mL   target: 5.000e+4 cells/mL   final volume: 10.00 mL\n  stock to add: 0.588 mL   medium to add: 9.412 mL\n  cells needed: 5.000e+5\n\n## Growth\n  N0: 2.000e+5   N1: 1.600e+6   interval: 48.0 h\n  population doublings: 3.000   doubling time: 16.00 h   fold expansion: 8.00×\n\n## Passage log (2)\n  P5   1:4   thawed from vial N2-14\n  P6   1:4\n  cumulative population doublings from the split ratios: 4.0\n\n## Standard curve (4 standards)\n  0.0000 µg/mL   A = 0.0410\n  5.0000 µg/mL   A = 0.2380\n  10.0000 µg/mL   A = 0.4420\n  20.0000 µg/mL   A = 0.8510\n  fit: A = 0.0406 × c + 0.0380   r² = 0.9999   n = 4\n  unknown: A = 3.000   dilution 1.00×\n  concentration in cuvette: 73.0070 µg/mL   in original sample: 73.0070 µg/mL\n  EXTRAPOLATION, NOT A READING: the standards span A 0.041 to 0.851 and this is outside them\n  A above 1.0 — Beer–Lambert bends here; the reading falls below true\n\n## Beer–Lambert\n  A: 1.842   ε: 6.500e+3   path: 1.00 cm\n  concentration: 2.834e-4 M   (2.834e+2 µM)\n  A above 1.0 — outside the reliably linear range\n\n## Purity ratios\n  A260: 1.842   A280: 0.985   A230: 0.812\n  A260/A280: 1.87\n  A260/A230: 2.27\n  if dsDNA (×50): 9.210e+1 ng/µL   if RNA (×40): 7.368e+1 ng/µL"
+    }
+   }
+  },
+  {
+   "id": "g205-pasCopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:pasCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-pasCopy-out",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "passage,split,note\n5,1:4,thawed from vial N2-14\n6,1:4,"
+    }
+   }
+  },
+  {
+   "id": "g205-stdCopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:stdCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-stdCopy-out",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "concentration (µg/mL),absorbance,fitted_absorbance,residual\n0,0.041,"
+    }
+   }
+  },
+  {
+   "id": "g205-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-out/Print / save PDF"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-printed",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g159-endpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-cnt"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-endreport",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.cntOut.live cells/mL": "6.00×10⁵",
+    "output.by.cntOut.viability": "90.9%"
+   }
+  },
+  {
+   "id": "g159-endintact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

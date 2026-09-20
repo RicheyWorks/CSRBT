@@ -65,10 +65,13 @@ TWO THINGS A COMMAND MAY SAY ABOUT ITSELF (ADR-222, offered here in ADR-228)
         {"call": "csrbt_organism__put", "arguments": {"key": 11, "attr": 1},
          "expires_at": "2026-09-18T09:00:00+00:00"}
 
-    `if_stamp` is a stamp the operator read on a snapshot or a report: ACT ONLY
-    IF THE TARGET IS STILL THAT. The door takes one look, and if the target has
-    moved it refuses `stale` naming the stamp it was bound to and the stamp the
-    target has now, instead of acting on a page that changed under the plan.
+    `if_stamp` is a stamp the operator read -- a SNAPSHOT stamp (s...) guards
+    the controls, a REPORT stamp (r...) guards the figures (ADR-231): ACT ONLY
+    IF THAT DOCUMENT IS STILL WHAT WAS READ. The door takes one look at it, and
+    if it has moved it refuses `stale` naming the stamp it was bound to and the
+    stamp the document has now, instead of acting on a page that changed under
+    the plan. A tally pressed twice moves every figure and no control, so the
+    guard on an act that changes a figure is the report's stamp.
     `expires_at` is an ISO-8601 instant with an offset; at or after it the
     command is refused `stale` rather than run late. Both are optional, neither
     is part of the command's identity (a retry with a fresh deadline is the

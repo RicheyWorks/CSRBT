@@ -1,0 +1,1458 @@
+{
+ "id": "page-deployment-log-science",
+ "target": "page",
+ "page": "deployment-log.html",
+ "goal": "On the deployment log: a 48 kHz recorder records up to 24 kHz and cannot survey bats, 192 kHz covers most of it, 384 kHz all; a 60 s in 600 s duty over 14 days at 16-bit mono 48 kHz writes 11.61 GB (10.0%, 33.6 h) and a 32 GB card lasts 39 days, 300/3600 over 30 days 20.74 GB, 60/60 over 7 days 58.06 GB, and 600/600 over 30 days (248.83 GB) fills an 8 GB card; clock drift at 1 s/day is 343 m of sound per day (10.3 km at 30 days); GSD = sensor width x altitude / (focal length x image width): RedEdge 4.17/8.33, P4 3.18/6.36, Sequoia 5.65/11.31 cm/px at 60/120 m; 70/60 overlap is below Pix4D, 85/85 meets it; a logger at 600 s over 90 days takes 12,960 readings and 84,650 memory fills after 588 days, at 60 s over 30 days with 20,000 it fills after 14 days; a logged recorder lands in the table and the .eco export. Then the log's field sheet is read: Copy field sheet hands over the whole sheet byte for byte — three deployments, the flight's GSD 2.10 cm/px at 120 m, the logger every 1 min for 90 d, the recorder at 48 kHz mono with Nyquist 24.0 kHz — and the print button prints. The field sheet now carries a planning block as well as the three deployments: the acoustic budget (48 kHz recording to 24 kHz, birds needing 12 kHz), the schedule (100% duty, 720 h, 248.83 GB against an 8 GB card), the clock drift (30 s over 30 d = 10.3 km), the flight plan (2.10 cm/px, 84x63 m, 2153 images on 40 lines, 42 min) and the logger (129,600 readings against 20,000 of memory, filling after 14 d).",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "deployment-log.html"
+   }
+  },
+  {
+   "id": "ac",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-ac"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nyq",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.nyqBox.records up to": "24 kHz"
+   }
+  },
+  {
+   "id": "bats",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:acEntry/bats"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "alias",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.nyqBox": {
+     "op": "contains",
+     "value": "cannot survey bats"
+    }
+   }
+  },
+  {
+   "id": "k192",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:acEntry/192 kHz"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "most",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.nyqBox": {
+     "op": "contains",
+     "value": "Enough for most of it"
+    }
+   }
+  },
+  {
+   "id": "k384",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:acEntry/384 kHz"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "full",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.nyqBox": {
+     "op": "contains",
+     "value": "Full coverage"
+    }
+   }
+  },
+  {
+   "id": "k48",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:acEntry/48 kHz"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "birds",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:acEntry/birds"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "on60_600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:record for",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ev60_600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:once every",
+    "value": "600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dd60_600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "14"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cd60_600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:SD card",
+    "value": "32"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "duty60_600",
+   "action": "read-report",
+   "expect": {
+    "output.by.dutyStat.duty cycle": "10.0%",
+    "output.by.dutyStat.audio recorded": "33.6 h",
+    "output.by.dutyStat.card needed": "11.61 GB",
+    "output.by.dutyStat.card lasts": "39 d"
+   }
+  },
+  {
+   "id": "on300_3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:record for",
+    "value": "300"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ev300_3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:once every",
+    "value": "3600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dd300_3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cd300_3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:SD card",
+    "value": "64"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "duty300_3600",
+   "action": "read-report",
+   "expect": {
+    "output.by.dutyStat.duty cycle": "8.3%",
+    "output.by.dutyStat.audio recorded": "60.0 h",
+    "output.by.dutyStat.card needed": "20.74 GB",
+    "output.by.dutyStat.card lasts": "93 d"
+   }
+  },
+  {
+   "id": "on60_60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:record for",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ev60_60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:once every",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dd60_60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cd60_60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:SD card",
+    "value": "128"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "duty60_60",
+   "action": "read-report",
+   "expect": {
+    "output.by.dutyStat.duty cycle": "100.0%",
+    "output.by.dutyStat.audio recorded": "168.0 h",
+    "output.by.dutyStat.card needed": "58.06 GB",
+    "output.by.dutyStat.card lasts": "15 d"
+   }
+  },
+  {
+   "id": "on600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:record for",
+    "value": "600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ev600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:once every",
+    "value": "600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dd30",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cd8",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:SD card",
+    "value": "8"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "fills",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dutyBox": {
+     "op": "contains",
+     "value": "The card fills before you get back."
+    },
+    "output.by.dutyStat.card needed": "248.83 GB"
+   }
+  },
+  {
+   "id": "drift1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dr1",
+   "action": "read-report",
+   "expect": {
+    "output.by.driftStat.deployment": "1 d",
+    "output.by.driftStat.clock may be out by": "1 s",
+    "output.by.driftStat.as a distance": "343 m",
+    "output.by.driftStat.with GPS sync": "20 µs"
+   }
+  },
+  {
+   "id": "drift7",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dr7",
+   "action": "read-report",
+   "expect": {
+    "output.by.driftStat.deployment": "7 d",
+    "output.by.driftStat.clock may be out by": "7 s",
+    "output.by.driftStat.as a distance": "2.4 km",
+    "output.by.driftStat.with GPS sync": "20 µs"
+   }
+  },
+  {
+   "id": "drift14",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "14"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dr14",
+   "action": "read-report",
+   "expect": {
+    "output.by.driftStat.deployment": "14 d",
+    "output.by.driftStat.clock may be out by": "14 s",
+    "output.by.driftStat.as a distance": "4.8 km",
+    "output.by.driftStat.with GPS sync": "20 µs"
+   }
+  },
+  {
+   "id": "drift30",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dr30",
+   "action": "read-report",
+   "expect": {
+    "output.by.driftStat.deployment": "30 d",
+    "output.by.driftStat.clock may be out by": "30 s",
+    "output.by.driftStat.as a distance": "10.3 km",
+    "output.by.driftStat.with GPS sync": "20 µs"
+   }
+  },
+  {
+   "id": "spl",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.splBox": {
+     "op": "contains",
+     "value": "will not convert your recordings to decibels"
+    }
+   }
+  },
+  {
+   "id": "fl",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-fl"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cam-MicaSense",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:camEntry/MicaSense RedEdge"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "altMicaSense60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gsdMicaSense60",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "4.17 cm/px"
+   }
+  },
+  {
+   "id": "altMicaSense120",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gsdMicaSense120",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "8.33 cm/px"
+   }
+  },
+  {
+   "id": "cam-P4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:camEntry/P4 Multispectral"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "altP460",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gsdP460",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "3.18 cm/px"
+   }
+  },
+  {
+   "id": "altP4120",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gsdP4120",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "6.36 cm/px"
+   }
+  },
+  {
+   "id": "cam-Parrot",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:camEntry/Parrot Sequoia"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "altParrot60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gsdParrot60",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "5.65 cm/px"
+   }
+  },
+  {
+   "id": "altParrot120",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gsdParrot120",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "11.31 cm/px"
+   }
+  },
+  {
+   "id": "cam-back",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:camEntry/MicaSense RedEdge"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "alt120",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "formula",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.gsdBox": {
+     "op": "contains",
+     "value": "4.8 mm × 120 m ÷ (5.4 mm × 1280 px) = 8.33 cm/px"
+    }
+   }
+  },
+  {
+   "id": "fwd70",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:frontal overlap",
+    "value": 70
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "side60",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:side overlap",
+    "value": 60
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "below",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.gsdBox": {
+     "op": "contains",
+     "value": "Below Pix4D"
+    }
+   }
+  },
+  {
+   "id": "fwd85",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:frontal overlap",
+    "value": 85
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "side85",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:side overlap",
+    "value": 85
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "meets",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.gsdBox": {
+     "op": "contains",
+     "value": "meets Pix4D"
+    }
+   }
+  },
+  {
+   "id": "stock",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:camEntry/stock RGB"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "noNDVI",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.radBox": {
+     "op": "contains",
+     "value": "cannot produce NDVI at all"
+    }
+   }
+  },
+  {
+   "id": "rededge",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:camEntry/MicaSense RedEdge"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "neither",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:radEntry/neither"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "incomparable",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.radBox": {
+     "op": "contains",
+     "value": "cannot be compared to another one"
+    }
+   }
+  },
+  {
+   "id": "both",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:radEntry/panel + DLS"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "comparable",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.radBox": {
+     "op": "contains",
+     "value": "makes two flights comparable"
+    }
+   }
+  },
+  {
+   "id": "cloud",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fCloud",
+    "value": "4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sky",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.skyBox": {
+     "op": "contains",
+     "value": "hardest sky to fly in"
+    }
+   }
+  },
+  {
+   "id": "g152-area",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:area",
+    "value": "25"
+   }
+  },
+  {
+   "id": "g152-speed",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:ground speed",
+    "value": "8"
+   }
+  },
+  {
+   "id": "g152-sw",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fSw",
+    "value": "6.17"
+   }
+  },
+  {
+   "id": "g152-fl",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fFl",
+    "value": "8.8"
+   }
+  },
+  {
+   "id": "g152-pw",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fPw",
+    "value": "4000"
+   }
+  },
+  {
+   "id": "g152-ph",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fPh",
+    "value": "3000"
+   }
+  },
+  {
+   "id": "g152-custom",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "2.10 cm/px",
+    "output.by.gsdStat.footprint": "84×63 m",
+    "output.by.gsdStat.images": "2153",
+    "output.by.gsdStat.shot every": "1.2 s",
+    "output.by.gsdStat.flight lines": "40",
+    "output.by.gsdStat.flying time": "42 min",
+    "output.boxes.gsdBox": {
+     "op": "contains",
+     "value": "6.17 mm × 120 m ÷ (8.8 mm × 4000 px) = 2.10 cm/px"
+    }
+   }
+  },
+  {
+   "id": "g152-fast",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:ground speed",
+    "value": "20"
+   }
+  },
+  {
+   "id": "g152-subsecond",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.shot every": "0.5 s",
+    "output.by.gsdStat.flying time": "17 min",
+    "output.boxes.gsdBox": {
+     "op": "contains",
+     "value": "One image every 0.47 s."
+    }
+   }
+  },
+  {
+   "id": "g152-slow",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:ground speed",
+    "value": "8"
+   }
+  },
+  {
+   "id": "g152-sky8",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fCloud",
+    "value": "8"
+   }
+  },
+  {
+   "id": "g152-overcast",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.skyBox": {
+     "op": "contains",
+     "value": "Fully overcast"
+    }
+   }
+  },
+  {
+   "id": "g152-sky0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fCloud",
+    "value": "0"
+   }
+  },
+  {
+   "id": "g152-clear",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.skyBox": {
+     "op": "contains",
+     "value": "Clear sky"
+    }
+   }
+  },
+  {
+   "id": "g152-sky4",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fCloud",
+    "value": "4"
+   }
+  },
+  {
+   "id": "g152-fid",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fId",
+    "value": "SGH-2026-08-25-a"
+   }
+  },
+  {
+   "id": "g152-pilot",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fPilot",
+    "value": "R. Marek"
+   }
+  },
+  {
+   "id": "g152-fdate",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fDate",
+    "value": "2026-08-25"
+   }
+  },
+  {
+   "id": "g152-ftime",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fTime",
+    "value": "09:15"
+   }
+  },
+  {
+   "id": "g152-fwind",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fWind",
+    "value": "5"
+   }
+  },
+  {
+   "id": "g152-addfl",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:addFl"
+   }
+  },
+  {
+   "id": "lg",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-lg"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "iv600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logging interval",
+    "value": "600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ld600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logEntry/deployment",
+    "value": "90"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mem600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:memory",
+    "value": "84650"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "log600",
+   "action": "read-report",
+   "expect": {
+    "output.by.logStat.interval": "10 min",
+    "output.by.logStat.readings": "12,960",
+    "output.by.logStat.memory holds": "84,650",
+    "output.by.logStat.fills after": "588 d"
+   }
+  },
+  {
+   "id": "iv60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logging interval",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ld60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logEntry/deployment",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mem60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:memory",
+    "value": "20000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "log60",
+   "action": "read-report",
+   "expect": {
+    "output.by.logStat.interval": "1 min",
+    "output.by.logStat.readings": "43,200",
+    "output.by.logStat.memory holds": "20,000",
+    "output.by.logStat.fills after": "14 d"
+   }
+  },
+  {
+   "id": "iv3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logging interval",
+    "value": "3600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ld3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logEntry/deployment",
+    "value": "365"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mem3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:memory",
+    "value": "84650"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "log3600",
+   "action": "read-report",
+   "expect": {
+    "output.by.logStat.interval": "60 min",
+    "output.by.logStat.readings": "8,760",
+    "output.by.logStat.memory holds": "84,650",
+    "output.by.logStat.fills after": "3527 d"
+   }
+  },
+  {
+   "id": "iv60b",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logging interval",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ld90",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logEntry/deployment",
+    "value": "90"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mem20k",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:memory",
+    "value": "20000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "overflow",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.logBox": {
+     "op": "contains",
+     "value": "to 7 minutes"
+    }
+   }
+  },
+  {
+   "id": "shield",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.shBox": {
+     "op": "contains",
+     "value": "Record what the logger was inside"
+    }
+   }
+  },
+  {
+   "id": "gill",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:shEntry/gill-type multi-plate"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gill-note",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.shBox": {
+     "op": "contains",
+     "value": "the gill-type gave the best protection"
+    }
+   }
+  },
+  {
+   "id": "g152-lunit",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:lUnit",
+    "value": "HOBO-03"
+   }
+  },
+  {
+   "id": "g152-lpos",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:lPos",
+    "value": "1.5 m, N side of bole"
+   }
+  },
+  {
+   "id": "g152-lstart",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:lStart",
+    "value": "2026-06-01"
+   }
+  },
+  {
+   "id": "g152-addlg",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:addLg"
+   }
+  },
+  {
+   "id": "ac2",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-ac"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "unit",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:aUnit",
+    "value": "AM-014"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g152-asite",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:aSite",
+    "value": "Sagehen, N bench"
+   }
+  },
+  {
+   "id": "g152-alat",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:aLat",
+    "value": "39.4318"
+   }
+  },
+  {
+   "id": "g152-alon",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:aLon",
+    "value": "-120.2408"
+   }
+  },
+  {
+   "id": "g152-astart",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:aStart",
+    "value": "2026-06-01"
+   }
+  },
+  {
+   "id": "g152-afw",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:aFw",
+    "value": "1.10.0"
+   }
+  },
+  {
+   "id": "g152-mono",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:acEntry/mono"
+   }
+  },
+  {
+   "id": "addAc",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:addAc"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "log",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-log"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "row",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.logTable": {
+     "op": "contains",
+     "value": "no SPL calibration"
+    },
+    "output.tables.logTable.1.0": {
+     "op": "exists",
+     "value": true
+    }
+   }
+  },
+  {
+   "id": "eco",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "[recorder]"
+    }
+   }
+  },
+  {
+   "id": "g152-three",
+   "action": "read-report",
+   "expect": {
+    "output.tables.logTable.3.0": "recorder",
+    "output.tables.logTable.1.0": "flight",
+    "output.tables.logTable.2.0": "logger",
+    "output.tables.logTable.1.1": "SGH-2026-08-25-a",
+    "output.tables.logTable.1.2": "R. Marek",
+    "output.tables.logTable.1.3": "2026-08-25 09:15",
+    "output.tables.logTable.1.4": "MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap",
+    "output.tables.logTable.1.5": "radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s",
+    "output.tables.logTable.2.1": "HOBO-03",
+    "output.tables.logTable.2.2": "1.5 m, N side of bole",
+    "output.tables.logTable.2.4": "every 1 min, 90 d planned",
+    "output.tables.logTable.2.5": "shield: gill-type multi-plate",
+    "output.tables.logTable.3.1": "AM-014",
+    "output.tables.logTable.3.2": "Sagehen, N bench",
+    "output.tables.logTable.3.4": "sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0"
+   }
+  },
+  {
+   "id": "g152-sheet",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "coords 39.4318, -120.2408"
+    }
+   }
+  },
+  {
+   "id": "g152-sheet2",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# Deployment log — 3 deployments"
+    }
+   }
+  },
+  {
+   "id": "g152-sheet3",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "[flight] SGH-2026-08-25-a @ R. Marek 2026-08-25 09:15"
+    }
+   }
+  },
+  {
+   "id": "g152-sheet4",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "[logger] HOBO-03 @ 1.5 m, N side of bole 2026-06-01"
+    }
+   }
+  },
+  {
+   "id": "g152-csv",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:csvCopy"
+   }
+  },
+  {
+   "id": "g152-payload",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "kind,id,site_or_pilot,latitude,longitude,date,settings,caveat"
+    }
+   }
+  },
+  {
+   "id": "g152-after",
+   "action": "read-report",
+   "expect": {
+    "output.tables.logTable.3.0": "recorder",
+    "output.tables.logTable.1.0": "flight",
+    "output.boxes.logTable": {
+     "op": "contains",
+     "value": "no SPL calibration"
+    },
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "coords 39.4318, -120.2408"
+    }
+   }
+  },
+  {
+   "id": "g176-eco-copy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g176-sheet",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": "# Deployment log — 3 deployments\n\n[flight] SGH-2026-08-25-a  @ R. Marek  2026-08-25 09:15\n  settings MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap\n  caveat   radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s\n\n[logger] HOBO-03  @ 1.5 m, N side of bole  2026-06-01\n  settings every 1 min, 90 d planned\n  caveat   shield: gill-type multi-plate\n\n[recorder] AM-014  @ Sagehen, N bench  2026-06-01\n  coords   39.4318, -120.2408\n  settings sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0\n  caveat   target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration\n\n# planning\n  acoustic       48 kHz sample rate, records up to 24 kHz; birds needs 12 kHz minimum, 16 kHz for full coverage\n  schedule       100.0% duty, 720.0 h of audio over 30 d, 248.83 GB needed on a 8 GB card\n  clock drift    up to 30 s over 30 d = 10.3 km of apparent distance; GPS sync holds 20 us\n  flight plan    GSD 2.10 cm/px, footprint 84x63 m, 2153 images on 40 lines, 42 min flying\n  logger         one reading every 60 s = 129,600 readings; memory holds 20,000, fills after 14 d",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g176-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-log/Print / save PDF"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g176-printed",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g176-still",
+   "action": "read-report",
+   "expect": {
+    "output.tables.logTable.3.0": "recorder",
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "Nyquist 24.0 kHz"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

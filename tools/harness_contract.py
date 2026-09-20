@@ -89,7 +89,7 @@ import collections, copy
 import datetime
 import hashlib, hmac, json, os, re, time
 
-PROTOCOL_VERSION = "1.10"  # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
+PROTOCOL_VERSION = "1.11"  # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
                            # 1.2 (ADR-120): snapshotMs on every execute response -- the snapshot, priced
                            # 1.3 (ADR-124): argumentPools may carry argument SETS, keyed by the action alone
                            # 1.6 (ADR-189): `stale` -- a refusal for an argument that was right when
@@ -124,6 +124,13 @@ PROTOCOL_VERSION = "1.10"  # 1.1 (ADR-114): bounds, patterns, examples in argume
                            #                served, not only the newest; the manifest says how
                            #                many. A stamp from the first look of a batch of six
                            #                acts is a baseline, not "unknown".
+                           # 1.11 (ADR-231): `if_stamp` GUARDS EITHER DOCUMENT. Handed a report
+                           #                stamp (r...) it looks at the REPORT again and refuses
+                           #                `stale` if the figures moved -- the guard an act on
+                           #                the figures needs, since a snapshot stamp does not
+                           #                move for a box-only change. A target with no report
+                           #                series says so (`invalid_argument`); a string that is
+                           #                not a stamp of either series is refused the same way.
 REPLAY_CACHE_LIMIT = 256
 REPLAY_CACHE_BYTE_LIMIT = 8 * 1024 * 1024
 # ADR-191: how many entries of one list, in one bucket of one diff, are named
@@ -932,6 +939,20 @@ class Plugin(object):
         can carry rather than the lowest."""
         return None
 
+    def stamp(self, series):
+        """ADR-231: the CURRENT stamp of one of this target's other series, or None.
+
+        The snapshot's stamp is the gateway's to compute (`_stamped`); a
+        target that serves a second document with its own stamp -- the page
+        plugin's report, `r` + 12 hex -- is the only thing that can say what
+        that document's stamp is NOW. The gateway asks it here, for `if_stamp`
+        handed a stamp of that series, and for nothing else: the look is a
+        guard, never served and never remembered, exactly as the snapshot look
+        `if_stamp` already pays for. None means this target serves no such
+        series, and the gateway refuses the guard as the wrong kind rather than
+        comparing a report stamp to a snapshot it can never equal."""
+        return None
+
 
 # ---------------------------------------------------------------------------
 # Policy
@@ -1204,20 +1225,30 @@ class Gateway(object):
                 "freshness": {"expires_at": "optional. An ISO-8601 instant with an offset; past "
                                             "it a command that has not run is refused `stale` "
                                             "and is not run. A receipt is served regardless",
-                              "if_stamp": "optional. The `stamp` of the snapshot the caller "
-                                          "decided from; if the target's stamp differs the "
-                                          "command is refused `stale` and is not run",
+                              "if_stamp": "optional. The `stamp` the caller decided from -- a "
+                                          "SNAPSHOT stamp (s...) guards the snapshot, a REPORT "
+                                          "stamp (r...) guards the report's figures and boxes; "
+                                          "the door looks at THAT document again and if its "
+                                          "stamp differs the command is refused `stale` and is "
+                                          "not run. A report stamp on a target with no report "
+                                          "is refused invalid_argument",
+                              # ADR-231: which series the guard takes, as data.
+                              "ifStampTakes": ["snapshot", "report"],
                               "identity": "neither is part of the command: a retry with a new "
                                           "deadline is the same request"},
                 # ADR-229: which stamp is which, so a client never has to guess.
                 "stamps": {"snapshot": "s + 12 hex: the `stamp` on every snapshot and every "
-                                       "response; observe's `since` and `if_stamp` take this one",
+                                       "response; observe's `since` takes this one, and "
+                                       "if_stamp with it guards the snapshot (controls, panes)",
                            "report": "r + 12 hex: `output.stamp` on every read-report answer "
                                      "(the answer's top-level `stamp` is the SNAPSHOT's, as on "
-                                     "every response); read-report's `since` takes this one",
+                                     "every response); read-report's `since` takes this one, "
+                                     "and if_stamp with it guards the report (figures, boxes) "
+                                     "-- a box-only change moves this stamp and not the other",
                            "mismatch": "observe and read-report answer the whole document and "
-                                       "say which kind they were handed; if_stamp refuses "
-                                       "invalid_argument, and nothing runs"},
+                                       "say which kind they were handed; if_stamp takes either "
+                                       "kind and guards that document, and refuses "
+                                       "invalid_argument for a string that is neither"},
                 "tokenMinLength": TOKEN_MIN,
                 "risks": list(RISKS),
                 "policy": dict(self.policy.allow),
@@ -1427,22 +1458,51 @@ class Gateway(object):
         the door refusing `stale` if the target has moved since. It costs one
         look, and only a caller that asks pays it. The look is NOT served and
         NOT remembered: the caller's baseline stays the snapshot it holds, so
-        `observe(since=<that stamp>)` still answers with what moved."""
+        `observe(since=<that stamp>)` still answers with what moved.
+
+        ADR-231: EITHER DOCUMENT. A snapshot stamp (s...) guards the snapshot --
+        the controls, the panes, the pools. A report stamp (r...) guards the
+        REPORT -- the figures, the boxes, the tables -- which is what an act on
+        a data-entry page is usually about, and which the snapshot stamp does
+        not see: three blind trials running found that a tally pressed twice
+        moves every figure and no control, so a snapshot-stamped guard let the
+        second press through. The door asks the target for the report's stamp
+        NOW (Plugin.stamp) and compares; a target with no report series is
+        refused as the wrong kind, before any look."""
         want = command.get("if_stamp")
         if want is None:
             return
         if not isinstance(want, str) or not want:
-            raise InvalidArgument("if_stamp is the `stamp` of a snapshot this door served")
-        if series_of(want) == "report":
-            # ADR-229: this guard compares against the SNAPSHOT, and a report
-            # stamp can never equal one. Refusing `stale` here -- which is what
-            # happened to all four operators of the sixth trial -- told them
-            # the page had moved when it had not. It is the wrong KIND, said
-            # before any look is taken, with the fix in the sentence.
+            raise InvalidArgument("if_stamp is the `stamp` of a snapshot or a report this door served")
+        kind = series_of(want)
+        if kind is None:
+            # Not a stamp of either series. Comparing it to the snapshot would
+            # refuse `stale` -- "the page moved" -- about a string that was
+            # never a stamp; the kind is read off the stamp, before any look.
             raise InvalidArgument(
-                "if_stamp guards the SNAPSHOT and %r is a REPORT stamp (read-report's, r...): "
-                "pass the `stamp` a snapshot or a response carried (s...), which is the target "
-                "as you last looked at it -- nothing was run" % want)
+                "if_stamp %r is not a stamp of either series: a snapshot stamp is s + 12 hex (on "
+                "every snapshot and every response), a report stamp r + 12 hex (output.stamp on "
+                "every read-report answer) -- nothing was run" % (want,))
+        if kind == "report":
+            # ADR-231: the guard on the FIGURES. Until this the door refused a
+            # report stamp as the wrong kind (ADR-229), and the eighth trial's
+            # operators wrote down why that was not enough: the act they
+            # wanted to guard changed the report and not the snapshot.
+            try:
+                now = plugin.stamp("report")
+            except Exception as e:
+                raise Unavailable("%s's report could not be looked at to check if_stamp, so nothing "
+                                  "was run: %s" % (plugin_id, str(e)[:160]))
+            if now is None:
+                raise InvalidArgument(
+                    "if_stamp %r is a REPORT stamp and %s serves no report: this target has only a "
+                    "snapshot series, so pass the `stamp` a snapshot or a response carried (s...) -- "
+                    "nothing was run" % (want, plugin_id))
+            if now != want:
+                raise Stale("%s's REPORT has moved since the report stamped %s (it is %s now) and "
+                            "nothing was run -- read-report with since=%s to see which figures "
+                            "changed, then decide again" % (plugin_id, want, now, want))
+            return
         try:
             _snap, _raw, now = self._stamped(plugin, plugin.observe(
                 sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))

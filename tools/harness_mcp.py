@@ -225,13 +225,20 @@ class Server(object):
             for k in ("expires_at", "if_stamp"):
                 if meta.get(k) is not None:
                     command[k] = meta[k]
+        # ADR-231: THE TRACE RECORDS THE GUARD. A trial measures what the door
+        # was asked; a row that shows a `stale` refusal and not the stamp it
+        # was bound to cannot say which kind of guard was used, and a row for
+        # an act that RAN under a guard looked exactly like a plain call. Only
+        # when a guard was named, so every older trace still reads the same.
+        guard = {k: command[k] for k in ("expires_at", "if_stamp") if k in command}
+        extra = {"guard": guard} if guard else {}
         try:
             r = self.gw.execute(self.token, plugin_id, command)
         except HarnessError as e:
             # a refusal is part of what the model did, and a task may expect one
-            self.record({"pluginId": plugin_id, "action": action, "arguments": params.get("arguments") or {},
-                         "response": {"ok": False, "code": e.code, "message": e.message, "output": {},
-                                      "requestId": rid}})
+            self.record(dict({"pluginId": plugin_id, "action": action, "arguments": params.get("arguments") or {},
+                              "response": {"ok": False, "code": e.code, "message": e.message, "output": {},
+                                           "requestId": rid}}, **extra))
             raise
         # ADR-191: THE DIFF RIDES, the snapshot does not. A tool result is read
         # by a model with a context window, and a snapshot of one of the kit's
@@ -246,8 +253,8 @@ class Server(object):
                 "replayed": r["replayed"], "risk": r["risk"], "ms": r["ms"],
                 "snapshotMs": r.get("snapshotMs"), "requestId": r["requestId"],
                 "stamp": r.get("stamp"), "diff": r.get("diff")}
-        self.record({"pluginId": plugin_id, "action": action, "arguments": params.get("arguments") or {},
-                     "response": r})
+        self.record(dict({"pluginId": plugin_id, "action": action, "arguments": params.get("arguments") or {},
+                          "response": r}, **extra))
         return {"content": [{"type": "text", "text": json.dumps(body, default=str)}],
                 "isError": not r["ok"]}
 

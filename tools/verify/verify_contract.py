@@ -371,7 +371,8 @@ refused(lambda: g.execute(TOKEN, "fake", {"request_id": "bound-6", "action": "dr
 ck(plug.looks == looks,
    "and a caller that may not act is not given a look for asking: the rung is checked first")
 _f = timed(T0)[0].manifest(TOKEN).get("freshness") or {}
-ck(set(_f) == {"expires_at", "if_stamp", "identity"} and "stale" in _f["expires_at"] and "stale" in _f["if_stamp"],
+ck(set(_f) == {"expires_at", "if_stamp", "identity", "ifStampTakes"} and "stale" in _f["expires_at"]
+   and "stale" in _f["if_stamp"],
    "and the manifest says what both fields mean and what refusing them looks like: %s" % sorted(_f))
 
 # ---- 4d. a stamp says which series it is (ADR-229) --------------------------
@@ -396,10 +397,10 @@ refused(lambda: g.execute(TOKEN, "fake", {"request_id": "bound-7", "action": "dr
 try:
     g.execute(TOKEN, "fake", {"request_id": "bound-8", "action": "draft", "if_stamp": rs})
 except C.HarnessError as _e:
-    ck("REPORT stamp" in _e.message and "SNAPSHOT" in _e.message and "nothing was run" in _e.message
-       and rs in _e.message,
-       "...and the refusal names both kinds and the fix, because the old `stale` said the page had "
-       "moved when it had not: %s" % _e.message)
+    ck("REPORT stamp" in _e.message and "serves no report" in _e.message and "nothing was run" in _e.message
+       and rs in _e.message and "(s...)" in _e.message,
+       "...and the refusal names the kind, that THIS target has no report to guard (ADR-231), and the "
+       "fix, because the old `stale` said the page had moved when it had not: %s" % _e.message)
 ck(len(plug.ran) == ran and plug.looks == looks,
    "nothing ran, and no look was taken to find that out -- the kind is read off the stamp")
 w = g.observe(TOKEN, "fake", since=rs)
@@ -415,6 +416,124 @@ _st = g.manifest(TOKEN).get("stamps") or {}
 ck(set(_st) == {"snapshot", "report", "mismatch"} and "s + 12" in _st["snapshot"] and "r + 12" in _st["report"]
    and "output.stamp" in _st["report"] and "top-level" in _st["report"] and "if_stamp" in _st["mismatch"],
    "and the manifest publishes both series and what a mismatch does at each door: %s" % sorted(_st))
+
+# ---- 4f. if_stamp guards either document (ADR-231) --------------------------
+# ADR-229 taught if_stamp to refuse a report stamp as the wrong kind. The
+# eighth trial's operators wrote down why that was not enough: the act they
+# wanted to guard -- a tally pressed again, a counter stepped -- changes every
+# figure and no control, so the snapshot stamp does not move and a
+# snapshot-stamped guard lets the second press through. A report stamp now
+# guards the REPORT: the door asks the target for its report stamp NOW and
+# refuses `stale` if the figures moved.
+
+
+class Reporting(Moving):
+    """A target with a second document: a report with its own stamp, which
+    moves independently of the snapshot -- as a page's figures do."""
+
+    def __init__(self):
+        Moving.__init__(self)
+        self.figures = {"total": 1}
+        self.reportLooks = 0
+        self.reportDead = False
+
+    def stamp(self, series):
+        if series != "report":
+            return None
+        self.reportLooks += 1
+        if self.reportDead:
+            raise RuntimeError("report gone")
+        return C.stamp_of({"figures": dict(self.figures)}, None, series="r")
+
+
+def reporting(t, **allow):
+    plug = Reporting()
+    clock = Clock(t)
+    pol = C.Policy(token=TOKEN, allow=allow or {"DRAFT": True}, enabled=True)
+    return C.Gateway(C.Registry([plug]), pol, clock=clock), plug, clock
+
+
+g, plug, clock = reporting(T0)
+s0 = g.observe(TOKEN, "fake")["stamp"]
+r0 = plug.stamp("report")
+plug.reportLooks = 0
+looks = plug.looks
+r = served(lambda: g.execute(TOKEN, "fake", {"request_id": "rep-1", "action": "draft", "if_stamp": r0}))
+ck(r.get("ok") is True and len(plug.ran) == 1,
+   "A REPORT STAMP IS A GUARD NOW: a command bound to the report it was decided from RUNS while "
+   "the report is unmoved: %s" % r.get("raised"))
+ck(plug.reportLooks == 1 and plug.looks == looks + 1,
+   "and it paid one look at the REPORT for it, not at the snapshot -- the response's own look is "
+   "the only snapshot look: %d report look(s), %d snapshot look(s)" % (plug.reportLooks, plug.looks - looks))
+plug.rows = 5                                        # the CONTROLS moved; the figures did not
+r = served(lambda: g.execute(TOKEN, "fake", {"request_id": "rep-2", "action": "draft", "if_stamp": r0}))
+ck(r.get("ok") is True and len(plug.ran) == 2,
+   "THE GUARD IS ON THE FIGURES, NOT THE CONTROLS: the snapshot moved and the report did not, so a "
+   "report-stamped command still runs: %s" % r.get("raised"))
+ran = len(plug.ran)
+refused(lambda: g.execute(TOKEN, "fake", {"request_id": "rep-3", "action": "draft", "if_stamp": s0}),
+        "stale", "...while the same command bound to the OLD snapshot stamp is stale, because that "
+                 "document did move")
+plug.figures["total"] = 2                            # the FIGURES moved; the controls did not
+s1 = g.observe(TOKEN, "fake")["stamp"]
+r = served(lambda: g.execute(TOKEN, "fake", {"request_id": "rep-4", "action": "draft", "if_stamp": s1}))
+ck(r.get("ok") is True and len(plug.ran) == ran + 1,
+   "THE CASE THE TRIALS FOUND: the figures moved and the snapshot did not, and a snapshot-stamped "
+   "guard lets the act through, because it cannot see the figures: %s" % r.get("raised"))
+ran = len(plug.ran)
+try:
+    g.execute(TOKEN, "fake", {"request_id": "rep-5", "action": "draft", "if_stamp": r0})
+    ck(False, "a command bound to a report the figures have moved past was run")
+except C.HarnessError as _e:
+    ck(_e.code == "stale" and "REPORT" in _e.message and r0 in _e.message
+       and "read-report with since=%s" % r0 in _e.message and "nothing was run" in _e.message
+       and len(plug.ran) == ran,
+       "...and the same act bound to the REPORT stamp is refused `stale`, naming the report, the "
+       "stamp it was bound to, and how to see which figures changed: %s" % _e.message)
+r1 = plug.stamp("report")
+r = served(lambda: g.execute(TOKEN, "fake", {"request_id": "rep-6", "action": "draft", "if_stamp": r1}))
+ck(r.get("ok") is True and len(plug.ran) == ran + 1,
+   "read the report again, decide again, and the new stamp runs: %s" % r.get("raised"))
+ck(list(g._seen.get("fake") or {}) and r0 not in g._seen["fake"] and r1 not in g._seen["fake"],
+   "the report look is NOT put on the snapshot ring -- the two documents keep their own baselines: %s"
+   % list(g._seen.get("fake") or {}))
+plug.reportDead = True
+ran = len(plug.ran)
+refused(lambda: g.execute(TOKEN, "fake", {"request_id": "rep-7", "action": "draft", "if_stamp": r1}),
+        "unavailable", "a report-bound command whose report cannot be looked at")
+ck(len(plug.ran) == ran, "and it was not run blind: %s" % plug.ran[ran:])
+plug.reportDead = False
+# a target with NO report series: the wrong kind, said before any look
+g2, plug2, _ = timed(T0)
+ran = len(plug2.ran); looks = plug2.looks
+refused(lambda: g2.execute(TOKEN, "fake", {"request_id": "rep-8", "action": "draft", "if_stamp": r1}),
+        "invalid_argument", "a report stamp handed to a target that serves no report is the wrong KIND")
+try:
+    g2.execute(TOKEN, "fake", {"request_id": "rep-9", "action": "draft", "if_stamp": r1})
+except C.HarnessError as _e:
+    ck("serves no report" in _e.message and "s..." in _e.message and "nothing was run" in _e.message,
+       "...and the refusal says the target has only a snapshot series and what to pass instead: %s"
+       % _e.message)
+ck(len(plug2.ran) == ran and plug2.looks == looks,
+   "nothing ran and no snapshot look was taken: Plugin.stamp answered None and that was the answer")
+ck(C.Plugin().stamp("report") is None and C.Plugin().stamp("snapshot") is None,
+   "the base plugin serves no second series -- organism, lab, fixture and session targets inherit "
+   "that and are refused the report guard by name rather than by a stale they cannot explain")
+# a string that is not a stamp of either series
+ran = len(plug.ran); looks = plug.looks
+for _bad in ("abc", "x" + s0[1:], "s12", "S" + s0[1:]):
+    refused(lambda: g.execute(TOKEN, "fake", {"request_id": "rep-10", "action": "draft", "if_stamp": _bad}),
+            "invalid_argument", "if_stamp %r is not a stamp of either series -- it used to be compared to "
+                                "the snapshot and refused `stale`, which said the page had moved" % _bad)
+ck(len(plug.ran) == ran and plug.looks == looks,
+   "and none of those took a look: the kind is read off the stamp")
+_f = g.manifest(TOKEN).get("freshness") or {}
+_st = g.manifest(TOKEN).get("stamps") or {}
+ck(_f.get("ifStampTakes") == ["snapshot", "report"] and "REPORT" in _f.get("if_stamp", "")
+   and "figures" in _f.get("if_stamp", "") and "either" in _st.get("mismatch", "")
+   and "if_stamp" in _st.get("report", "") and "box-only" in _st.get("report", ""),
+   "and the manifest says the guard takes either kind, which document each guards, and that a "
+   "box-only change moves one stamp and not the other: %s / %s" % (_f.get("ifStampTakes"), _st.get("mismatch")))
 
 import harness_mcp as _M2
 
@@ -661,8 +780,8 @@ ck(set(_rp) == {"rule", "landed", "raised", "refused", "bytesCount"} and "LANDED
 # ---- 6. the manifest is enough to build a client from --------------------
 g, _ = gw(allow={"SENSITIVE_READ": True})
 m = g.manifest(TOKEN)
-ck(m["protocolVersion"] == "1.10",
-   "the manifest states a protocol version (1.10: ADR-230, the baseline is a ring; 1.9 was ADR-229, a stamp says which series it is; 1.8 was ADR-222, a command may say when it stops being "
+ck(m["protocolVersion"] == "1.11",
+   "the manifest states a protocol version (1.11: ADR-231, if_stamp guards either document; 1.10 was ADR-230, the baseline is a ring; 1.9 was ADR-229, a stamp says which series it is; 1.8 was ADR-222, a command may say when it stops being "
    "wanted and what it was decided from; 1.7 was ADR-191, the session)")
 # ---- ADR-189: the refusal vocabulary says WHICH of the client's problems ----
 #
@@ -1460,7 +1579,7 @@ ck("boxes/k" in _op["approximate"] and "tables/t" in _op["unrestored"],
 
 m = g.manifest(TOKEN)
 sess_facts = m.get("session") or {}
-ck(m["protocolVersion"] == "1.10"
+ck(m["protocolVersion"] == "1.11"
    and set(sess_facts) == {"stamp", "since", "diff", "diffCap", "baselines"}
    and sess_facts.get("diffCap") == C.DIFF_CAP and sess_facts.get("baselines") == C.BASELINE_RING
    and ("last %d stamps" % C.BASELINE_RING) in sess_facts.get("since", ""),

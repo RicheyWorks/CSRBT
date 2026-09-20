@@ -511,6 +511,23 @@ REPORT = r"""
   // name the engine reports it under.
   const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res|board)$|^(coherence|report|results|outputs|toast|journal|tree)$|^station-[a-z]+$/i;
   const boxes = {}, shown = [], lines = {};
+  // ADR-231: SCREEN CHROME. The keep strip ("Saved on this device today
+  // 19:09"), the outbox strip (what has not left this device) and the toast
+  // are the kit's three pieces of chrome, and they move on their own -- a
+  // clock, a debounce, a fade. Two operators of the ninth blind trial were
+  // refused `stale` on a report-stamped guard five times each over a minute
+  // rolling over. They are still READ and SERVED, exactly as before, and
+  // NAMED here in `chrome`, so the report's stamp and diff can leave them out
+  // and say so; a box that CONTAINS one (the export pane the strips are
+  // mounted in) is read without it, so a pane's text does not carry the clock.
+  const CHROME = ".keep, .outbox, .toast, #keepBox, #sendBox, #toast";
+  const chrome = [];
+  const sans = (e) => {
+    if (!e.querySelector(CHROME)) return e;
+    const c = e.cloneNode(true);
+    c.querySelectorAll(CHROME).forEach(x => x.remove());
+    return c;
+  };
   // ADR-190: A BOX'S TEXT, SPLIT WHERE THE PAGE SPLITS IT. `boxes` is one run
   // of text, which is what "bean, common20you plan to keep20" looks like to a
   // reader (ADR-187), and every task in the kit holds it exactly as it is --
@@ -530,9 +547,12 @@ REPORT = r"""
   document.querySelectorAll("[id]").forEach(e => {
     if (!BOX.test(e.id)) return;
     if (Object.keys(boxes).length >= 64) return;
-    boxes[e.id] = norm(e.textContent).slice(0, 4000);
-    lines[e.id] = leafLines(e);
+    const own = e.matches(CHROME);
+    const src = own ? e : sans(e);
+    boxes[e.id] = norm(src.textContent).slice(0, 4000);
+    lines[e.id] = leafLines(src);
     if (vis(e)) shown.push(e.id);
+    if (own) chrome.push(e.id);
   });
   // Tables, row by row, cell by cell (capped): the recipe card's
   // ingredient/quantity pairs and the trial's entry means are tables, and a
@@ -558,7 +578,7 @@ REPORT = r"""
   const rules = [...document.querySelectorAll("p.hint, p.fine, .hint, .fine")]
     .filter(e => !e.querySelector(".hint, .fine"))
     .slice(0, 40)
-    .map(e => ({ t: norm(e.textContent).slice(0, 400),
+    .map(e => ({ t: norm(sans(e).textContent).slice(0, 400),          // ADR-231: read without chrome
                  host: (e.parentElement && e.parentElement.closest("[id]") || {}).id || null }))
     .filter(r => r.t);
   // The page's headings, in order (ADR-129): a reference page has no
@@ -699,7 +719,7 @@ REPORT = r"""
     rows[id] = (rows[id] || 0) + 1;
   });
   return { figures: figures, by: by, order: order, sources: sources, boxes: boxes, shown: shown, rows: rows,
-           lines: lines, rules: rules,
+           lines: lines, rules: rules, chrome: chrome,
            tables: tables, headings: headings, charts: charts,
            route: (document.querySelector(".pane.on") || {}).id || null };
 }
@@ -1547,9 +1567,31 @@ class PagePlugin(Plugin):
     # rather than counted, and `tables/*` are rows of cells with no identity of
     # their own -- a table reports that it gained or lost rows, which is true,
     # rather than pretending row three is the same row three.
+    # ADR-231: `route` (the open pane) and `shown` (which boxes a reader can
+    # see) are NOISE for the report. Two operators of the ninth trial were
+    # refused a report-stamped guard right after a pane switch that moved no
+    # figure and no box -- the guard is on the FIGURES, and a pane opening is
+    # the snapshot's business (its `panes` and `route` are diffed there). Both
+    # are still served on every report, and named in every diff as not
+    # compared.
     REPORT_IDENTITY = {"keys": {"shown": "self", "headings": "self", "order": "self",
                                 "lines/*": "self", "rules": ["t"]},
-                       "noise": []}
+                       "noise": ["route", "shown"]}
+
+    def _report_spec(self, r):
+        """ADR-231: REPORT_IDENTITY with THIS report's chrome as noise.
+
+        The report names its screen chrome (`chrome`: the keep strip, the
+        outbox strip, the toast -- see REPORT). Their boxes and lines are
+        noise for the stamp and the diff: left out of both and NAMED in the
+        diff, the way a replica lag is on the organism. The report itself is
+        served whole; a task that holds `boxes.toast` still can."""
+        noise = list(self.REPORT_IDENTITY.get("noise") or ())
+        for i in (r.get("chrome") or ()) if isinstance(r, dict) else ():
+            noise += ["boxes/" + i, "lines/" + i]
+        spec = dict(self.REPORT_IDENTITY)
+        spec["noise"] = noise
+        return spec
 
     def identity(self, snapshot=None):
         """ADR-191: a control is its ADDRESS, and order is not change.
@@ -1632,6 +1674,21 @@ class PagePlugin(Plugin):
 
     # -- execution ----------------------------------------------------------
     # -- the report, and what changed in it (ADR-195) -----------------------
+    def stamp(self, series):
+        """ADR-231: the report's stamp NOW, for an `if_stamp` that named one.
+
+        Read the same way read-report reads it and stamped with the same spec,
+        so the stamp a guard compares against is the stamp the caller was
+        served. NOT put on the report ring: a guard is a look the caller did
+        not ask to be served, and a baseline it never read would be a baseline
+        it could not name. Only the report series; anything else is None, and
+        the gateway refuses the guard as the wrong kind."""
+        if series != "report":
+            return None
+        self._ensure_settled()
+        r = self.page.evaluate(REPORT)
+        return stamp_of(r, self._report_spec(r), series="r")
+
     def _report(self, r, since=None):
         """ADR-191 gave the SNAPSHOT a stamp and a `since`. The report got
         neither, and the fourth blind trial (ADR-194) reported it twice, in two
@@ -1645,7 +1702,7 @@ class PagePlugin(Plugin):
         same two functions: `stamp_of` and `diff_of` from the contract, with a
         spec that says what identity means on a report. Two documents, one
         algorithm; a third would be a third thing to get wrong."""
-        st = stamp_of(r, self.REPORT_IDENTITY, series="r")
+        st = stamp_of(r, self._report_spec(r), series="r")
         served = dict(r)
         served["stamp"] = st
         base = self._reports.get(since) if since else None
@@ -1680,7 +1737,7 @@ class PagePlugin(Plugin):
             return True, "nothing in the report has changed", {
                 "stamp": st, "since": since, "changed": False, "diff": None,
                 "route": r.get("route")}
-        d = diff_of(base, r, self.REPORT_IDENTITY)
+        d = diff_of(base, r, self._report_spec(r))
         moved = len(d["fields"]) + len(d["gained"]) + len(d["lost"])
         return True, "%d figure(s) or box(es) moved since %s" % (moved, since), {
             "stamp": st, "since": since, "changed": True, "diff": d,
