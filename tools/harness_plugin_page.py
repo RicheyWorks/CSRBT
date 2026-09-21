@@ -796,9 +796,20 @@ READ_ONE = "(sel) => {" + LABEL_FN + ADDR_FN + r"""
     const vis = [...pick.querySelectorAll(".opt")].filter(x => {
       const r = x.getBoundingClientRect(), s = getComputedStyle(x);
       return r.height > 0 && s.display !== "none" && s.visibility !== "hidden"; });
+    // ADR-232: WHICH ONE IS PICKED. read-control on a picker listed its rows
+    // and never said which was chosen; the ninth trial's cp-bench operator
+    // could confirm a pick only by reading the verdict text it fed. The list
+    // holds only the rows the filter shows, so `selected` is null when nothing
+    // is picked OR when the pick is filtered out of view -- and says which.
+    const on = pick.querySelector(".opt.on");
+    const shownOpts = [...pick.querySelectorAll(".opt")].length;
     o.picker = { visible: vis.length,
       labels: vis.slice(0, 120).map(x => (x.textContent || "").replace(/\s+/g, " ").trim().slice(0, 80)),
-      labelsTruncated: vis.length > 120 };
+      labelsTruncated: vis.length > 120,
+      selected: on ? (on.textContent || "").replace(/\s+/g, " ").trim().slice(0, 80) : null,
+      selectedNote: on ? "the row marked as picked among those the filter shows"
+                       : (shownOpts ? "no shown row is picked: nothing is picked, or the pick is filtered out of view -- clear the filter to be sure"
+                                    : "the filter shows no rows, so a pick cannot be seen -- clear the filter") };
   }
   const p = e.parentElement;
   if (p) {

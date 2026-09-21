@@ -679,6 +679,19 @@ MUTANTS += [
      "        noise = list(self.REPORT_IDENTITY.get(\"noise\") or ())",
      "        noise = []",
      "A PANE SWITCH IS NOT THE REPORT MOVING"),
+    # ---- ADR-232: read-control says which picker row is picked ----------------
+    ("read-control never finds the picked row",
+     '    const on = pick.querySelector(".opt.on");',
+     '    const on = null;',
+     "READ-CONTROL ON A PICKER SAYS WHICH ROW IS PICKED"),
+    ("read-control calls the first shown row the picked one",
+     '    const on = pick.querySelector(".opt.on");',
+     '    const on = pick.querySelector(".opt");',
+     "says no row is picked"),
+    ("a filter that shows no rows is reported as nothing picked",
+     '    const shownOpts = [...pick.querySelectorAll(".opt")].length;',
+     '    const shownOpts = 1;',
+     "a filter that shows no rows says so"),
 ]
 
 

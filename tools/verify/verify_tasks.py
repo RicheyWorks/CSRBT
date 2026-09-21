@@ -1612,6 +1612,79 @@ ck(_man and '"value": "5"' in _man and '"text": "5"' not in _man and "run of pre
    "and docs/OPERATOR.md -- the manual from the tenth trial on -- has both fixed, says which act to "
    "guard, and says the chrome and a pane switch do not move the report stamp")
 
+# ---- F10. the tenth blind trial (ADR-232) ------------------------------------
+#
+# The last science page nobody had driven -- the ecology lab, the kit's
+# longest task -- on the door that records the guard a call carried, with the
+# manual rewritten after the ninth trial. Guards are counted from the trace.
+BLIND10 = os.path.join(T.TRACES_DIR, "blind10")
+b10 = sorted(glob.glob(os.path.join(BLIND10, "*.jsonl.gz")))
+by10 = T.protocol_of(BLIND10)
+TENTH = {"page-ecology-lab-science": (39, 55, 234, 263)}
+ck(len(b10) == 1 and {os.path.basename(f).split(".")[0] for f in b10} == set(TENTH),
+   "the tenth trial's trace: the ecology lab, the last science page no blind operator had touched: %s"
+   % [os.path.basename(f) for f in b10])
+ck(not (set(TENTH) & (set(NINTH) | set(EIGHTH) | set(SEVENTH) | set(SIXTH) | set(FLOORS))),
+   "and no earlier trial ran it")
+_blind_ids = set(TENTH) | set(NINTH) | set(EIGHTH) | set(SEVENTH) | set(SIXTH) | set(FLOORS)
+_science_ids = {t["id"] for t in tasks if t["id"].startswith("page-") and t["id"].endswith("-science")}
+ck(_science_ids <= _blind_ids and len(_science_ids) == 21,
+   "EVERY SCIENCE TASK NOW HAS A BLIND TRACE: %d of %d, none left: %s"
+   % (len(_science_ids & _blind_ids), len(_science_ids), sorted(_science_ids - _blind_ids)))
+ck(os.path.isdir(os.path.join(BLIND10, "tasks")) and len(glob.glob(os.path.join(BLIND10, "tasks", "*.json"))) == 1
+   and os.path.isfile(os.path.join(BLIND10, "OPERATOR.md")),
+   "blind10 carries the task file it was run under AND the manual its operator was handed")
+p10 = os.path.join(BLIND10, "PROVENANCE.md")
+t10 = io.open(p10, encoding="utf-8").read() if os.path.isfile(p10) else ""
+ck(all(w in t10 for w in ("records the guard", "0.31", "depth", "removed from the", "floor", "21 science tasks"))
+   and len(t10) > 3000,
+   "with a provenance that carries the conditions, the guard count, the goal-prose correction and the "
+   "closed set")
+_r10 = _c10 = _k10 = 0
+for f in b10:
+    tid = os.path.basename(f).split(".")[0]
+    tr = T.load_trace(f)
+    g10 = T.grade_outcomes(by10[tid], tr)
+    lo = TENTH[tid]
+    ck(g10["reached"] >= lo[0] and g10["confirmed"] >= lo[2]
+       and g10["outcomes"] == lo[1] and g10["claims"] == lo[3]
+       and g10["verdict"] in ("PARTIAL", "PASS"),
+       "%s: the tenth trial's operator reached %d of %d outcomes (%d of %d claims), at or above the "
+       "floor this first operation set %s" % (tid, g10["reached"], g10["outcomes"], g10["confirmed"],
+                                               g10["claims"], lo))
+    _r10 += g10["reached"]; _c10 += g10["confirmed"]; _k10 += g10["calls"]
+    ck(T.grade_trace(by10[tid], tr)["verdict"] == "FAIL",
+       "%s: and graded as a ROUTE it is FAIL, as every blind trial before it" % tid)
+    # the guard, counted from the trace (ADR-231 records it)
+    _guards = [e for e in tr if isinstance(e.get("guard"), dict) and e["guard"].get("if_stamp")]
+    _byk = {}
+    for e in _guards:
+        _byk[C.series_of(e["guard"]["if_stamp"]) or "?"] = _byk.get(C.series_of(e["guard"]["if_stamp"]) or "?", 0) + 1
+    _stale = [e for e in _guards if (e.get("response") or {}).get("code") == "stale"]
+    ck(len(_guards) >= 19 and _byk.get("report", 0) >= 18 and _byk.get("snapshot", 0) >= 1 and "?" not in _byk,
+       "THE GUARD IS COUNTED FROM THE TRACE for the first time: %d guarded acts, %s -- every one a stamp of a "
+       "known series" % (len(_guards), _byk))
+    ck(not _stale and all((e.get("response") or {}).get("ok") for e in _guards),
+       "and NOT ONE was refused `stale`: every guard was the stamp from the read before it, and the runs "
+       "of presses went unguarded as the rewritten manual says -- the ninth trial's farm scout was refused "
+       "127 times under the old one: %d refusal(s)" % len(_stale))
+    ck(not any((e.get("response") or {}).get("code") == "stale" for e in tr),
+       "no stale refusal of any kind in the whole trace: the chrome and the pane switch, noise since "
+       "ADR-231, refused nothing")
+ck(_r10 >= 39 and _c10 >= 234 and _k10 <= 200,
+   "the ecology lab's whole workbench in %d calls, %d of 55 outcomes, %d of 263 claims, one attempt"
+   % (_k10, _r10, _c10))
+# the goal prose the operator was handed named four figures the page does not show
+_t10_old = json.load(io.open(os.path.join(BLIND10, "tasks", "page-ecology-lab-science.json"), encoding="utf-8"))
+_t10_now = next(t for t in tasks if t["id"] == "page-ecology-lab-science")
+ck("Bray-Curtis 0.35" in _t10_old["goal"] and "depth 5" in _t10_old["goal"]
+   and "Bray-Curtis 0.31" in _t10_now["goal"] and "depth 6" in _t10_now["goal"] and "depth 4" in _t10_now["goal"],
+   "the goal the operator was handed said Bray-Curtis 0.35 and depth 5; the task held 0.31 and 6 and passed "
+   "all along; the goal says what the task holds now")
+_exp = json.dumps(_t10_now["steps"], ensure_ascii=False)
+ck('"0.31"' in _exp and '"0.25"' in _exp and '"6"' in _exp and "0.35" not in _t10_now["goal"] and "0.29" not in _t10_now["goal"],
+   "and the corrected figures are the task's own expectations, not typed")
+
 
 # ---- G. the science (ADR-128) and the whole kit (ADR-129) ---------------------
 DATA_ENTRY = {"collection-sheet.html", "releve.html", "stand-sheet.html", "ethogram.html", "selection-log.html",

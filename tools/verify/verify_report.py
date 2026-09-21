@@ -597,11 +597,37 @@ with sync_playwright() as pw:
     plug = PP.PagePlugin(pg, "collection-sheet.html", kinds=SWARM_KINDS)
     snap = plug.observe(sensitive=True)
     gen = next(c["selector"] for c in snap["controls"] if c["kind"] == "pick_search" and c["host"] == "genEntry")
+    # ADR-232: read-control on a picker says WHICH row is picked. Before the
+    # pick, none; after it, the row; with the filter hiding it, none -- and
+    # the note says why, because the list holds only what the filter shows.
+    _ok, _m, _rc0 = plug.execute("read-control", {"selector": gen})
+    ck(_rc0.get("picker") and _rc0["picker"].get("selected") is None and "nothing is picked" in _rc0["picker"].get("selectedNote", ""),
+       "read-control on a picker nobody has picked from says no row is picked, and says that could also be "
+       "the filter: %s" % _rc0.get("picker", {}).get("selectedNote"))
     ok, _, out = plug.execute("pick", {"selector": gen, "value": "Amanita"})
     tell = pg.inner_text("#cGenTell").lower()
     ck(ok and out["chose"].startswith("Amanita") and "volva" in tell and "ectomycorrhizal" in tell,
        "on the collection sheet a genus picked through the gateway is the genus the sheet records -- its tell "
        "and guild badge render from the picker's onchange: %s / %s" % (out, tell[:60]))
+    _ok, _m, _rc1 = plug.execute("read-control", {"selector": gen})
+    ck (((_rc1.get("picker") or {}).get("selected") or "").startswith("Amanita")
+        and "marked as picked" in (_rc1.get("picker") or {}).get("selectedNote", ""),
+       "READ-CONTROL ON A PICKER SAYS WHICH ROW IS PICKED (ADR-232): the ninth trial's operator could confirm "
+       "a pick only by the verdict text it fed: %s" % (_rc1.get("picker") or {}).get("selected"))
+    plug.execute("set-text", {"selector": gen, "value": "Pleurotus"})
+    _ok, _m, _rc2 = plug.execute("read-control", {"selector": gen})
+    ck((_rc2.get("picker") or {}).get("selected") is None and "filtered out of view" in (_rc2.get("picker") or {}).get("selectedNote", "")
+       and (_rc2.get("picker") or {}).get("visible", 0) >= 1,
+       "and with the filter hiding the picked row it says none is shown and why -- clear the filter to be sure: %s"
+       % (_rc2.get("picker") or {}).get("selectedNote"))
+    plug.execute("set-text", {"selector": gen, "value": "zzzz-no-such-genus"})
+    _ok, _m, _rc3 = plug.execute("read-control", {"selector": gen})
+    ck((_rc3.get("picker") or {}).get("selected") is None and "shows no rows" in (_rc3.get("picker") or {}).get("selectedNote", ""),
+       "and a filter that shows no rows says so rather than 'nothing is picked': %s" % (_rc3.get("picker") or {}).get("selectedNote"))
+    plug.execute("set-text", {"selector": gen, "value": ""})
+    _ok, _m, _rc4 = plug.execute("read-control", {"selector": gen})
+    ck(((_rc4.get("picker") or {}).get("selected") or "").startswith("Amanita"),
+       "clear the filter and the pick is back in view: %s" % (_rc4.get("picker") or {}).get("selected"))
     ok, _, r = plug.execute("read-report", {})
     ck("anBox" in r["boxes"] and "anBox" not in r["shown"] and r["rows"].get("#cList", 0) == 0,
        "the analysis box is read behind its closed tab, and the collection list counts zero rows before an entry")

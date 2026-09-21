@@ -274,6 +274,12 @@ the call and the door does not. Before that, `"dry_run": true` ran for real.
   the trace records them as `guard` on the row. The manifest's
   `freshness.ifStampTakes` lists the two kinds.
 
+`read-control` on a picker's search box carries `picker.selected` — the row
+marked as picked among those the filter shows — and `picker.selectedNote`
+saying, when it is null, whether nothing is picked, the pick is filtered out
+of view, or the filter shows no rows (ADR-232: the ninth trial's operator
+could confirm a pick only by the verdict text it fed).
+
 **Why the report guard exists** (ADR-231). Three blind trials running noted
 that an act on a data-entry page — a tally, a counter, a value that feeds a
 computed result — moves every figure and no control, so the snapshot stamp

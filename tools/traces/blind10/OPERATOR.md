@@ -127,15 +127,7 @@ costing you a call. A refusal is the door working, not an error: it tells you
 the figures moved since you last read them; read the report again (`since` the
 old stamp shows what moved) and decide again. The screen chrome — the
 "Saved on this device" strip, the outbox strip, a toast — and a pane switch do
-not move the report stamp; a message the page writes INTO a box (a copy
-confirmation) does, because the box is part of the report. A stamp is a
-digest of the document, not of its history: put a value back and the earlier
-stamp comes back, and `since` compares the two documents, not what happened
-in between.
-
-`read-control` on a picker's search box says which row is picked
-(`picker.selected`); the list holds only the rows the filter shows, so clear
-the filter before trusting a null.
+not move the report stamp.
 
 When the brief's RUNGS line names DESTRUCTIVE, the goal includes an
 irreversible step (an Undo, a Clear, a remove) — do it, and guard it with a

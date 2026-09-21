@@ -4412,12 +4412,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789817549,
+   "at": 1789955031,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 162,
-   "mutants": 162,
+   "killed": 165,
+   "mutants": 165,
    "rows": [
     {
      "detail": "9 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -4435,7 +4435,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the same label twice in one box keeps both: {'collections':",
+     "detail": "2 failure(s); first: the same label twice in one box keeps both: {'collections':",
      "name": "the same label twice in a box keeps one",
      "verdict": "killed"
     },
@@ -5045,12 +5045,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: the report NAMES its screen chrome -- the keep strip, the o",
+     "detail": "5 failure(s); first: the report NAMES its screen chrome -- the keep strip, the o",
      "name": "the report names no chrome, so the clock in the keep strip moves the stamp",
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: THE CLOCK ROLLING OVER IS NOT THE REPORT MOVING: the keep s",
+     "detail": "4 failure(s); first: THE CLOCK ROLLING OVER IS NOT THE REPORT MOVING: the keep s",
      "name": "the chrome is named and then compared anyway: the noise list is never filled",
      "verdict": "killed"
     },
@@ -5072,6 +5072,21 @@
     {
      "detail": "3 failure(s); first: A PANE SWITCH IS NOT THE REPORT MOVING: opening p-trees cha",
      "name": "the report's own noise is dropped when the chrome is added, so route is compared again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: READ-CONTROL ON A PICKER SAYS WHICH ROW IS PICKED (ADR-232)",
+     "name": "read-control never finds the picked row",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: read-control on a picker nobody has picked from says no row",
+     "name": "read-control calls the first shown row the picked one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a filter that shows no rows says so rather than 'nothin",
+     "name": "a filter that shows no rows is reported as nothing picked",
      "verdict": "killed"
     },
     {
@@ -5160,7 +5175,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: and an act that WORKED is answered in the same channel, so ",
+     "detail": "4 failure(s); first: AN EXPORT THAT EXPORTED NOTHING SAYS SO IN ITS OWN ANSWER. ",
      "name": "the door hears any div, declared or not",
      "verdict": "killed"
     },

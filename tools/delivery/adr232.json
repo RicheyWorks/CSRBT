@@ -1,0 +1,42 @@
+{
+ "id": "adr232",
+ "chain": "adr231",
+ "chain_probe": "docs/ADR-231-if-stamp-guards-either-document-2026-09-18.md",
+ "clean": [
+  "adr231"
+ ],
+ "once": true,
+ "subject": "ADR-232: every science page blind-operated -- the tenth trial drives the ecology lab, the last one, with zero guard refusals -- and read-control on a picker says which row is picked",
+ "body": "read-control on a picker listed the rows the filter shows and never said which was picked; now picker.selected names the picked row among the shown ones and picker.selectedNote says why a null is null. The tenth blind trial drives the ecology lab alone -- the kit's longest task, 61 values, nine stations -- through the door that records the guard a call carried: 39 of 55 outcomes, 234 of 263 claims, 132 calls, 19 guards counted from the trace and none refused, against the ninth trial's 127 refusals on one page under the old manual. Every one of the 21 science tasks now has a blind trace. The trial found the goal sentence wrong where the task was right: Bray-Curtis 0.35 and 0.29 and Newick depth 5 and 3 in the prose, 0.31, 0.25, 6 and 4 on the page, in the task and in a Python recomputation; corrected, the task re-run. verify_report 276 to 281, verify_tasks 466 to 479, mutate_report 162 to 165.",
+ "paths": [
+  "docs/ADR-232-every-science-page-blind-operated-2026-09-20.md",
+  "docs/CHANGELOG-2026-09-20-adr232-every-science-page-blind-operated.md",
+  "docs/AUTOMATION-HARNESS.md",
+  "docs/OPERATOR.md",
+  "docs/AI_HARNESS.md",
+  "tools/harness_plugin_page.py",
+  "tools/mutate_report.py",
+  "tools/verify/verify_report.py",
+  "tools/verify/verify_tasks.py",
+  "tools/tasks/page-ecology-lab-science.json",
+  "tools/task_ledger.json",
+  "tools/traces/blind10/PROVENANCE.md",
+  "tools/traces/blind10/OPERATOR.md",
+  "tools/traces/blind10/page-ecology-lab-science.jsonl.gz",
+  "tools/traces/blind10/tasks/page-ecology-lab-science.json",
+  "tools/delivery/adr232.json",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json",
+  "tools/badinput_ledger.json",
+  "tools/carried_ledger.json",
+  "tools/destructive_ledger.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/readable_ledger.json",
+  "tools/restored_ledger.json",
+  "tools/takeaway_ledger.json"
+ ]
+}
