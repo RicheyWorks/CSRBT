@@ -2159,10 +2159,17 @@ var OUT = (function(){
     if(g.r2<0.98) h+='<div class="warnbox"><b>r² = '+f(g.r2,4)+' across the selected window.</b> A genuine '+
       'exponential phase is very straight in ln(OD). Curvature here usually means the window includes lag at '+
       'the start or the approach to stationary at the end — narrow it.</div>';
-    var maxUsed=Math.max.apply(null,use.map(function(p){return p.od;}));
-    if(maxUsed>0.6) h+='<div class="warnbox"><b>Points above OD 0.6 are in the fit.</b> Above roughly '+
-      '0.4–0.6 a typical spectrophotometer reads low because of multiple scattering, so those points flatten '+
-      'the line for optical reasons and push µ down. Dilute before reading, or exclude them.</div>';
+    /* ADR-233: THE SENTENCE IS COMPUTED. This used to say the high points "push
+       µ down" whatever they did -- and the micro-bench blind operator watched a
+       point above OD 0.6 push it UP (0.6931 -> 0.8189) under that sentence.
+       Optical saturation makes a reading LOW, so a point below the line of the
+       others is what it looks like; a point ABOVE that line is something
+       saturation cannot explain. The fit without them is computed and the
+       direction is said, with the number. */
+    var sat=satEffect(use);
+    if(sat) h+='<div class="warnbox"><b>Points above OD 0.6 are in the fit.</b> Above roughly '+
+      '0.4–0.6 a typical spectrophotometer reads low because of multiple scattering. '+sat.html+
+      ' Dilute before reading, or exclude them.</div>';
     h+='<div class="verdict"><b>µ is a rate of increase in turbidity.</b> OD measures light scattering, and '+
       'the scattering per cell changes with cell size and shape as the culture ages. Do not convert this to '+
       'cells/mL without your own OD-to-CFU calibration for this strain, medium and instrument — and note '+
@@ -2170,15 +2177,65 @@ var OUT = (function(){
     o.innerHTML=h;
   }
 
+  /* ADR-233: what the points above OD 0.6 actually did to µ. null when none are
+     in the fit. Refits WITHOUT them when at least three remain, and says which
+     way they moved the slope -- DOWN is what optical saturation does (the
+     reading is low, the line flattens); UP means the high points sit ABOVE the
+     line of the others, which saturation cannot do, so the reading itself is
+     in question. */
+  function satEffect(use){
+    var hi=use.filter(function(p){ return p.od>0.6; });
+    if(!hi.length) return null;
+    var lo=use.filter(function(p){ return p.od<=0.6; });
+    var n=hi.length, pl=(n===1?"point":"points"), it=(n===1?"it":"they");
+    var all=reg(use.map(function(p){return p.t;}), use.map(function(p){return Math.log(p.od);}));
+    if(lo.length<3 || !all){
+      var t0=n+" "+pl+" above OD 0.6 "+(n===1?"is":"are")+" in the fit, and fewer than three points "+
+        "remain without "+(n===1?"it":"them")+", so what "+it+" did to µ cannot be separated out.";
+      return { html:t0, text:t0, dir:null };
+    }
+    var g=reg(lo.map(function(p){return p.t;}), lo.map(function(p){return Math.log(p.od);}));
+    if(!g) return null;
+    var a=all.b, b=g.b, d=a-b, pct=b!==0 ? Math.abs(d/b)*100 : NaN;
+    var dir = Math.abs(d)<1e-9 ? "none" : (d<0 ? "down" : "up");
+    var head="Without the "+n+" "+pl+" above OD 0.6, µ is "+f(b,4)+" h⁻¹; with "+(n===1?"it":"them")+", "+f(a,4)+" h⁻¹";
+    var tail;
+    if(dir==="none") tail=" — "+it+" did not move it.";
+    else if(dir==="down") tail=" — "+it+" pulled it DOWN by "+f(pct,1)+"%, which is what optical "+
+      "saturation does: the reading is low, so the line flattens.";
+    else tail=" — "+it+" pushed it UP by "+f(pct,1)+"%. Saturation makes a reading LOW, so a point above the "+
+      "line of the others is not saturation: check the reading, the blank and the dilution before trusting it.";
+    return { html:head+tail, text:head+tail, dir:dir, with:a, without:b };
+  }
+
   /* --------------------------------------------------------------- zones */
   var zones=[];
   $("zAdd").addEventListener("click",function(){
     var d=val("zDrug"), mm=nv("zMm");
     if(!d||!isFinite(mm)){toast("Need an antimicrobial and a zone");return;}
-    zones.push({drug:d,cont:val("zCont"),mm:mm});
+    /* ADR-233: the organism and the medium are READ at Add, per zone. They sat
+       on the form and reached nothing -- not the list, not the bench sheet, not
+       the zone CSV -- so a zone left the page without the two things its
+       interpretation depends on. Kept per zone, not read at export time, so a
+       later edit to the form does not rewrite a zone already recorded. */
+    zones.push({drug:d,cont:val("zCont"),mm:mm,org:val("zOrg"),med:val("zMed")});
     $("zDrug").value=""; $("zCont").value=""; ZMM.clear(); push("zMm",null);
     renderZ(); buzz(12);
   });
+  /* ADR-233: THE BAND IS THE RULE THE PAGE APPLIES. A zone is S at >= S, R at
+     <= R, and I strictly between. This printed R+0.5 to S-0.5 -- "13.5–16.5 mm"
+     for S >= 17 / R <= 13 -- which is neither the rule (13.2 mm reads I here and
+     sat outside that band) nor the convention for whole-millimetre readings,
+     where the band is 14–16. It states the rule, and the whole-mm range when both
+     breakpoints are whole millimetres. */
+  function bandText(S,R){
+    var t="Intermediate: above "+f(R,1)+" mm and below "+f(S,1)+" mm";
+    if(S===Math.round(S) && R===Math.round(R)){
+      if(S-R>=2) t+=" — "+(R+1===S-1 ? (R+1)+" mm" : (R+1)+"–"+(S-1)+" mm")+" for whole-millimetre readings";
+      else t+=" — no whole-millimetre reading falls between them";
+    }
+    return t+".";
+  }
   function renderZ(){
     var box=$("zList"), S=nv("zS"), R=nv("zR"), src=val("zSrc");
     var haveBp=isFinite(S)&&isFinite(R);
@@ -2188,7 +2245,8 @@ var OUT = (function(){
         var interp="—";
         if(haveBp) interp = z.mm>=S?"S":(z.mm<=R?"R":"I");
         return '<div class="row2"><div class="g"><b>'+esc(z.drug)+(z.cont?' '+esc(z.cont):'')+
-          '</b><span>'+f(z.mm,1)+' mm'+(haveBp?'':' · no breakpoints entered')+'</span></div>'+
+          '</b><span>'+f(z.mm,1)+' mm'+(z.org?' · '+esc(z.org):'')+(z.med?' · '+esc(z.med):'')+
+          (haveBp?'':' · no breakpoints entered')+'</span></div>'+
           '<span class="cov">'+interp+'</span><button type="button" data-z="'+i+'">✕</button></div>';
       }).join("");
       Array.prototype.forEach.call(box.querySelectorAll("button[data-z]"),function(b){
@@ -2210,7 +2268,7 @@ var OUT = (function(){
       o.innerHTML='<div class="verdict"><b>Interpreted against S ≥ '+f(S,1)+' mm, R ≤ '+f(R,1)+' mm'+
         (src?', '+esc(src):'')+'.</b>'+(src?'':' <b>No source recorded</b> — put the table and its edition in '+
         'the source field, because an interpretation without its breakpoint source is not reproducible.')+
-        ' The intermediate band is '+f(R+0.5,1)+'–'+f(S-0.5,1)+' mm.</div>';
+        ' '+bandText(S,R)+'</div>';
     }
     $("zRefuse").innerHTML='<h3 style="margin-top:0">Why no built-in table</h3>'+
       '<p class="fine" style="margin-top:0">Breakpoint tables are revised annually and differ between CLSI '+
@@ -2319,9 +2377,9 @@ var OUT = (function(){
           if(mu<=0) L.push("  SLOPE NOT POSITIVE — the selected points are not growing");
           if(g.r2<0.98) L.push("  r² below 0.98 — the window probably includes lag or the approach "
                  + "to stationary; narrow it");
-          var mx=Math.max.apply(null, use.map(function(x){ return x.od; }));
-          if(mx>0.6) L.push("  POINTS ABOVE OD 0.6 ARE IN THE FIT — multiple scattering makes a "
-                 + "spectrophotometer read low there, which flattens the line and pushes µ down");
+          var sat=satEffect(use);
+          if(sat) L.push("  POINTS ABOVE OD 0.6 ARE IN THE FIT — multiple scattering makes a "
+                 + "spectrophotometer read low there. " + sat.text);
           L.push("  µ is a rate of increase in TURBIDITY; converting to cells/mL needs your own "
                  + "OD-to-CFU calibration for this strain, medium and instrument");
         }
@@ -2335,7 +2393,8 @@ var OUT = (function(){
       L.push("", "## Disc diffusion (" + zones.length + " zone" + (zones.length===1?"":"s") + ")");
       zones.forEach(function(z){
         var interp = haveBp ? (z.mm>=S ? "S" : (z.mm<=R ? "R" : "I")) : "—";
-        L.push("  " + z.drug + (z.cont ? " " + z.cont : "") + "   " + f(z.mm,1) + " mm   " + interp);
+        L.push("  " + z.drug + (z.cont ? " " + z.cont : "") + "   " + f(z.mm,1) + " mm   " + interp
+               + (z.org ? "   " + z.org : "") + (z.med ? "   on " + z.med : ""));
       });
       if(!haveBp){
         L.push("  MEASUREMENT ONLY — NO INTERPRETATION. No breakpoints were entered, and S/I/R cannot "
@@ -2347,7 +2406,7 @@ var OUT = (function(){
       } else {
         L.push("  interpreted against S ≥ " + f(S,1) + " mm, R ≤ " + f(R,1) + " mm"
                + (src ? ", " + src : ""));
-        L.push("  intermediate band: " + f(R+0.5,1) + "–" + f(S-0.5,1) + " mm");
+        L.push("  " + bandText(S,R));
         if(!src) L.push("  NO BREAKPOINT SOURCE RECORDED — an interpretation without the table and its "
                + "edition is not reproducible, and these tables are revised annually");
       }
@@ -2389,10 +2448,10 @@ var OUT = (function(){
   function znCsv(){
     var S=nv("zS"), R=nv("zR"), src=val("zSrc"), haveBp=isFinite(S)&&isFinite(R)&&S>R;
     var rows=[["antimicrobial","disc_content","zone_mm","interpretation","breakpoint_S_mm",
-               "breakpoint_R_mm","breakpoint_source"].map(cell).join(",")];
+               "breakpoint_R_mm","breakpoint_source","organism","medium"].map(cell).join(",")];
     zones.forEach(function(z){
       rows.push([z.drug, z.cont||"", z.mm, haveBp ? (z.mm>=S?"S":(z.mm<=R?"R":"I")) : "",
-                 isFinite(S)?S:"", isFinite(R)?R:"", src||""].map(cell).join(","));
+                 isFinite(S)?S:"", isFinite(R)?R:"", src||"", z.org||"", z.med||""].map(cell).join(","));
     });
     return rows.join("\n");
   }

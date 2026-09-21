@@ -3448,6 +3448,82 @@
    ],
    "survived": 0
   },
+  "mutate_mb": {
+   "at": 1789995090,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 13,
+   "mutants": 13,
+   "rows": [
+    {
+     "detail": "3 failure(s); first: ADR-233: a point ABOVE the line of the others is reported a",
+     "name": "the saturation sentence says DOWN whatever the refit says",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: ADR-233: a point ABOVE the line of the others is reported a",
+     "name": "the refit keeps the high points in",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: ADR-233: a point ABOVE the line of the others is reported a",
+     "name": "the percentage is taken against the fit WITH the high points",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-233: with fewer than three points left without the high",
+     "name": "fewer than three points left is refitted anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-233: the bench sheet carries the same computed sentence",
+     "name": "the bench sheet keeps the old asserted sentence",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: ADR-233: S \u2265 17 / R \u2264 13 states the band as the rule it app",
+     "name": "the band goes back to R+0.5 to S-0.5",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-233: S \u2265 17 / R \u2264 13 states the band as the rule it app",
+     "name": "the whole-millimetre range is one too wide at the top",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-233: S \u2265 15 / R \u2264 13 states the band as the rule it app",
+     "name": "a one-millimetre band is printed as a range",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-233: S \u2265 14 / R \u2264 13 states the band as the rule it app",
+     "name": "adjacent breakpoints claim a whole-millimetre reading between them",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: ADR-233: each zone names the organism and medium it was rea",
+     "name": "the organism is not read at Add",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-233: each zone names the organism and medium it was rea",
+     "name": "the medium is read at display time, not kept per zone",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-233: ...and every row fills them, quoting where a value",
+     "name": "the zone CSV drops the organism value",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-233: the bench sheet carries organism and medium per zo",
+     "name": "the bench sheet drops the medium",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_mcp": {
    "at": 1789694073,
    "equivalent": 1,

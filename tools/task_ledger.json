@@ -24332,9 +24332,9 @@
    "verdict": "PASS"
   },
   "page-micro-bench-science": {
-   "at": 1789451813,
-   "claims": 45,
-   "confirmed": 102,
+   "at": 1789993613,
+   "claims": 46,
+   "confirmed": 103,
    "gives": 32,
    "goal": "On the micro bench: 148 colonies from 0.1 mL plated at 10^-5 is 1.48x10^8 CFU/mL, the plated volume and the serial transfer/diluent volumes set explicitly (1:10 per step, 1.00 log10); a growth curve, and a zone-of-inhibition read against CLSI breakpoints with the medium and organism named -- every pane driven and the figures held against an oracle.",
    "held": true,
@@ -24348,7 +24348,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 3.8,
+   "seconds": 5.2,
    "steps": [
     {
      "action": "observe",
@@ -24380,7 +24380,7 @@
      ],
      "id": "pl",
      "message": "opened pane p-pl",
-     "ms": 4,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -24394,7 +24394,7 @@
      ],
      "id": "g164-plv",
      "message": "set-text step_val:1",
-     "ms": 25,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24408,7 +24408,7 @@
      ],
      "id": "nA",
      "message": "press-step step_btn:1",
-     "ms": 27,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -24422,7 +24422,7 @@
      ],
      "id": "cA",
      "message": "set-text field_in:0",
-     "ms": 27,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -24436,7 +24436,7 @@
      ],
      "id": "lA",
      "message": "set-text text_in:0",
-     "ms": 26,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -24450,7 +24450,7 @@
      ],
      "id": "addA",
      "message": "activate action_btn:0",
-     "ms": 28,
+     "ms": 44,
      "result": "driven"
     },
     {
@@ -24489,7 +24489,7 @@
      ],
      "id": "plateA",
      "message": "4 figure(s), 14 box(es), 1 list(s), 1 table(s), 15 heading(s)",
-     "ms": 8,
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -24503,7 +24503,7 @@
      ],
      "id": "nB",
      "message": "set-text step_val:0",
-     "ms": 26,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -24517,7 +24517,7 @@
      ],
      "id": "cB",
      "message": "set-text field_in:0",
-     "ms": 27,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -24531,7 +24531,7 @@
      ],
      "id": "lB",
      "message": "set-text text_in:0",
-     "ms": 26,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24545,7 +24545,7 @@
      ],
      "id": "addB",
      "message": "activate action_btn:0",
-     "ms": 28,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -24569,7 +24569,7 @@
      ],
      "id": "plateB",
      "message": "4 figure(s), 14 box(es), 1 list(s), 1 table(s), 15 heading(s)",
-     "ms": 7,
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -24583,7 +24583,7 @@
      ],
      "id": "nC",
      "message": "set-text step_val:0",
-     "ms": 26,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24597,7 +24597,7 @@
      ],
      "id": "cC",
      "message": "set-text field_in:0",
-     "ms": 26,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -24611,7 +24611,7 @@
      ],
      "id": "lC",
      "message": "set-text text_in:0",
-     "ms": 25,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -24625,7 +24625,7 @@
      ],
      "id": "addC",
      "message": "activate action_btn:0",
-     "ms": 25,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -24664,7 +24664,7 @@
      ],
      "id": "plateC",
      "message": "4 figure(s), 14 box(es), 1 list(s), 1 table(s), 15 heading(s)",
-     "ms": 6,
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -24678,7 +24678,7 @@
      ],
      "id": "dil",
      "message": "opened pane p-dil",
-     "ms": 110,
+     "ms": 187,
      "result": "driven"
     },
     {
@@ -24692,7 +24692,7 @@
      ],
      "id": "titre",
      "message": "set-text field_in:1",
-     "ms": 30,
+     "ms": 42,
      "result": "driven"
     },
     {
@@ -24706,7 +24706,7 @@
      ],
      "id": "g164-dvol",
      "message": "set-text step_val:2",
-     "ms": 29,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -24720,7 +24720,7 @@
      ],
      "id": "g164-dtr",
      "message": "set-text step_val:3",
-     "ms": 29,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -24734,7 +24734,7 @@
      ],
      "id": "g164-dbl",
      "message": "set-text step_val:4",
-     "ms": 26,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -24763,7 +24763,7 @@
      ],
      "id": "plan",
      "message": "7 figure(s), 14 box(es), 1 list(s), 2 table(s), 15 heading(s)",
-     "ms": 11,
+     "ms": 16,
      "result": "driven"
     },
     {
@@ -24777,7 +24777,7 @@
      ],
      "id": "gr",
      "message": "opened pane p-gr",
-     "ms": 70,
+     "ms": 97,
      "result": "driven"
     },
     {
@@ -24791,7 +24791,7 @@
      ],
      "id": "gt0",
      "message": "set-text field_in:2",
-     "ms": 30,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -24805,7 +24805,7 @@
      ],
      "id": "go0",
      "message": "set-text field_in:3",
-     "ms": 26,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24819,7 +24819,7 @@
      ],
      "id": "gadd0",
      "message": "activate action_btn:4",
-     "ms": 26,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -24833,7 +24833,7 @@
      ],
      "id": "gt1",
      "message": "set-text field_in:2",
-     "ms": 27,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24861,7 +24861,7 @@
      ],
      "id": "gadd1",
      "message": "activate action_btn:4",
-     "ms": 28,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -24875,7 +24875,7 @@
      ],
      "id": "gt2",
      "message": "set-text field_in:2",
-     "ms": 26,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -24889,7 +24889,7 @@
      ],
      "id": "go2",
      "message": "set-text field_in:3",
-     "ms": 27,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -24903,7 +24903,7 @@
      ],
      "id": "gadd2",
      "message": "activate action_btn:4",
-     "ms": 27,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24917,7 +24917,7 @@
      ],
      "id": "gt3",
      "message": "set-text field_in:2",
-     "ms": 26,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24931,7 +24931,7 @@
      ],
      "id": "go3",
      "message": "set-text field_in:3",
-     "ms": 27,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -24945,7 +24945,7 @@
      ],
      "id": "gadd3",
      "message": "activate action_btn:4",
-     "ms": 26,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -24984,7 +24984,7 @@
      ],
      "id": "growth",
      "message": "12 figure(s), 14 box(es), 2 list(s), 2 table(s), 16 heading(s)",
-     "ms": 8,
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -24998,7 +24998,7 @@
      ],
      "id": "gt4",
      "message": "set-text field_in:2",
-     "ms": 25,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -25012,7 +25012,7 @@
      ],
      "id": "go4",
      "message": "set-text field_in:3",
-     "ms": 27,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -25026,21 +25026,21 @@
      ],
      "id": "gadd4",
      "message": "activate action_btn:4",
-     "ms": 26,
+     "ms": 37,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.grOut contains 'Points above OD 0.6 are in the fit.', got 'Exponential fit0.8189 h\u207b\u00b9specific growth rate \u00b50.846 hdoubling time50.8 mindoubling time0.9770r\u00b25 / 5points in fitln(OD) = -3.1215 + 0.8189\u00b7t \u00b7 t_d = ln2 \u00f7 0.8189 = 0.846 hr\u00b2 = 0.9770 across the selected window. A genuine exponential phase is very straight in ln(OD). Curvature here usually means the window includes lag at the start or the approach to stationary at the end \u2014 narrow it.Points above OD 0.6 are in the fit. Above roughly 0.4\u20130.6 a typical spectrophotometer reads low because of multiple scattering, so those points flatten the line for optical reasons and push \u00b5 down. Dilute before reading, or exclude them.\u00b5 is a rate of increase in turbidity. OD measures light scattering, and the scattering per cell changes with cell size and shape as the culture ages. Do not convert this to cells/mL without your own OD-to-CFU calibration for this strain, medium and instrument \u2014 and note that such a calibration is not transferable to another lab.'",
+       "detail": "output.boxes.grOut contains 'Without the 1 point above OD 0.6, \u00b5 is 0.6931 h\u207b\u00b9; with it, 0.8189 h\u207b\u00b9 \u2014 it pushed it UP by 18.1%.', got 'Exponential fit0.8189 h\u207b\u00b9specific growth rate \u00b50.846 hdoubling time50.8 mindoubling time0.9770r\u00b25 / 5points in fitln(OD) = -3.1215 + 0.8189\u00b7t \u00b7 t_d = ln2 \u00f7 0.8189 = 0.846 hr\u00b2 = 0.9770 across the selected window. A genuine exponential phase is very straight in ln(OD). Curvature here usually means the window includes lag at the start or the approach to stationary at the end \u2014 narrow it.Points above OD 0.6 are in the fit. Above roughly 0.4\u20130.6 a typical spectrophotometer reads low because of multiple scattering. Without the 1 point above OD 0.6, \u00b5 is 0.6931 h\u207b\u00b9; with it, 0.8189 h\u207b\u00b9 \u2014 it pushed it UP by 18.1%. Saturation makes a reading LOW, so a point above the line of the others is not saturation: check the reading, the blank and the dilution before trusting it. Dilute before reading, or exclude them.\u00b5 is a rate of increase in turbidity. OD measures light scattering, and the scattering per cell changes with cell size and shape as the culture ages. Do not convert this to cells/mL without your own OD-to-CFU calibration for this strain, medium and instrument \u2014 and note that such a calibration is not transferable to another lab.'",
        "path": "output.boxes.grOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "dense",
      "message": "12 figure(s), 14 box(es), 2 list(s), 2 table(s), 16 heading(s)",
-     "ms": 7,
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -25054,7 +25054,7 @@
      ],
      "id": "zn",
      "message": "opened pane p-zn",
-     "ms": 70,
+     "ms": 92,
      "result": "driven"
     },
     {
@@ -25068,7 +25068,7 @@
      ],
      "id": "g164-zmed",
      "message": "set-text text_in:2",
-     "ms": 29,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -25082,7 +25082,7 @@
      ],
      "id": "g164-zorg",
      "message": "set-text text_in:1",
-     "ms": 28,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -25096,7 +25096,7 @@
      ],
      "id": "drug",
      "message": "set-text text_in:3",
-     "ms": 29,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -25110,7 +25110,7 @@
      ],
      "id": "cont",
      "message": "set-text text_in:4",
-     "ms": 27,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -25124,7 +25124,7 @@
      ],
      "id": "zone",
      "message": "set-text field_in:4",
-     "ms": 25,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -25138,7 +25138,7 @@
      ],
      "id": "zadd",
      "message": "activate action_btn:17",
-     "ms": 31,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -25153,11 +25153,16 @@
        "detail": "output.boxes.zOut contains 'Measurement only', got 'Measurement only \u2014 no interpretation. You have recorded 1 zone but no breakpoints. S/I/R cannot be derived from a zone diameter alone: it depends on the organism, the agent, the disc content, the medium and the method, and the table is revised every year. Enter the S and R values from the table you are working to, and the edition, and the interpretation appears.'",
        "path": "output.boxes.zOut",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.zList contains '18.0 mm \u00b7 E. coli ATCC 25922 \u00b7 Mueller-Hinton', got 'ampicillin 10 \u00b5g18.0 mm \u00b7 E. coli ATCC 25922 \u00b7 Mueller-Hinton \u00b7 no breakpoints entered\u2014\u2715'",
+       "path": "output.boxes.zList",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "measured",
      "message": "12 figure(s), 14 box(es), 3 list(s), 2 table(s), 16 heading(s)",
-     "ms": 8,
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -25171,7 +25176,7 @@
      ],
      "id": "zs",
      "message": "set-text field_in:5",
-     "ms": 28,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -25185,7 +25190,7 @@
      ],
      "id": "zr",
      "message": "set-text field_in:6",
-     "ms": 29,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -25199,35 +25204,35 @@
      ],
      "id": "src",
      "message": "set-text text_in:5",
-     "ms": 28,
+     "ms": 34,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.zOut contains 'Interpreted against S \u2265 17.0 mm, R \u2264 13.0 mm, CLSI M100, 2026.', got 'Interpreted against S \u2265 17.0 mm, R \u2264 13.0 mm, CLSI M100, 2026. The intermediate band is 13.5\u201316.5 mm.'",
+       "detail": "output.boxes.zOut contains 'Interpreted against S \u2265 17.0 mm, R \u2264 13.0 mm, CLSI M100, 2026.', got 'Interpreted against S \u2265 17.0 mm, R \u2264 13.0 mm, CLSI M100, 2026. Intermediate: above 13.0 mm and below 17.0 mm \u2014 14\u201316 mm for whole-millimetre readings.'",
        "path": "output.boxes.zOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "interpreted",
      "message": "12 figure(s), 14 box(es), 3 list(s), 2 table(s), 16 heading(s)",
-     "ms": 8,
+     "ms": 12,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.zOut contains '13.5\u201316.5 mm', got 'Interpreted against S \u2265 17.0 mm, R \u2264 13.0 mm, CLSI M100, 2026. The intermediate band is 13.5\u201316.5 mm.'",
+       "detail": "output.boxes.zOut contains 'Intermediate: above 13.0 mm and below 17.0 mm \u2014 14\u201316 mm for whole-millimetre readings.', got 'Interpreted against S \u2265 17.0 mm, R \u2264 13.0 mm, CLSI M100, 2026. Intermediate: above 13.0 mm and below 17.0 mm \u2014 14\u201316 mm for whole-millimetre readings.'",
        "path": "output.boxes.zOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "band",
      "message": "12 figure(s), 14 box(es), 3 list(s), 2 table(s), 16 heading(s)",
-     "ms": 7,
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -25241,7 +25246,7 @@
      ],
      "id": "g164-plpane",
      "message": "opened pane p-pl",
-     "ms": 76,
+     "ms": 80,
      "result": "driven"
     },
     {
@@ -25260,7 +25265,7 @@
      ],
      "id": "g164-plrep",
      "message": "12 figure(s), 14 box(es), 3 list(s), 2 table(s), 16 heading(s)",
-     "ms": 11,
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -25274,7 +25279,7 @@
      ],
      "id": "g205-pane",
      "message": "opened pane p-out",
-     "ms": 89,
+     "ms": 105,
      "result": "driven"
     },
     {
@@ -25288,7 +25293,7 @@
      ],
      "id": "g205-ecoCopy",
      "message": "activate action_btn:20 -- the page said 'Bench sheet copied' -- 1 payload(s) produced",
-     "ms": 32,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -25300,14 +25305,14 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains '## Plate counts (3)\\n  TSA-A   10^-5   0.10 mL   148 colonies   countable   1.480e+8 CFU/mL\\n  TSA-B   10^-6   0.10 mL   17 colonies   TFTC   excluded\\n  TSA-C   10^-5   0.10 mL   50 colonies   countable   5.000e+7 CFU/mL\\n  countable plates: 2 of 3   colonies counted: 198\\n  CFU/mL (mean of countable): 9.900e+7   Poisson CV: \u00b17.1%\\n  1 plate(s) excluded \u2014 listed above rather than dropped silently, because which plates you discarded is part of the record\\n  COUNTABLE PLATES DISAGREE BY 3.0\u00d7 \u2014 adjacent dilutions should agree within about a factor of two; this points at the dilution series, not the organism\\n  this is CFU/mL, not cells/mL: a chain, a clump or a hypha gives one colony\\n\\n## Dilution plan\\n  estimate: 1.000e+8 CFU/mL   plated volume: 0.10 mL\\n  transfer 1.00 mL into 9.00 mL blank = 1:10 per step (1.00 log\u2081\u2080)\\n  plate step 5: ~100 colonies expected\\n\\n## Growth curve (5 points)\\n  0.00 h   OD 0.050   ln(OD) -2.996   in fit\\n  1.00 h   OD 0.100   ln(OD) -2.303   in fit\\n  2.00 h   OD 0.200   ln(OD) -1.609   in fit\\n  3.00 h   OD 0.400   ln(OD) -0.916   in fit\\n  4.00 h   OD 1.500   ln(OD) 0.405   in fit\\n  fit over 5 of 5 points: ln(OD) = -3.1215 + 0.8189\u00b7t   r\u00b2 = 0.9770\\n  specific growth rate \u00b5: 0.8189 h\u207b\u00b9   doubling time: 0.846 h (50.8 min)\\n  r\u00b2 below 0.98 \u2014 the window probably includes lag or the approach to stationary; narrow it\\n  POINTS ABOVE OD 0.6 ARE IN THE FIT \u2014 multiple scattering makes a spectrophotometer read low there, which flattens the line and pushes \u00b5 down\\n  \u00b5 is a rate of increase in TURBIDITY; converting to cells/mL needs your own OD-to-CFU calibration for this strain, medium and instrument\\n\\n## Disc diffusion (1 zone)\\n  ampicillin 10 \u00b5g   18.0 mm   S\\n  interpreted against S \u2265 17.0 mm, R \u2264 13.0 mm, CLSI M100, 2026\\n  intermediate band: 13.5\u201316.5 mm', got '# Micro bench \u2014 2026-09-15 05:56\\n\\n## Plate counts (3)\\n  TSA-A   10^-5   0.10 mL   148 colonies   countable   1.480e+8 CFU/mL\\n  TSA-B   10^-6   0.10 mL   17 colonies   TFTC   excluded\\n  TSA-C   10^-5   0.10 mL   50 colonies   countable   5.000e+7 CFU/mL\\n  countable plates: 2 of 3   colonies counted: 198\\n  CFU/mL (mean of countable): 9.900e+7   Poisson CV: \u00b17.1%\\n  1 plate(s) excluded \u2014 listed above rather than dropped silently, because which plates you discarded is part of the record\\n  COUNTABLE PLATES DISAGREE BY 3.0\u00d7 \u2014 adjacent dilutions should agree within about a factor of two; this points at the dilution series, not the organism\\n  this is CFU/mL, not cells/mL: a chain, a clump or a hypha gives one colony\\n\\n## Dilution plan\\n  estimate: 1.000e+8 CFU/mL   plated volume: 0.10 mL\\n  transfer 1.00 mL into 9.00 mL blank = 1:10 per step (1.00 log\u2081\u2080)\\n  plate step 5: ~100 colonies expected\\n\\n## Growth curve (5 points)\\n  0.00 h   OD 0.050   ln(OD) -2.996   in fit\\n  1.00 h   OD 0.100   ln(OD) -2.303   in fit\\n  2.00 h   OD 0.200   ln(OD) -1.609   in fit\\n  3.00 h   OD 0.400   ln(OD) -0.916   in fit\\n  4.00 h   OD 1.500   ln(OD) 0.405   in fit\\n  fit over 5 of 5 points: ln(OD) = -3.1215 + 0.8189\u00b7t   r\u00b2 = 0.9770\\n  specific growth rate \u00b5: 0.8189 h\u207b\u00b9   doubling time: 0.846 h (50.8 min)\\n  r\u00b2 below 0.98 \u2014 the window probably includes lag or the approach to stationary; narrow it\\n  POINTS ABOVE OD 0.6 ARE IN THE FIT \u2014 multiple scattering makes a spectrophotometer read low there, which flattens the line and pushes \u00b5 down\\n  \u00b5 is a rate of increase in TURBIDITY; converting to cells/mL needs your own OD-to-CFU calibration for this strain, medium and instrument\\n\\n## Disc diffusion (1 zone)\\n  ampicillin 10 \u00b5g   18.0 mm   S\\n  interpreted against S \u2265 17.0 mm, R \u2264 13.0 mm, CLSI M100, 2026\\n  intermediate band: 13.5\u201316.5 mm'",
+       "detail": "output.payloads.0.text contains '## Plate counts (3)\\n  TSA-A   10^-5   0.10 mL   148 colonies   countable   1.480e+8 CFU/mL\\n  TSA-B   10^-6   0.10 mL   17 colonies   TFTC   excluded\\n  TSA-C   10^-5   0.10 mL   50 colonies   countable   5.000e+7 CFU/mL\\n  countable plates: 2 of 3   colonies counted: 198\\n  CFU/mL (mean of countable): 9.900e+7   Poisson CV: \u00b17.1%\\n  1 plate(s) excluded \u2014 listed above rather than dropped silently, because which plates you discarded is part of the record\\n  COUNTABLE PLATES DISAGREE BY 3.0\u00d7 \u2014 adjacent dilutions should agree within about a factor of two; this points at the dilution series, not the organism\\n  this is CFU/mL, not cells/mL: a chain, a clump or a hypha gives one colony\\n\\n## Dilution plan\\n  estimate: 1.000e+8 CFU/mL   plated volume: 0.10 mL\\n  transfer 1.00 mL into 9.00 mL blank = 1:10 per step (1.00 log\u2081\u2080)\\n  plate step 5: ~100 colonies expected\\n\\n## Growth curve (5 points)\\n  0.00 h   OD 0.050   ln(OD) -2.996   in fit\\n  1.00 h   OD 0.100   ln(OD) -2.303   in fit\\n  2.00 h   OD 0.200   ln(OD) -1.609   in fit\\n  3.00 h   OD 0.400   ln(OD) -0.916   in fit\\n  4.00 h   OD 1.500   ln(OD) 0.405   in fit\\n  fit over 5 of 5 points: ln(OD) = -3.1215 + 0.8189\u00b7t   r\u00b2 = 0.9770\\n  specific growth rate \u00b5: 0.8189 h\u207b\u00b9   doubling time: 0.846 h (50.8 min)\\n  r\u00b2 below 0.98 \u2014 the window probably includes lag or the approach to stationary; narrow it\\n  POINTS ABOVE OD 0.6 ARE IN THE FIT \u2014 multiple scattering makes a spectrophotometer read low there. Without the 1 point above OD 0.6, \u00b5 is 0.6931 h\u207b\u00b9; with it, 0.8189 h\u207b\u00b9 \u2014 it pushed it UP by 18.1%. Saturation makes a reading LOW, so a point above the line of the others is not saturation: check the reading, the blank and the dilution before trusting it.\\n  \u00b5 is a rate of increase in TURBIDITY; converting to cells/mL needs your own OD-to-CFU calibration for this strain, medium and instrument\\n\\n## Disc diffusion (1 zone)\\n  ampicillin 10 \u00b5g   18.0 mm   S   E. coli ATCC 25922   on Mueller-Hinton\\n  interpreted against S \u2265 17.0 mm, R \u2264 13.0 mm, CLSI M100, 2026\\n  Intermediate: above 13.0 mm and below 17.0 mm \u2014 14\u201316 mm for whole-millimetre readings.', got '# Micro bench \u2014 2026-09-21 05:26\\n\\n## Plate counts (3)\\n  TSA-A   10^-5   0.10 mL   148 colonies   countable   1.480e+8 CFU/mL\\n  TSA-B   10^-6   0.10 mL   17 colonies   TFTC   excluded\\n  TSA-C   10^-5   0.10 mL   50 colonies   countable   5.000e+7 CFU/mL\\n  countable plates: 2 of 3   colonies counted: 198\\n  CFU/mL (mean of countable): 9.900e+7   Poisson CV: \u00b17.1%\\n  1 plate(s) excluded \u2014 listed above rather than dropped silently, because which plates you discarded is part of the record\\n  COUNTABLE PLATES DISAGREE BY 3.0\u00d7 \u2014 adjacent dilutions should agree within about a factor of two; this points at the dilution series, not the organism\\n  this is CFU/mL, not cells/mL: a chain, a clump or a hypha gives one colony\\n\\n## Dilution plan\\n  estimate: 1.000e+8 CFU/mL   plated volume: 0.10 mL\\n  transfer 1.00 mL into 9.00 mL blank = 1:10 per step (1.00 log\u2081\u2080)\\n  plate step 5: ~100 colonies expected\\n\\n## Growth curve (5 points)\\n  0.00 h   OD 0.050   ln(OD) -2.996   in fit\\n  1.00 h   OD 0.100   ln(OD) -2.303   in fit\\n  2.00 h   OD 0.200   ln(OD) -1.609   in fit\\n  3.00 h   OD 0.400   ln(OD) -0.916   in fit\\n  4.00 h   OD 1.500   ln(OD) 0.405   in fit\\n  fit over 5 of 5 points: ln(OD) = -3.1215 + 0.8189\u00b7t   r\u00b2 = 0.9770\\n  specific growth rate \u00b5: 0.8189 h\u207b\u00b9   doubling time: 0.846 h (50.8 min)\\n  r\u00b2 below 0.98 \u2014 the window probably includes lag or the approach to stationary; narrow it\\n  POINTS ABOVE OD 0.6 ARE IN THE FIT \u2014 multiple scattering makes a spectrophotometer read low there. Without the 1 point above OD 0.6, \u00b5 is 0.6931 h\u207b\u00b9; with it, 0.8189 h\u207b\u00b9 \u2014 it pushed it UP by 18.1%. Saturation makes a reading LOW, so a point above the line of the others is not saturation: check the reading, the blank and the dilution before trusting it.\\n  \u00b5 is a rate of increase in TURBIDITY; converting to cells/mL needs your own OD-to-CFU calibration for this strain, medium and instrument\\n\\n## Disc diffusion (1 zone)\\n  ampicillin 10 \u00b5g   18.0 mm   S   E. coli ATCC 25922   on Mueller-Hinton\\n  interpreted against S \u2265 17.0 mm, R \u2264 13.0 mm, CLSI M100, 2026\\n  Intermediate: above 13.0 mm and below 17.0 mm \u2014 14\u201316 mm for whole-millimetre readings.'",
        "path": "output.payloads.0.text",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g205-ecoCopy-out",
      "message": "1 payload(s)",
-     "ms": 3,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -25321,7 +25326,7 @@
      ],
      "id": "g205-plCopy",
      "message": "activate action_btn:21 -- the page said 'Plate CSV copied \u2014 3 rows' -- 1 payload(s) produced",
-     "ms": 29,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -25340,7 +25345,7 @@
      ],
      "id": "g205-plCopy-out",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -25354,7 +25359,7 @@
      ],
      "id": "g205-grCopy",
      "message": "activate action_btn:22 -- the page said 'Growth CSV copied \u2014 5 rows' -- 1 payload(s) produced",
-     "ms": 26,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -25373,7 +25378,7 @@
      ],
      "id": "g205-grCopy-out",
      "message": "1 payload(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -25387,7 +25392,7 @@
      ],
      "id": "g205-znCopy",
      "message": "activate action_btn:23 -- the page said 'Zone CSV copied \u2014 1 row' -- 1 payload(s) produced",
-     "ms": 37,
+     "ms": 46,
      "result": "driven"
     },
     {
@@ -25399,14 +25404,14 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'antimicrobial,disc_content,zone_mm,interpretation,breakpoint_S_mm,breakpoint_R_mm,breakpoint_source\\nampicillin,10 \u00b5g,18,S,17,13,\"CLSI M100, 2026\"', got 'antimicrobial,disc_content,zone_mm,interpretation,breakpoint_S_mm,breakpoint_R_mm,breakpoint_source\\nampicillin,10 \u00b5g,18,S,17,13,\"CLSI M100, 2026\"'",
+       "detail": "output.payloads.0.text contains 'antimicrobial,disc_content,zone_mm,interpretation,breakpoint_S_mm,breakpoint_R_mm,breakpoint_source,organism,medium\\nampicillin,10 \u00b5g,18,S,17,13,\"CLSI M100, 2026\",E. coli ATCC 25922,Mueller-Hinton', got 'antimicrobial,disc_content,zone_mm,interpretation,breakpoint_S_mm,breakpoint_R_mm,breakpoint_source,organism,medium\\nampicillin,10 \u00b5g,18,S,17,13,\"CLSI M100, 2026\",E. coli ATCC 25922,Mueller-Hinton'",
        "path": "output.payloads.0.text",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g205-znCopy-out",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -25420,7 +25425,7 @@
      ],
      "id": "g205-print",
      "message": "activate action_btn:24 -- 1 payload(s) produced",
-     "ms": 28,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -25439,7 +25444,7 @@
      ],
      "id": "g205-printed",
      "message": "1 payload(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -25453,7 +25458,7 @@
      ],
      "id": "g164-dilpane",
      "message": "opened pane p-dil",
-     "ms": 82,
+     "ms": 90,
      "result": "driven"
     },
     {
@@ -25472,7 +25477,7 @@
      ],
      "id": "g164-dilrep",
      "message": "12 figure(s), 14 box(es), 3 list(s), 2 table(s), 16 heading(s)",
-     "ms": 9,
+     "ms": 15,
      "result": "driven"
     },
     {
@@ -25496,7 +25501,7 @@
      ],
      "id": "g164-endintact",
      "message": "read the page",
-     "ms": 5,
+     "ms": 8,
      "result": "driven"
     }
    ],

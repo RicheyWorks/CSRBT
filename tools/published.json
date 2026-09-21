@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1789955186,
+      "at": 1789999345,
       "dated_by": "the version epoch in the filename",
-      "sha": "104e4457fd2c625cec3a653864e83e53ea3a4b1faf16414355788ccdadaeb88f",
+      "sha": "a4eba078cf35b07f496a7999364c76720c3d328c7ad771563d369130971dd5cb",
       "via": "read"
     },
     "adr-031.html": {
@@ -177,9 +177,9 @@
       "via": "read"
     },
     "micro-bench.html": {
-      "at": 1789508241,
-      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "a02c6fa87245247fc0906a2733bb88f60bb18fed5ff4b6928e93f4d5e4069f4f",
+      "at": 1789995317,
+      "dated_by": "the version epoch in the filename",
+      "sha": "ec390f4c0eb4ba51d1bc71652dd79d398af5496ad8f02469cb4bdd87b07a0964",
       "via": "read"
     },
     "ordination.html": {

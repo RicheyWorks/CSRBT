@@ -103,6 +103,7 @@ RUNNERS = [
     ("mutate_outbox", "the outbox: what has not left this device"),
     ("mutate_keep", "the local autosave layer, and the sentence it says when it cannot save"),
     ("mutate_board", "this page: the arithmetic behind every tile, the verdict, and what each row renders"),
+    ("mutate_mb", "the micro bench's reports: the saturation sentence, the breakpoint band, organism and medium"),
 ]
 
 

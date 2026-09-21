@@ -456,7 +456,7 @@
    "expect": {
     "output.boxes.grOut": {
      "op": "contains",
-     "value": "Points above OD 0.6 are in the fit."
+     "value": "Without the 1 point above OD 0.6, µ is 0.6931 h⁻¹; with it, 0.8189 h⁻¹ — it pushed it UP by 18.1%."
     }
    }
   },
@@ -543,6 +543,10 @@
     "output.boxes.zOut": {
      "op": "contains",
      "value": "Measurement only"
+    },
+    "output.boxes.zList": {
+     "op": "contains",
+     "value": "18.0 mm · E. coli ATCC 25922 · Mueller-Hinton"
     }
    }
   },
@@ -595,7 +599,7 @@
    "expect": {
     "output.boxes.zOut": {
      "op": "contains",
-     "value": "13.5–16.5 mm"
+     "value": "Intermediate: above 13.0 mm and below 17.0 mm — 14–16 mm for whole-millimetre readings."
     }
    }
   },
@@ -644,7 +648,7 @@
     "output.payloads.0.k": "copy",
     "output.payloads.0.text": {
      "op": "contains",
-     "value": "## Plate counts (3)\n  TSA-A   10^-5   0.10 mL   148 colonies   countable   1.480e+8 CFU/mL\n  TSA-B   10^-6   0.10 mL   17 colonies   TFTC   excluded\n  TSA-C   10^-5   0.10 mL   50 colonies   countable   5.000e+7 CFU/mL\n  countable plates: 2 of 3   colonies counted: 198\n  CFU/mL (mean of countable): 9.900e+7   Poisson CV: ±7.1%\n  1 plate(s) excluded — listed above rather than dropped silently, because which plates you discarded is part of the record\n  COUNTABLE PLATES DISAGREE BY 3.0× — adjacent dilutions should agree within about a factor of two; this points at the dilution series, not the organism\n  this is CFU/mL, not cells/mL: a chain, a clump or a hypha gives one colony\n\n## Dilution plan\n  estimate: 1.000e+8 CFU/mL   plated volume: 0.10 mL\n  transfer 1.00 mL into 9.00 mL blank = 1:10 per step (1.00 log₁₀)\n  plate step 5: ~100 colonies expected\n\n## Growth curve (5 points)\n  0.00 h   OD 0.050   ln(OD) -2.996   in fit\n  1.00 h   OD 0.100   ln(OD) -2.303   in fit\n  2.00 h   OD 0.200   ln(OD) -1.609   in fit\n  3.00 h   OD 0.400   ln(OD) -0.916   in fit\n  4.00 h   OD 1.500   ln(OD) 0.405   in fit\n  fit over 5 of 5 points: ln(OD) = -3.1215 + 0.8189·t   r² = 0.9770\n  specific growth rate µ: 0.8189 h⁻¹   doubling time: 0.846 h (50.8 min)\n  r² below 0.98 — the window probably includes lag or the approach to stationary; narrow it\n  POINTS ABOVE OD 0.6 ARE IN THE FIT — multiple scattering makes a spectrophotometer read low there, which flattens the line and pushes µ down\n  µ is a rate of increase in TURBIDITY; converting to cells/mL needs your own OD-to-CFU calibration for this strain, medium and instrument\n\n## Disc diffusion (1 zone)\n  ampicillin 10 µg   18.0 mm   S\n  interpreted against S ≥ 17.0 mm, R ≤ 13.0 mm, CLSI M100, 2026\n  intermediate band: 13.5–16.5 mm"
+     "value": "## Plate counts (3)\n  TSA-A   10^-5   0.10 mL   148 colonies   countable   1.480e+8 CFU/mL\n  TSA-B   10^-6   0.10 mL   17 colonies   TFTC   excluded\n  TSA-C   10^-5   0.10 mL   50 colonies   countable   5.000e+7 CFU/mL\n  countable plates: 2 of 3   colonies counted: 198\n  CFU/mL (mean of countable): 9.900e+7   Poisson CV: ±7.1%\n  1 plate(s) excluded — listed above rather than dropped silently, because which plates you discarded is part of the record\n  COUNTABLE PLATES DISAGREE BY 3.0× — adjacent dilutions should agree within about a factor of two; this points at the dilution series, not the organism\n  this is CFU/mL, not cells/mL: a chain, a clump or a hypha gives one colony\n\n## Dilution plan\n  estimate: 1.000e+8 CFU/mL   plated volume: 0.10 mL\n  transfer 1.00 mL into 9.00 mL blank = 1:10 per step (1.00 log₁₀)\n  plate step 5: ~100 colonies expected\n\n## Growth curve (5 points)\n  0.00 h   OD 0.050   ln(OD) -2.996   in fit\n  1.00 h   OD 0.100   ln(OD) -2.303   in fit\n  2.00 h   OD 0.200   ln(OD) -1.609   in fit\n  3.00 h   OD 0.400   ln(OD) -0.916   in fit\n  4.00 h   OD 1.500   ln(OD) 0.405   in fit\n  fit over 5 of 5 points: ln(OD) = -3.1215 + 0.8189·t   r² = 0.9770\n  specific growth rate µ: 0.8189 h⁻¹   doubling time: 0.846 h (50.8 min)\n  r² below 0.98 — the window probably includes lag or the approach to stationary; narrow it\n  POINTS ABOVE OD 0.6 ARE IN THE FIT — multiple scattering makes a spectrophotometer read low there. Without the 1 point above OD 0.6, µ is 0.6931 h⁻¹; with it, 0.8189 h⁻¹ — it pushed it UP by 18.1%. Saturation makes a reading LOW, so a point above the line of the others is not saturation: check the reading, the blank and the dilution before trusting it.\n  µ is a rate of increase in TURBIDITY; converting to cells/mL needs your own OD-to-CFU calibration for this strain, medium and instrument\n\n## Disc diffusion (1 zone)\n  ampicillin 10 µg   18.0 mm   S   E. coli ATCC 25922   on Mueller-Hinton\n  interpreted against S ≥ 17.0 mm, R ≤ 13.0 mm, CLSI M100, 2026\n  Intermediate: above 13.0 mm and below 17.0 mm — 14–16 mm for whole-millimetre readings."
     }
    }
   },
@@ -707,7 +711,7 @@
     "output.payloads.0.k": "copy",
     "output.payloads.0.text": {
      "op": "contains",
-     "value": "antimicrobial,disc_content,zone_mm,interpretation,breakpoint_S_mm,breakpoint_R_mm,breakpoint_source\nampicillin,10 µg,18,S,17,13,\"CLSI M100, 2026\""
+     "value": "antimicrobial,disc_content,zone_mm,interpretation,breakpoint_S_mm,breakpoint_R_mm,breakpoint_source,organism,medium\nampicillin,10 µg,18,S,17,13,\"CLSI M100, 2026\",E. coli ATCC 25922,Mueller-Hinton"
     }
    }
   },

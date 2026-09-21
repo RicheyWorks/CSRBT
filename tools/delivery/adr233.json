@@ -1,0 +1,36 @@
+{
+ "id": "adr233",
+ "chain": "adr232",
+ "chain_probe": "docs/ADR-232-every-science-page-blind-operated-2026-09-20.md",
+ "clean": [
+  "adr232"
+ ],
+ "once": true,
+ "subject": "ADR-233: the report says what the numbers say -- the micro bench's saturation sentence is computed, its breakpoint band is the rule it applies, and organism and medium reach every output",
+ "body": "The three micro bench defects the eighth blind trial filed were all live, and the task held all three byte for byte. The growth warning said high points push mu down whatever they did; it now refits without them and says which way they moved mu, with both slopes. The intermediate band printed 13.5 to 16.5 mm for 17/13; it now states the rule and the whole-millimetre range, 14 to 16. Organism and medium were on the form and nothing read them; they are kept per zone and reach the list, the bench sheet and the zone CSV. The task is corrected and re-run. verify_mb 65 to 83 against an independent refit; new runner mutate_mb, 13 of 13 killed.",
+ "paths": [
+  "docs/ADR-233-the-report-says-what-the-numbers-say-2026-09-21.md",
+  "docs/CHANGELOG-2026-09-21-adr233-the-report-says-what-the-numbers-say.md",
+  "docs/AI_HARNESS.md",
+  "docs/micro-bench.html",
+  "tools/tasks/page-micro-bench-science.json",
+  "tools/task_ledger.json",
+  "tools/verify/verify_mb.py",
+  "tools/mutate_mb.py",
+  "tools/harness_board.py",
+  "tools/delivery/adr233.json",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json",
+  "tools/badinput_ledger.json",
+  "tools/carried_ledger.json",
+  "tools/destructive_ledger.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/readable_ledger.json",
+  "tools/restored_ledger.json",
+  "tools/takeaway_ledger.json"
+ ]
+}
