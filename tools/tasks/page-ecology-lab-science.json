@@ -4153,5 +4153,27 @@
     "output.overflow": 0
    }
   }
+ ],
+ "figures": [
+  {
+   "says": "Bray-Curtis 0.31",
+   "step": "sites-defaults",
+   "claim": "output.figures.Bray–Curtis"
+  },
+  {
+   "says": "0.67/0.8/0.25",
+   "step": "sites-lily",
+   "claim": "output.figures.Bray–Curtis"
+  },
+  {
+   "says": "seven taxa is depth 6",
+   "step": "tree-defaults",
+   "claim": "output.figures.depth"
+  },
+  {
+   "says": "four taxa at depth 4",
+   "step": "tree-small",
+   "claim": "output.figures.depth"
+  }
  ]
 }

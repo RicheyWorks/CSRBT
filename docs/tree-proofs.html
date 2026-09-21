@@ -628,9 +628,15 @@ document.addEventListener("DOMContentLoaded", function(){
   document.getElementById("spWorst").addEventListener("click", function(){
     var n=spWorst();
     document.getElementById("spK").value=1;
+    /* The sentence is read off the tree spWorst built, not typed beside it: the
+       order is the one its root betrays (the first key inserted stays the root
+       of an unrebalanced tree) and the depth is walked. A typed "ascending"
+       sat here for months over a loop that counts down (ADR-234). */
+    var r=SP.root.key, order=r===n?"descending":r===1?"ascending":"mixed";
+    var d=0, x=SP.root; while(x!==SP.NIL && x.key!==1){ d++; x=(1<x.key)?x.left:x.right; }
     document.getElementById("spNote").textContent =
-      "Built as a path: "+n+" keys inserted in ascending order with no rebalancing, so key 1 sits "
-      +(n-1)+" edges down. Now access key 1 and watch the two measurements disagree.";
+      "Built as a path: "+n+" keys inserted in "+order+" order ("+r+" first) with no rebalancing, so key 1 sits "
+      +d+" edges down. Now access key 1 and watch the two measurements disagree.";
   });
   document.getElementById("spRand").addEventListener("click", function(){
     for(var i=0;i<20;i++)spAccess(1+Math.floor(Math.random()*SPN));

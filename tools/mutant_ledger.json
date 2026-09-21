@@ -648,12 +648,12 @@
    "survived": 0
   },
   "mutate_brief": {
-   "at": 1789203461,
+   "at": 1789999819,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 14,
-   "mutants": 14,
+   "killed": 24,
+   "mutants": 24,
    "rows": [
     {
      "detail": "2 failure(s); first: EVERY value every task supplies is in its brief -- 601 of t",
@@ -696,7 +696,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: 632 claims across the kit, and the brief's count is the gra",
+     "detail": "2 failure(s); first: 644 claims across the kit, and the brief's count is the gra",
      "name": "a brief counts its claims as its readings",
      "verdict": "killed"
     },
@@ -723,6 +723,56 @@
     {
      "detail": "1 failure(s); first: what a LEDGER ROW says about a brief is what the brief says",
      "name": "a ledger row counts its claims as its readings",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: load_task refuses a phrase the goal does not contain -- ref",
+     "name": "a figure's phrase need not be in the goal",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: load_task refuses a figure resting on a probe -- loaded",
+     "name": "a figure may rest on a probe",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: load_task refuses a claim the step does not hold -- crashed",
+     "name": "a figure may name a claim the step does not hold",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: load_task refuses a step that is not there -- crashed: Attr",
+     "name": "a figure may name a step that is not there",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: load_task refuses a bound, not a value -- loaded",
+     "name": "a bound is a value a sentence can repeat",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: load_task refuses the prose moved and the claim did not -- ",
+     "name": "the prose and the claim are never compared",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: load_task refuses a prefix of the prose's figure (0.3 in 0.",
+     "name": "a figure is any substring, 0.3 inside 0.31",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: load_task refuses an empty declaration -- loaded",
+     "name": "an empty declaration binds nothing and loads",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: figures_of reports the value each bound claim holds -- the ",
+     "name": "figures_of reports the claim's name for its value",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the brief counts its bound figures (0 in all)",
+     "name": "the brief stops counting its bound figures",
      "verdict": "killed"
     }
    ],
@@ -4205,6 +4255,57 @@
     {
      "detail": "1 failure(s); first: the record is a COPY, not the audit's live list: a row hold",
      "name": "the row holds the audit's own live list rather than a copy of it",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_proofs": {
+   "at": 1789999972,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 8,
+   "mutants": 8,
+   "rows": [
+    {
+     "detail": "1 failure(s); first: the worst-case note names the order the loop ran and the de",
+     "name": "the note says ascending whatever the tree is",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and built ascending, the same button says ascending, 1 f",
+     "name": "the note says descending whatever the tree is",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and built ascending, the same button says ascending, 1 f",
+     "name": "the depth is typed as n-1 again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and built ascending, the same button says ascending, 1 f",
+     "name": "the first key is typed as n",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the worst-case note names the order the loop ran and the de",
+     "name": "the depth walk goes right at every node",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: reaching the bottom of the path really costs (1 rotations)",
+     "name": "the worst case is built ascending, key 1 at the root",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: every access costs at least 1",
+     "name": "an access costs its rotations and not the +1",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: and it really flattens the tree (Phi 290.0 -> 290.0)",
+     "name": "a zig-zig rotates the child before the parent",
      "verdict": "killed"
     }
    ],

@@ -101,6 +101,39 @@ class TaskDefect(Exception):
     pass
 
 
+def figure_text(v):
+    """The text a claim states, or None when its op states no single value.
+
+    A bare value is equality; `==` and `contains` state their value; every
+    other op (a bound, a membership, an approximation) does not say one figure
+    a sentence could repeat, so it cannot be bound (ADR-234)."""
+    if isinstance(v, dict):
+        if v.get("op") not in ("==", "contains"):
+            return None
+        v = v.get("value")
+    if isinstance(v, (dict, list)) or v is None or isinstance(v, bool):
+        return None
+    return v if isinstance(v, str) else json.dumps(v)
+
+
+def figure_in(text, says):
+    """Is `text` in `says` as a whole token -- "11" not the 11 of "110", "0.25"
+    not the 0.25 of "0.251", "4" not the 4 of "-4"? Letters, digits, a decimal
+    point and a sign on either side extend a token; anything else ends one."""
+    if not text:
+        return False
+    pat = r"(?<![\w.\-\u2212])" + re.escape(text) + r"(?![\w]|\.\d)"
+    return re.search(pat, says) is not None
+
+
+def figures_of(task):
+    """The goal's bound figures, with the value each one's claim holds."""
+    by = dict((x["id"], x) for x in task["steps"])
+    return [{"says": f["says"], "step": f["step"], "claim": f["claim"],
+             "value": figure_text((by[f["step"]].get("expect") or {})[f["claim"]])}
+            for f in (task.get("figures") or [])]
+
+
 def load_task(path):
     t = json.load(io.open(path, encoding="utf-8"))
     for k in ("id", "target", "goal", "steps"):
@@ -172,6 +205,51 @@ def load_task(path):
                 if n not in ids:
                     raise TaskDefect("%s: policy.needs names %r, which is not a step of this task"
                                      % (t["id"], n))
+    # ADR-234: A GOAL'S FIGURES ARE BOUND TO THE CLAIMS THAT HOLD THEM.
+    #
+    # The goal sentence is the one part of a brief nothing derives (ADR-193
+    # kept it unrewritten on purpose), and three blind trials caught it
+    # carrying figures the page never shows while the task's expectations held
+    # the right ones all along: the ecology lab's Bray-Curtis and tree depths
+    # (ADR-232), the tree visualizer's "24 nodes after 15 draws" where the task
+    # holds 11 nodes and "inserted 24", the tree proofs' "6 rotations+1 = 6".
+    # A general check that every figure in the prose is a figure the task holds
+    # does not hold -- prose also names seeded inputs, counts and years -- so
+    # the author DECLARES the figures that are claims: `figures` is a list of
+    # {says, step, claim}, where `says` is a phrase of the goal, `claim` an
+    # expectation of that (required) step, and the value it holds must appear
+    # in the phrase as a whole token. Edit the expectation and not the prose, or
+    # the prose and not the expectation, and the task does not load.
+    figs = t.get("figures")
+    if figs is not None:
+        if not isinstance(figs, list) or not figs:
+            raise TaskDefect("%s: figures must be a non-empty list of {says, step, claim}" % t["id"])
+        by = dict((x["id"], x) for x in t["steps"])
+        for i, f in enumerate(figs):
+            if not isinstance(f, dict):
+                raise TaskDefect("%s: figure %d is not an object" % (t["id"], i))
+            says, sid, claim = f.get("says"), f.get("step"), f.get("claim")
+            if not isinstance(says, str) or not says.strip() or says not in t["goal"]:
+                raise TaskDefect("%s: figure %d says %r, and the goal does not" % (t["id"], i, says))
+            st = by.get(sid)
+            if st is None:
+                raise TaskDefect("%s: figure %d is held by step %r, which is not a step of this task"
+                                 % (t["id"], i, sid))
+            if st.get("optional"):
+                raise TaskDefect("%s: figure %d is held by %r, a probe -- a figure the goal states "
+                                 "may not rest on a step an operator may skip" % (t["id"], i, sid))
+            exp = st.get("expect") or {}
+            if claim not in exp:
+                raise TaskDefect("%s: figure %d names claim %r, which step %r does not hold"
+                                 % (t["id"], i, claim, sid))
+            text = figure_text(exp[claim])
+            if text is None:
+                raise TaskDefect("%s: figure %d binds %s/%s, whose op is not equality or containment "
+                                 "-- a bound figure must be a value the claim states"
+                                 % (t["id"], i, sid, claim))
+            if not figure_in(text, says):
+                raise TaskDefect("%s: the goal says %r where step %r holds %s = %r"
+                                 % (t["id"], says, sid, claim, text))
     t["_path"] = path
     return t
 
@@ -826,7 +904,8 @@ def goal_of(task):
             "counts": {"steps": len(task["steps"]), "gives": len(gives),
                        "bulk": sum(1 for g in gives if g["bulk"]),
                        "holds": len(holds),
-                       "claims": sum(len(h["claims"]) for h in holds)}}
+                       "claims": sum(len(h["claims"]) for h in holds),
+                       "figures": len(task.get("figures") or [])}}
 
 
 def brief_of(task, claims=True):

@@ -62,13 +62,13 @@ MUTANTS = [
      "with the control it is pointed at"),
     ("what a brief holds is a sample of what it holds",
      '''    for s, claims in outcomes_of(task):
-        a = dict(s.get("arguments") or {})''',
+        # A step's arguments are a mapping''',
      '''    for s, claims in outcomes_of(task)[:4]:
-        a = dict(s.get("arguments") or {})''',
+        # A step's arguments are a mapping''',
      "exactly what the outcome grader scores"),
     ("a brief counts its claims as its readings",
-     '''                       "claims": sum(len(h["claims"]) for h in holds)}}''',
-     '''                       "claims": len(holds)}}''',
+     '''                       "claims": sum(len(h["claims"]) for h in holds),''',
+     '''                       "claims": len(holds),''',
      "the brief's count is the grader's count"),
     ("a brief is blind unless somebody asks for the answers",
      '''def brief_of(task, claims=True):''',
@@ -92,6 +92,53 @@ MUTANTS = [
      '''            "claims": sum(len(x["claims"]) for x in h)}''',
      '''            "claims": len(h)}''',
      "what a LEDGER ROW says about a brief"),
+    # ---- ADR-234: a goal's figures are bound ------------------------------
+    ("a figure's phrase need not be in the goal",
+     '''if not isinstance(says, str) or not says.strip() or says not in t["goal"]:''',
+     '''if not isinstance(says, str) or not says.strip():''',
+     "a phrase the goal does not contain"),
+    ("a figure may rest on a probe",
+     '''            if st.get("optional"):
+                raise TaskDefect("%s: figure %d is held by %r, a probe''',
+     '''            if False:
+                raise TaskDefect("%s: figure %d is held by %r, a probe''',
+     "a figure resting on a probe"),
+    ("a figure may name a claim the step does not hold",
+     '''            if claim not in exp:''',
+     '''            if False:''',
+     "a claim the step does not hold"),
+    ("a figure may name a step that is not there",
+     '''            if st is None:
+                raise TaskDefect("%s: figure %d is held by step %r''',
+     '''            if False:
+                raise TaskDefect("%s: figure %d is held by step %r''',
+     "a step that is not there"),
+    ("a bound is a value a sentence can repeat",
+     '''        if v.get("op") not in ("==", "contains"):
+            return None''',
+     '''        if v.get("op") is None:
+            return None''',
+     "a bound, not a value"),
+    ("the prose and the claim are never compared",
+     '''            if not figure_in(text, says):''',
+     '''            if False:''',
+     "the prose moved and the claim did not"),
+    ("a figure is any substring, 0.3 inside 0.31",
+     '''    pat = r"(?<![\\w.\\-\\u2212])" + re.escape(text) + r"(?![\\w]|\\.\\d)"''',
+     '''    pat = re.escape(text)''',
+     "a prefix of the prose's figure"),
+    ("an empty declaration binds nothing and loads",
+     '''        if not isinstance(figs, list) or not figs:''',
+     '''        if not isinstance(figs, list):''',
+     "an empty declaration"),
+    ("figures_of reports the claim's name for its value",
+     '''             "value": figure_text((by[f["step"]].get("expect") or {})[f["claim"]])}''',
+     '''             "value": f["claim"]}''',
+     "figures_of reports the value"),
+    ("the brief stops counting its bound figures",
+     '''                       "figures": len(task.get("figures") or [])}}''',
+     '''                       "figures": 0}}''',
+     "counts its bound figures"),
 ]
 
 KNOWN_EQUIVALENT = []

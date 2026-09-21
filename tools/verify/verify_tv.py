@@ -198,6 +198,46 @@ with sync_playwright() as pw:
     ck("and 5 is not a strategy, so it changes nothing",
        pg.evaluate("()=>curStrat") == "RB", pg.evaluate("()=>curStrat"))
 
+    # ---- ADR-234: the seeded draw the goal states, against a port --------
+    # The goal said "draws 60 first and 19 eleventh, and the tree is 24 nodes
+    # after 15 draws"; the task held 11 nodes and a last message of "inserted
+    # 24". Held here without the task: mulberry32 (the kit's generator, ported
+    # in Python below) seeded 42, the page's own redraw-on-repeat rule, and the
+    # page's two buttons -- one press of + Random, one of + 10 random.
+    def _mb32(seed):
+        a = seed & 0xFFFFFFFF
+        while True:
+            a = (a + 0x6D2B79F5) & 0xFFFFFFFF
+            t = a
+            t = ((t ^ (t >> 15)) * (t | 1)) & 0xFFFFFFFF
+            t ^= (t + (((t ^ (t >> 7)) * (t | 61)) & 0xFFFFFFFF)) & 0xFFFFFFFF
+            yield ((t ^ (t >> 14)) & 0xFFFFFFFF) / 4294967296.0
+    g, port, draws = _mb32(42), [], 0
+    for _ in range(11):
+        while True:
+            k = int(next(g) * 100); draws += 1
+            if k not in port:
+                break
+        port.append(k)
+    pg.evaluate("()=>setStrat('RB')")
+    pg.click("#bClear"); pg.wait_for_timeout(120)
+    pg.evaluate("""()=>{ var st=42>>>0; window.__tvDraws=0; Math.random=function(){
+        window.__tvDraws++; st=(st+0x6D2B79F5)>>>0; var t=st;
+        t=Math.imul(t^(t>>>15),t|1); t^=t+Math.imul(t^(t>>>7),t|61);
+        return ((t^(t>>>14))>>>0)/4294967296; }; }""")
+    pg.click("#bRand"); pg.wait_for_timeout(100)
+    first = pg.inner_text("#msg")
+    pg.click("#bRand10"); pg.wait_for_timeout(200)
+    got = pg.evaluate("()=>keys.slice()")
+    ck("seeded 42, the page's draws are the port's: %s" % port, got == port, got)
+    ck("the first press reads inserted %d, the last inserted %d" % (port[0], port[-1]),
+       first == "inserted %d" % port[0] and pg.inner_text("#msg") == "inserted %d" % port[-1],
+       (first, pg.inner_text("#msg")))
+    ck("eleven draws, none repeated, eleven nodes -- not 24 nodes after 15 draws",
+       draws == 11 and pg.evaluate("()=>window.__tvDraws") == 11 and pg.evaluate("()=>keys.length") == 11
+       and port[0] == 60 and port[-1] == 24,
+       (draws, pg.evaluate("()=>window.__tvDraws"), pg.evaluate("()=>keys.length")))
+
     ck("no script error through the whole run", not errs, errs[:3])
     b.close()
 

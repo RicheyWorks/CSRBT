@@ -251,6 +251,107 @@ ck(dest and all(b["needs"]["why"] for b in dest),
    "and every brief that asks for the fourth rung says why: %d of them" % len(dest))
 
 
+# ---- ADR-234: a goal's figures are bound to the claims that hold them ----------
+#
+# The prose is the one part of a brief nothing derives, and three blind trials
+# caught it stating figures the page never shows while the task held the right
+# ones: the ecology lab (Bray-Curtis 0.35/0.29, depths 5/4 -- ADR-232), the tree
+# visualizer ("24 nodes after 15 draws": the task holds 11 nodes and the key
+# 24), the tree proofs ("6 rotations+1 = 6", where 5 + 1 is). A task now
+# DECLARES the figures in its goal that are claims, and load_task refuses one
+# whose prose and expectation disagree. Everything below is recomputed from the
+# task files with this suite's own reading, not asked of figures_of.
+import tempfile as _tf
+
+def _held(st, claim):
+    v = (st.get("expect") or {}).get(claim)
+    if isinstance(v, dict):
+        v = v.get("value") if v.get("op") in ("==", "contains") else None
+    return None if v is None or isinstance(v, (dict, list, bool)) else (v if isinstance(v, str) else json.dumps(v))
+
+def _token(v, says):
+    i = says.find(v)
+    while i >= 0:
+        a = says[i - 1] if i else " "
+        z = says[i + len(v)] if i + len(v) < len(says) else " "
+        z2 = says[i + len(v) + 1] if i + len(v) + 1 < len(says) else " "
+        if not (a.isalnum() or a in "._-\u2212") and not (z.isalnum() or z == "_" or (z == "." and z2.isdigit())):
+            return True
+        i = says.find(v, i + 1)
+    return False
+
+BOUND = [(t, f) for t in ALL for f in (t.get("figures") or [])]
+_tasks = sorted(set(t["id"] for t, f in BOUND))
+ck(len(BOUND) >= 18 and {"page-ecology-lab-science", "page-tree-proofs-science",
+                         "page-tree-visualizer-science"} <= set(_tasks),
+   "the goal's figures are bound on every task whose prose a trial caught lying -- %d figure(s) "
+   "on %s" % (len(BOUND), _tasks))
+_bad = []
+for t, f in BOUND:
+    st = dict((x["id"], x) for x in t["steps"]).get(f["step"])
+    v = _held(st, f["claim"]) if st else None
+    if not (f["says"] in t["goal"] and st is not None and not st.get("optional")
+            and v is not None and _token(v, f["says"])):
+        _bad.append((t["id"], f["says"], v))
+ck(not _bad and BOUND,
+   "every bound figure is a phrase of its goal that states, as a whole token, the value a "
+   "required step holds: %s" % _bad[:3])
+ck(all(dict((x["id"], x) for x in t["steps"])[f["step"]]["id"] == f["step"] for t, f in BOUND)
+   and [x["value"] for x in T.figures_of([t for t in ALL if t["id"] == "page-tree-visualizer-science"][0])]
+   == ["inserted 60", "inserted 24", "11", "11"],
+   "figures_of reports the value each bound claim holds -- the visualizer's four are inserted 60, "
+   "inserted 24, 11 nodes, 11 draws")
+_gone = [(i, w) for i, w in (("page-ecology-lab-science", "Bray-Curtis 0.35"),
+                             ("page-ecology-lab-science", "depth 5"),
+                             ("page-tree-visualizer-science", "24 nodes after 15 draws"),
+                             ("page-tree-visualizer-science", "19 eleventh"),
+                             ("page-tree-proofs-science", "6 rotations+1"),
+                             ("page-tree-proofs-science", "key 63 costs 7"))
+         if w in [t for t in ALL if t["id"] == i][0]["goal"]]
+ck(not _gone, "none of the wrong sentences the trials caught is still in a goal: %s" % _gone)
+ck([b["counts"]["figures"] for b in briefs if b["id"] == "page-tree-proofs-science"] == [10]
+   and sum(b["counts"]["figures"] for b in briefs) == len(BOUND),
+   "the brief counts its bound figures (%d in all)" % sum(b["counts"]["figures"] for b in briefs))
+
+# -- and a task whose prose and claim disagree does not load -------------------
+_src = [t for t in ALL if t["id"] == "page-ecology-lab-science"][0]
+def _refused(edit, needle):
+    t = json.loads(json.dumps(dict((k, v) for k, v in _src.items() if not k.startswith("_"))))
+    edit(t)
+    fd, pth = _tf.mkstemp(suffix=".json"); os.close(fd)
+    io.open(pth, "w", encoding="utf-8").write(json.dumps(t, ensure_ascii=False))
+    try:
+        T.load_task(pth)
+        return "loaded"
+    except T.TaskDefect as e:
+        return "ok" if needle in str(e) else "refused, but: %s" % str(e)[:120]
+    except Exception as e:  # a crash is not a refusal: a task file must be told why
+        return "crashed: %s: %s" % (type(e).__name__, str(e)[:80])
+    finally:
+        os.unlink(pth)
+def _st(t, sid): return [x for x in t["steps"] if x["id"] == sid][0]
+def _e1(t): t["goal"] = t["goal"].replace("Bray-Curtis 0.31", "Bray-Curtis 0.35"); t["figures"][0]["says"] = "Bray-Curtis 0.35"
+def _e2(t): _st(t, "sites-defaults")["expect"]["output.figures.Bray–Curtis"] = "0.35"
+def _e3(t): t["figures"][0]["says"] = "Bray-Curtis 0.310"
+def _e4(t): _st(t, "sites-defaults")["optional"] = True
+def _e5(t): t["figures"][0]["claim"] = "output.figures.Jaccard?"
+def _e6(t): _st(t, "sites-defaults")["expect"]["output.figures.Bray–Curtis"] = {"op": ">=", "value": 0.31}
+def _e7(t): t["figures"][0]["step"] = "no-such-step"
+def _e8(t): t["figures"] = []
+def _e9(t): _st(t, "sites-defaults")["expect"]["output.figures.Bray–Curtis"] = "0.3"
+for name, ed, needle in (("the prose moved and the claim did not", _e1, "the goal says"),
+                         ("the claim moved and the prose did not", _e2, "the goal says"),
+                         ("a phrase the goal does not contain", _e3, "the goal does not"),
+                         ("a figure resting on a probe", _e4, "a probe"),
+                         ("a claim the step does not hold", _e5, "does not hold"),
+                         ("a bound, not a value", _e6, "not equality or containment"),
+                         ("a step that is not there", _e7, "not a step of this task"),
+                         ("an empty declaration", _e8, "non-empty list"),
+                         ("a prefix of the prose's figure (0.3 in 0.31)", _e9, "the goal says")):
+    r = _refused(ed, needle)
+    ck(r == "ok", "load_task refuses %s -- %s" % (name, r))
+ck(_refused(lambda t: None, "") == "loaded", "...and the task as committed loads")
+
 
 
 total = P + F + len(unverified)

@@ -80,7 +80,7 @@ RUNNERS = [
     ("mutate_frames", "the wire: strict bytes, strict JSON, typed refusals, the backstop, the envelope"),
     ("mutate_walk", "the robot"),
     ("mutate_tasks", "the task runner and grader"),
-    ("mutate_brief", "the brief: what a task gives and what it holds"),
+    ("mutate_brief", "the brief: what a task gives, what it holds, and the goal's figures bound to its claims"),
     ("mutate_report", "the page reader, picker and naming"),
     ("mutate_audit_states", "the audits' state walker and accounting"),
     ("mutate_harness", "the swarm's driver"),
@@ -104,6 +104,7 @@ RUNNERS = [
     ("mutate_keep", "the local autosave layer, and the sentence it says when it cannot save"),
     ("mutate_board", "this page: the arithmetic behind every tile, the verdict, and what each row renders"),
     ("mutate_mb", "the micro bench's reports: the saturation sentence, the breakpoint band, organism and medium"),
+    ("mutate_proofs", "the tree proofs' worst-case sentence, read off the tree it describes"),
 ]
 
 

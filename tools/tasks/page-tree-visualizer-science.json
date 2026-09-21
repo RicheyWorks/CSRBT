@@ -2,7 +2,7 @@
  "id": "page-tree-visualizer-science",
  "target": "page",
  "page": "tree-visualizer.html",
- "goal": "On the tree visualizer, against an independent Python port of its four strategies: the boot red-black tree of 13 keys has height 4 (1.0x the optimal ceil(log2 14) = 4), 0 rotations, select(1) = 4, rank(42) = #7, median 42; inserting 7 makes 14 nodes at height 5 (1.3x), median 30, rank #8; 7 again is already present; 1..20 ascending into red-black is height 7 with 14 rotations; morphing rebuilds from the sorted keys: AVL height 5 (15 rotations), Splay height 20 (a spine, 4.0x), WB height 6, red-black 7. With the page's Math.random seeded (ADR-134), the two random-insert buttons are reproducible: mulberry32 seeded 42, with the page's own skip-a-key-already-present rule, draws 60 first and 19 eleventh, and the tree is 24 nodes after 15 draws. Then the two order-statistic inputs the task never drove -- select k-th and rank-of -- are exercised on a rebuilt three-key tree {10,20,30}: select(2) reads 20 and rank(30) reads #3, the page's own order-statistic queries held against the obvious answers.",
+ "goal": "On the tree visualizer, against an independent Python port of its four strategies: the boot red-black tree of 13 keys has height 4 (1.0x the optimal ceil(log2 14) = 4), 0 rotations, select(1) = 4, rank(42) = #7, median 42; inserting 7 makes 14 nodes at height 5 (1.3x), median 30, rank #8; 7 again is already present; 1..20 ascending into red-black is height 7 with 14 rotations; morphing rebuilds from the sorted keys: AVL height 5 (15 rotations), Splay height 20 (a spine, 4.0x), WB height 6, red-black 7. With the page's Math.random seeded (ADR-134), the two random-insert buttons are reproducible: mulberry32 seeded 42, with the page's own skip-a-key-already-present rule, after Clear, + Random then + 10 random draw eleven keys with none repeated, so nothing is redrawn: the first press reads inserted 60, the last reads inserted 24, and the tree is 11 nodes after 11 draws. Then the two order-statistic inputs the task never drove -- select k-th and rank-of -- are exercised on a rebuilt three-key tree {10,20,30}: select(2) reads 20 and rank(30) reads #3, the page's own order-statistic queries held against the obvious answers.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -446,6 +446,28 @@
     },
     "output.overflow": 0
    }
+  }
+ ],
+ "figures": [
+  {
+   "says": "the first press reads inserted 60",
+   "step": "sawFirst",
+   "claim": "output.boxes.msg"
+  },
+  {
+   "says": "the last reads inserted 24",
+   "step": "seeded",
+   "claim": "output.boxes.msg"
+  },
+  {
+   "says": "the tree is 11 nodes",
+   "step": "seeded",
+   "claim": "output.by.singleWrap.Nodes"
+  },
+  {
+   "says": "after 11 draws",
+   "step": "seeded",
+   "claim": "snapshot.environment.draws"
   }
  ]
 }

@@ -27,6 +27,68 @@ def fib(k):
         a, b = b, a + b
     return a
 
+# ---- ADR-234: an independent port of the page's splay core ---------------
+class _N(object):
+    __slots__ = ("k", "l", "r", "p", "s")
+    def __init__(self, k): self.k = k; self.l = self.r = self.p = None; self.s = 1
+def _sz(n): return n.s if n else 0
+def _fix(n): n.s = 1 + _sz(n.l) + _sz(n.r)
+class _Tree(object):
+    def __init__(self): self.root = None; self.rot = 0
+    def insert(self, k):
+        y, x = None, self.root
+        while x:
+            y = x
+            if k == x.k: return
+            x = x.l if k < x.k else x.r
+        z = _N(k); z.p = y
+        if not y: self.root = z
+        elif k < y.k: y.l = z
+        else: y.r = z
+        while y: _fix(y); y = y.p
+    def _up(self, x):
+        p = x.p; g = p.p
+        if x is p.l:
+            p.l = x.r
+            if x.r: x.r.p = p
+            x.r = p
+        else:
+            p.r = x.l
+            if x.l: x.l.p = p
+            x.l = p
+        p.p = x; x.p = g
+        if not g: self.root = x
+        elif g.l is p: g.l = x
+        else: g.r = x
+        _fix(p); _fix(x); self.rot += 1
+    def splay(self, x):
+        while x.p:
+            p = x.p; g = p.p
+            if not g: self._up(x)
+            elif (x is p.l) == (p is g.l): self._up(p); self._up(x)
+            else: self._up(x); self._up(x)
+    def phi(self):
+        s, st = 0.0, [self.root]
+        while st:
+            n = st.pop()
+            if n: s += math.log2(n.s); st += [n.l, n.r]
+        return s
+    def find(self, k):
+        x, d = self.root, 0
+        while x and x.k != k: d += 1; x = x.l if k < x.k else x.r
+        return x, d
+    def access(self, k):
+        x = self.find(k)[0]; b = self.phi(); r0 = self.rot; self.splay(x)
+        a = (self.rot - r0) + 1
+        return a, a + self.phi() - b
+def _balanced(n):
+    t = _Tree()
+    def go(lo, hi):
+        if lo > hi: return
+        m = (lo + hi) >> 1; t.insert(m); go(lo, m - 1); go(m + 1, hi)
+    go(1, n)
+    return t
+
 SRC = io.open(_kit.DOCS_DIR + "tree-proofs.html", encoding="utf-8").read()
 
 # ---- the page keeps the kit's rules --------------------------------------
@@ -140,6 +202,52 @@ with sync_playwright() as pw:
        "and comfortably inside the Access-Lemma bound of %.1f" % (3 * math.log2(n) + 1))
     pg.click("#spAccess"); pg.wait_for_timeout(250)
     ck(int(pg.inner_text("#spAct")) == 1, "the very next access to the same key costs 1")
+
+    # ---- 5b. ADR-234: the sentence says the order the tree was built in ------
+    # The worst-case note read "inserted in ascending order" for months over a
+    # loop that counts DOWN; the task held only "Built as a path", so nothing
+    # could see it. Now the note is read off the tree, and it is held against a
+    # Python port of the page's splay core -- its own BST, its own rotations.
+    wp = _Tree()
+    for i in range(63, 0, -1): wp.insert(i)
+    wroot, wdepth = wp.root.k, wp.find(1)[1]
+    pg.click("#spWorst"); pg.wait_for_timeout(200)
+    note = pg.inner_text("#spNote")
+    want = ("Built as a path: 63 keys inserted in descending order (%d first) with no rebalancing, so "
+            "key 1 sits %d edges down. Now access key 1 and watch the two measurements disagree."
+            % (wroot, wdepth))
+    ck(wroot == 63 and wdepth == 62 and note == want,
+       "the worst-case note names the order the loop ran and the depth the tree has -- port: root %d, "
+       "key 1 at %d; page: %r" % (wroot, wdepth, note))
+    ck(pg.evaluate("()=>SP.root.key") == wroot, "and the page's own root is the port's (%s)"
+       % pg.evaluate("()=>SP.root.key"))
+    # a counterfactual: build the path the other way and the SAME handler must
+    # say so -- a note that only ever says "descending" would pass the check above
+    pg.evaluate("""()=>{ window.__sw=spWorst; spWorst=function(){ SP=mkTree(); SPLOG=[];
+        for(var i=1;i<=SPN;i++)bstInsert(SP,i); spPaint(); return SPN; }; }""")
+    pg.click("#spWorst"); pg.wait_for_timeout(200)
+    note_up = pg.inner_text("#spNote")
+    pg.evaluate("()=>{ spWorst=window.__sw; }")
+    ck(note_up.startswith("Built as a path: 63 keys inserted in ascending order (1 first) with no "
+                          "rebalancing, so key 1 sits 0 edges down."),
+       "...and built ascending, the same button says ascending, 1 first, key 1 at the root: %r" % note_up[:120])
+
+    # the balanced accesses the goal names, page against port
+    def _acc(keys):
+        pg.click("#spReset"); pg.wait_for_timeout(150)
+        out = []
+        for k in keys:
+            pg.fill("#spK", str(k)); pg.click("#spAccess"); pg.wait_for_timeout(120)
+            out.append((int(pg.inner_text("#spAct")), pg.inner_text("#spAm")))
+        return out
+    for keys in ((63,), (1, 1, 63)):
+        bt = _balanced(63)
+        port = [(a, "%.1f" % m) for a, m in (bt.access(k) for k in keys)]
+        got = _acc(keys)
+        ck(got == port, "accessing %s on the balanced 63: page %s, port %s" % (keys, got, port))
+    ck(_acc((63,))[0][0] == 6 and _acc((1, 1, 63))[-1][0] == 7,
+       "key 63 costs 6 on a fresh tree and 7 once key 1 is the root -- the goal's 7 is the second, "
+       "and it now says so")
 
     # ---- 6. the page checks itself ----------------------------------------
     ck("INVARIANT FAILED" not in pg.inner_text("#spCheck"),

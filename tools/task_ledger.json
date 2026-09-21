@@ -11649,7 +11649,7 @@
    "verdict": "PASS"
   },
   "page-ecology-lab-science": {
-   "at": 1789944737,
+   "at": 1789999674,
    "claims": 263,
    "confirmed": 345,
    "gives": 61,
@@ -11665,7 +11665,7 @@
     "MUTATE"
    ],
    "rungsWhy": "nothing here removes a recorded row -- the drill and the key rebuild their own output, and every box is recomputed from the fields rather than cleared",
-   "seconds": 12.9,
+   "seconds": 15.3,
    "steps": [
     {
      "action": "observe",
@@ -12122,7 +12122,7 @@
      ],
      "id": "boot",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 56,
+     "ms": 85,
      "result": "driven"
     },
     {
@@ -12136,7 +12136,7 @@
      ],
      "id": "hot95",
      "message": "set-slider slider:0",
-     "ms": 32,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -12195,7 +12195,7 @@
      ],
      "id": "uneven",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 45,
+     "ms": 64,
      "result": "driven"
     },
     {
@@ -12209,7 +12209,7 @@
      ],
      "id": "hot60",
      "message": "set-slider slider:0",
-     "ms": 38,
+     "ms": 43,
      "result": "driven"
     },
     {
@@ -12223,7 +12223,7 @@
      ],
      "id": "set20",
      "message": "set-slider slider:1",
-     "ms": 34,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -12282,7 +12282,7 @@
      ],
      "id": "even",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 42,
+     "ms": 47,
      "result": "driven"
     },
     {
@@ -12296,7 +12296,7 @@
      ],
      "id": "cap32",
      "message": "set-slider slider:2",
-     "ms": 31,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -12405,7 +12405,7 @@
      ],
      "id": "island",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 45,
+     "ms": 57,
      "result": "driven"
     },
     {
@@ -12439,7 +12439,7 @@
      ],
      "id": "field-defaults",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "ms": 53,
      "result": "driven"
     },
     {
@@ -12453,7 +12453,7 @@
      ],
      "id": "chip-name",
      "message": "set-text text_in:0",
-     "ms": 28,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -12481,7 +12481,7 @@
      ],
      "id": "chip-add",
      "message": "activate action_btn:15",
-     "ms": 38,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -12515,7 +12515,7 @@
      ],
      "id": "field-six",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 67,
+     "ms": 63,
      "result": "driven"
     },
     {
@@ -12534,7 +12534,7 @@
      ],
      "id": "chip-wrote",
      "message": "read text_in:2",
-     "ms": 12,
+     "ms": 17,
      "result": "driven"
     },
     {
@@ -12548,7 +12548,7 @@
      ],
      "id": "field-text",
      "message": "set-text text_in:2",
-     "ms": 32,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -12597,7 +12597,7 @@
      ],
      "id": "field-back",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 38,
+     "ms": 45,
      "result": "driven"
     },
     {
@@ -12626,7 +12626,7 @@
      ],
      "id": "sites-defaults",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "ms": 41,
      "result": "driven"
     },
     {
@@ -12640,7 +12640,7 @@
      ],
      "id": "lily-name",
      "message": "set-text text_in:3",
-     "ms": 27,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -12654,7 +12654,7 @@
      ],
      "id": "lily-count",
      "message": "set-text text_in:4",
-     "ms": 30,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -12697,7 +12697,7 @@
      ],
      "id": "sites-lily",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 39,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -12711,7 +12711,7 @@
      ],
      "id": "site-b-same",
      "message": "set-text text_in:8",
-     "ms": 35,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -12740,7 +12740,7 @@
      ],
      "id": "sites-identical",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 37,
+     "ms": 42,
      "result": "driven"
     },
     {
@@ -12783,7 +12783,7 @@
      ],
      "id": "sites-trimmed",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 39,
+     "ms": 50,
      "result": "driven"
     },
     {
@@ -12797,7 +12797,7 @@
      ],
      "id": "moss-name",
      "message": "set-text text_in:6",
-     "ms": 25,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -12811,7 +12811,7 @@
      ],
      "id": "moss-count",
      "message": "set-text text_in:7",
-     "ms": 28,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -12825,7 +12825,7 @@
      ],
      "id": "moss-add",
      "message": "activate action_btn:44",
-     "ms": 30,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -12854,7 +12854,7 @@
      ],
      "id": "sites-moss",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 70,
+     "ms": 79,
      "result": "driven"
     },
     {
@@ -12878,7 +12878,7 @@
      ],
      "id": "mr-defaults",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 36,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -12892,7 +12892,7 @@
      ],
      "id": "mr-r0",
      "message": "set-text text_in:11",
-     "ms": 32,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -12911,7 +12911,7 @@
      ],
      "id": "mr-zero",
      "message": "48 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "ms": 40,
      "result": "driven"
     },
     {
@@ -12925,7 +12925,7 @@
      ],
      "id": "mr-m",
      "message": "set-text text_in:9",
-     "ms": 27,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -12939,7 +12939,7 @@
      ],
      "id": "mr-c",
      "message": "set-text text_in:10",
-     "ms": 28,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -12953,7 +12953,7 @@
      ],
      "id": "mr-r",
      "message": "set-text text_in:11",
-     "ms": 30,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -12977,7 +12977,7 @@
      ],
      "id": "mr-again",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "ms": 42,
      "result": "driven"
     },
     {
@@ -12991,7 +12991,7 @@
      ],
      "id": "mr-bad",
      "message": "set-text text_in:11",
-     "ms": 25,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -13005,7 +13005,7 @@
      ],
      "id": "mr-refused",
      "message": "46 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 34,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -13019,7 +13019,7 @@
      ],
      "id": "mr-fix",
      "message": "set-text text_in:11",
-     "ms": 27,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -13038,7 +13038,7 @@
      ],
      "id": "quad-defaults",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 63,
+     "ms": 82,
      "result": "driven"
     },
     {
@@ -13052,7 +13052,7 @@
      ],
      "id": "quad-even",
      "message": "set-text text_in:12",
-     "ms": 32,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -13071,7 +13071,7 @@
      ],
      "id": "quad-uniform",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -13085,7 +13085,7 @@
      ],
      "id": "quad-more",
      "message": "set-text text_in:12",
-     "ms": 31,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -13138,7 +13138,7 @@
      ],
      "id": "quad-one",
      "message": "set-text text_in:12",
-     "ms": 32,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -13152,7 +13152,7 @@
      ],
      "id": "quad-refused",
      "message": "47 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 38,
+     "ms": 44,
      "result": "driven"
     },
     {
@@ -13166,7 +13166,7 @@
      ],
      "id": "quad-back",
      "message": "set-text text_in:12",
-     "ms": 28,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -13200,7 +13200,7 @@
      ],
      "id": "hw-defaults",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 34,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -13214,7 +13214,7 @@
      ],
      "id": "hw-aa",
      "message": "set-text text_in:13",
-     "ms": 27,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -13238,7 +13238,7 @@
      ],
      "id": "hw-out",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 61,
+     "ms": 74,
      "result": "driven"
     },
     {
@@ -13252,7 +13252,7 @@
      ],
      "id": "hw-a",
      "message": "set-text text_in:13",
-     "ms": 27,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -13266,7 +13266,7 @@
      ],
      "id": "hw-h",
      "message": "set-text text_in:14",
-     "ms": 28,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -13280,7 +13280,7 @@
      ],
      "id": "hw-b",
      "message": "set-text text_in:15",
-     "ms": 28,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -13333,7 +13333,7 @@
      ],
      "id": "punnett-defaults",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 69,
+     "ms": 64,
      "result": "driven"
     },
     {
@@ -13347,7 +13347,7 @@
      ],
      "id": "inc-on",
      "message": "set-checkbox checkbox:0",
-     "ms": 28,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -13361,7 +13361,7 @@
      ],
      "id": "incomplete",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -13375,7 +13375,7 @@
      ],
      "id": "inc-off",
      "message": "set-checkbox checkbox:0",
-     "ms": 30,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -13389,7 +13389,7 @@
      ],
      "id": "dihybrid",
      "message": "choose-option select:0",
-     "ms": 27,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -13418,7 +13418,7 @@
      ],
      "id": "nine",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 33,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -13432,7 +13432,7 @@
      ],
      "id": "p1",
      "message": "set-text text_in:16",
-     "ms": 33,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -13446,7 +13446,7 @@
      ],
      "id": "p2",
      "message": "set-text text_in:17",
-     "ms": 25,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -13460,7 +13460,7 @@
      ],
      "id": "obs2",
      "message": "set-text text_in:18",
-     "ms": 28,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -13474,7 +13474,7 @@
      ],
      "id": "testcross",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 36,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -13488,7 +13488,7 @@
      ],
      "id": "key-in",
      "message": "set-text text_in:19",
-     "ms": 27,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -13502,7 +13502,7 @@
      ],
      "id": "key-start",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 64,
+     "ms": 86,
      "result": "driven"
     },
     {
@@ -13516,7 +13516,7 @@
      ],
      "id": "key-yes",
      "message": "activate action_btn:82",
-     "ms": 26,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -13530,7 +13530,7 @@
      ],
      "id": "key-two",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "ms": 49,
      "result": "driven"
     },
     {
@@ -13544,7 +13544,7 @@
      ],
      "id": "key-no",
      "message": "activate action_btn:83",
-     "ms": 27,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -13558,7 +13558,7 @@
      ],
      "id": "key-three",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 33,
+     "ms": 42,
      "result": "driven"
     },
     {
@@ -13572,7 +13572,7 @@
      ],
      "id": "key-yes2",
      "message": "activate action_btn:82",
-     "ms": 28,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -13591,7 +13591,7 @@
      ],
      "id": "key-id",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "ms": 43,
      "result": "driven"
     },
     {
@@ -13605,7 +13605,7 @@
      ],
      "id": "key-loop",
      "message": "set-text text_in:19",
-     "ms": 29,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -13619,7 +13619,7 @@
      ],
      "id": "key-loop-yes",
      "message": "activate action_btn:82",
-     "ms": 26,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -13633,7 +13633,7 @@
      ],
      "id": "key-loops",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "ms": 42,
      "result": "driven"
     },
     {
@@ -13647,7 +13647,7 @@
      ],
      "id": "key-bad",
      "message": "set-text text_in:19",
-     "ms": 28,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -13661,7 +13661,7 @@
      ],
      "id": "key-shape",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -13680,7 +13680,7 @@
      ],
      "id": "tree-defaults",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 36,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -13694,7 +13694,7 @@
      ],
      "id": "tree-in",
      "message": "set-text text_in:20",
-     "ms": 26,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -13713,7 +13713,7 @@
      ],
      "id": "tree-small",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 34,
+     "ms": 41,
      "result": "driven"
     },
     {
@@ -13727,7 +13727,7 @@
      ],
      "id": "tree-bad",
      "message": "set-text text_in:20",
-     "ms": 32,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -13741,7 +13741,7 @@
      ],
      "id": "tree-refused",
      "message": "47 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 37,
+     "ms": 55,
      "result": "driven"
     },
     {
@@ -13755,7 +13755,7 @@
      ],
      "id": "tree-back",
      "message": "set-text text_in:20",
-     "ms": 29,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -13783,7 +13783,7 @@
      ],
      "id": "deck-seed",
      "message": "set-text text_in:21",
-     "ms": 26,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -13797,7 +13797,7 @@
      ],
      "id": "deck-start",
      "message": "activate action_btn:82",
-     "ms": 27,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -13811,7 +13811,7 @@
      ],
      "id": "deck-first",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 80,
+     "ms": 105,
      "result": "driven"
     },
     {
@@ -13825,7 +13825,7 @@
      ],
      "id": "deck-flip",
      "message": "set-checkbox checkbox:1",
-     "ms": 25,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -13839,7 +13839,7 @@
      ],
      "id": "deck-again",
      "message": "activate action_btn:82",
-     "ms": 27,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -13853,7 +13853,7 @@
      ],
      "id": "deck-flipped",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 38,
+     "ms": 50,
      "result": "driven"
     },
     {
@@ -13867,7 +13867,7 @@
      ],
      "id": "deck-unflip",
      "message": "set-checkbox checkbox:1",
-     "ms": 26,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -13881,7 +13881,7 @@
      ],
      "id": "deck-seed0",
      "message": "set-text text_in:21",
-     "ms": 27,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -13895,7 +13895,7 @@
      ],
      "id": "deck-zero",
      "message": "activate action_btn:82",
-     "ms": 24,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -13909,7 +13909,7 @@
      ],
      "id": "deck-zero-out",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 36,
+     "ms": 43,
      "result": "driven"
     },
     {
@@ -13923,7 +13923,7 @@
      ],
      "id": "deck-empty",
      "message": "set-text text_in:22",
-     "ms": 31,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -13937,7 +13937,7 @@
      ],
      "id": "deck-none",
      "message": "activate action_btn:82",
-     "ms": 28,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -13951,7 +13951,7 @@
      ],
      "id": "deck-refused",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 48,
+     "ms": 40,
      "result": "driven"
     },
     {
@@ -13965,7 +13965,7 @@
      ],
      "id": "deck-pick",
      "message": "choose-option select:1",
-     "ms": 27,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -13979,7 +13979,7 @@
      ],
      "id": "area",
      "message": "set-text text_in:27",
-     "ms": 30,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -14007,7 +14007,7 @@
      ],
      "id": "wind",
      "message": "set-text text_in:29",
-     "ms": 29,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -14035,7 +14035,7 @@
      ],
      "id": "habitat",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 34,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -14049,7 +14049,7 @@
      ],
      "id": "k-zero",
      "message": "set-text text_in:24",
-     "ms": 28,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -14063,7 +14063,7 @@
      ],
      "id": "k-refused",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "ms": 66,
      "result": "driven"
     },
     {
@@ -14077,7 +14077,7 @@
      ],
      "id": "k-back",
      "message": "set-text text_in:24",
-     "ms": 26,
+     "ms": 40,
      "result": "driven"
     },
     {
@@ -14091,7 +14091,7 @@
      ],
      "id": "steps-bad",
      "message": "set-text text_in:26",
-     "ms": 27,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -14105,7 +14105,7 @@
      ],
      "id": "steps-refused",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 37,
+     "ms": 44,
      "result": "driven"
     },
     {
@@ -14119,7 +14119,7 @@
      ],
      "id": "r-up",
      "message": "set-text text_in:23",
-     "ms": 27,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -14133,7 +14133,7 @@
      ],
      "id": "n0",
      "message": "set-text text_in:25",
-     "ms": 25,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -14147,7 +14147,7 @@
      ],
      "id": "steps",
      "message": "set-text text_in:26",
-     "ms": 27,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -14196,7 +14196,7 @@
      ],
      "id": "logistic-again",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 38,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -14210,7 +14210,7 @@
      ],
      "id": "dist-bad",
      "message": "set-text text_in:30",
-     "ms": 27,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -14224,7 +14224,7 @@
      ],
      "id": "dist-refused",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 34,
+     "ms": 47,
      "result": "driven"
     },
     {
@@ -14238,7 +14238,7 @@
      ],
      "id": "dist-fix",
      "message": "set-text text_in:30",
-     "ms": 29,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -14252,7 +14252,7 @@
      ],
      "id": "model-comp",
      "message": "choose-option select:2",
-     "ms": 28,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -14301,7 +14301,7 @@
      ],
      "id": "competition",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 39,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -14315,7 +14315,7 @@
      ],
      "id": "k1-zero",
      "message": "set-text text_in:24",
-     "ms": 26,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -14329,7 +14329,7 @@
      ],
      "id": "k1-refused",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 42,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -14343,7 +14343,7 @@
      ],
      "id": "k1-back",
      "message": "set-text text_in:24",
-     "ms": 27,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -14357,7 +14357,7 @@
      ],
      "id": "model-back",
      "message": "choose-option select:2",
-     "ms": 61,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -14371,7 +14371,7 @@
      ],
      "id": "build",
      "message": "activate action_btn:83",
-     "ms": 30,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -14390,7 +14390,7 @@
      ],
      "id": "eco",
      "message": "read readonly_out:0",
-     "ms": 13,
+     "ms": 17,
      "result": "driven"
     },
     {
@@ -14404,7 +14404,7 @@
      ],
      "id": "g208-ecocopy",
      "message": "activate action_btn:84 -- the page said 'Copied 31 line(s). Paste them into a .eco file.' -- 1 payload(s) produced",
-     "ms": 29,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -14428,7 +14428,7 @@
      ],
      "id": "g208-ecoout",
      "message": "1 payload(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -14442,7 +14442,7 @@
      ],
      "id": "eco-in",
      "message": "set-text text_in:31",
-     "ms": 25,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -14456,7 +14456,7 @@
      ],
      "id": "eco-import",
      "message": "activate action_btn:85",
-     "ms": 29,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -14470,7 +14470,7 @@
      ],
      "id": "g214-record-copy",
      "message": "activate action_btn:86 -- the page said 'Copied 21 line(s).' -- 1 payload(s) produced",
-     "ms": 25,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -14494,7 +14494,7 @@
      ],
      "id": "g214-record",
      "message": "1 payload(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -14508,7 +14508,7 @@
      ],
      "id": "eco-imported",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 38,
+     "ms": 40,
      "result": "driven"
     },
     {
@@ -14562,7 +14562,7 @@
      ],
      "id": "still",
      "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "ms": 44,
      "result": "driven"
     },
     {
@@ -14586,7 +14586,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 17,
+     "ms": 31,
      "result": "driven"
     }
    ],
@@ -36674,11 +36674,11 @@
    "verdict": "PASS"
   },
   "page-tree-proofs-science": {
-   "at": 1789451876,
+   "at": 1789999654,
    "claims": 176,
    "confirmed": 195,
    "gives": 5,
-   "goal": "On the tree proofs page, against an independent Python port of its splay core: a balanced splay tree of 63 keys has potential \u03a6 = \u03a3 log2(size) = 79.3; accessing key 1 costs 6 rotations+1 = 6 actual and 13.0 amortized (\u0394\u03a6 +7.0), the same key again costs 1 and 1.0; key 63 costs 7 / 13.0; the worst-case path (63 keys inserted descending) has \u03a6 290.0 and accessing key 1 costs 63 actual but \u221277.4 amortized, under the Access Lemma bound 3\u00b7log2(63)+1 = 18.9; the minimal AVL trees to height 12 have F(h+2)\u22121 nodes (1 2 4 7 12 20 33 54 88 143 232 376) under 1.4404\u00b7log2(n+2)\u22120.3277; select(9) over 31 keys takes 5 steps (16 \u2192 8 \u2192 12 \u2192 10 \u2192 9) and select(20) 3 steps (16 \u2192 24 \u2192 20). And the twenty random accesses, which no expectation could hold before ADR-134: with Math.random seeded 7 the page draws keys 1, 4, 62, 45, 33, 26, 30, 16, 35, 46, 17, 10, 49, 33, 13, 24, 19, 34, 19, 62 out of a balanced tree of 63, and an independent splay port totals 131 actual against 152.0 amortized -- the same figures the page prints. The splay chart draws the twenty accesses as twenty bars under one amortized line with ticks 0, 4, 8, 11, 15, the last bar centred at 675, 160.65 for its actual cost of 5; the red-black tree's 2-3-4 view is five groups, 8 \u00b7 20 \u00b7 36 over 2 \u00b7 5 \u00b7 6, 11 \u00b7 15 \u00b7 18, 26 \u00b7 28 and 38 \u00b7 39 \u00b7 40.",
+   "goal": "On the tree proofs page, against an independent Python port of its splay core: a balanced splay tree of 63 keys has potential \u03a6 = \u03a3 log2(size) = 79.3; accessing key 1 costs 5 rotations + 1 = 6 actual and 13.0 amortized (\u0394\u03a6 +7.0), the same key again costs 1 and 1.0; then key 63, one level deeper now that key 1 is the root, costs 7 / 13.0 (on the fresh balanced tree it would cost 6, like key 1); the worst-case path (63 keys inserted descending) has \u03a6 290.0 and accessing key 1 costs 63 actual but -77.4 amortized, under the Access Lemma bound 3\u00b7log2(63)+1 = 18.9; the minimal AVL trees to height 12 have F(h+2)\u22121 nodes (1 2 4 7 12 20 33 54 88 143 232 376) under 1.4404\u00b7log2(n+2)\u22120.3277; select(9) over 31 keys takes 5 steps (16 \u2192 8 \u2192 12 \u2192 10 \u2192 9) and select(20) 3 steps (16 \u2192 24 \u2192 20). And the twenty random accesses, which no expectation could hold before ADR-134: with Math.random seeded 7 the page draws keys 1, 4, 62, 45, 33, 26, 30, 16, 35, 46, 17, 10, 49, 33, 13, 24, 19, 34, 19, 62 out of a balanced tree of 63, and an independent splay port totals 131 actual against 152.0 amortized -- the same figures the page prints. The splay chart draws the twenty accesses as twenty bars under one amortized line with ticks 0, 4, 8, 11, 15, the last bar centred at 675, 160.65 for its actual cost of 5; the red-black tree's 2-3-4 view is five groups, 8 \u00b7 20 \u00b7 36 over 2 \u00b7 5 \u00b7 6, 11 \u00b7 15 \u00b7 18, 26 \u00b7 28 and 38 \u00b7 39 \u00b7 40.",
    "held": true,
    "holds": 12,
    "id": "page-tree-proofs-science",
@@ -36691,7 +36691,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the proof is rebuilt from spReset ('Reset') and the bound re-read",
-   "seconds": 0.9,
+   "seconds": 1.3,
    "steps": [
     {
      "action": "observe",
@@ -36933,7 +36933,7 @@
      ],
      "id": "boot",
      "message": "6 figure(s), 5 box(es), 0 list(s), 2 table(s), 6 heading(s)",
-     "ms": 12,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -36947,7 +36947,7 @@
      ],
      "id": "k1",
      "message": "set-text text_in:0",
-     "ms": 26,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -36961,7 +36961,7 @@
      ],
      "id": "a1",
      "message": "activate action_btn:0",
-     "ms": 25,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -37000,7 +37000,7 @@
      ],
      "id": "first",
      "message": "6 figure(s), 5 box(es), 0 list(s), 2 table(s), 6 heading(s)",
-     "ms": 9,
+     "ms": 18,
      "result": "driven"
     },
     {
@@ -37014,7 +37014,7 @@
      ],
      "id": "a1b",
      "message": "activate action_btn:0",
-     "ms": 24,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -37053,7 +37053,7 @@
      ],
      "id": "again",
      "message": "6 figure(s), 5 box(es), 0 list(s), 2 table(s), 6 heading(s)",
-     "ms": 8,
+     "ms": 14,
      "result": "driven"
     },
     {
@@ -37067,7 +37067,7 @@
      ],
      "id": "k63",
      "message": "set-text text_in:0",
-     "ms": 24,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -37081,7 +37081,7 @@
      ],
      "id": "a63",
      "message": "activate action_btn:0",
-     "ms": 25,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -37120,7 +37120,7 @@
      ],
      "id": "far",
      "message": "6 figure(s), 5 box(es), 0 list(s), 2 table(s), 6 heading(s)",
-     "ms": 7,
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -37134,7 +37134,7 @@
      ],
      "id": "worst",
      "message": "activate action_btn:3",
-     "ms": 26,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -37161,14 +37161,14 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.spNote contains 'Built as a path', got 'Built as a path: 63 keys inserted in ascending order with no rebalancing, so key 1 sits 62 edges down. Now access key 1 and watch the two measurements disagree.'",
+       "detail": "output.boxes.spNote == 'Built as a path: 63 keys inserted in descending order (63 first) with no rebalancing, so key 1 sits 62 edges down. Now access key 1 and watch the two measurements disagree.', got 'Built as a path: 63 keys inserted in descending order (63 first) with no rebalancing, so key 1 sits 62 edges down. Now access key 1 and watch the two measurements disagree.'",
        "path": "output.boxes.spNote",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "path",
      "message": "6 figure(s), 5 box(es), 0 list(s), 2 table(s), 6 heading(s)",
-     "ms": 7,
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -37182,7 +37182,7 @@
      ],
      "id": "aw",
      "message": "activate action_btn:0",
-     "ms": 26,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -37226,7 +37226,7 @@
      ],
      "id": "lemma",
      "message": "6 figure(s), 5 box(es), 0 list(s), 2 table(s), 6 heading(s)",
-     "ms": 11,
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -37240,7 +37240,7 @@
      ],
      "id": "h12",
      "message": "set-text text_in:1",
-     "ms": 25,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -37254,7 +37254,7 @@
      ],
      "id": "avgo",
      "message": "activate action_btn:5",
-     "ms": 24,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -37588,7 +37588,7 @@
      ],
      "id": "avl",
      "message": "6 figure(s), 5 box(es), 0 list(s), 2 table(s), 6 heading(s)",
-     "ms": 7,
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -37602,7 +37602,7 @@
      ],
      "id": "k20",
      "message": "set-text text_in:2",
-     "ms": 24,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -37616,7 +37616,7 @@
      ],
      "id": "osgo",
      "message": "activate action_btn:8",
-     "ms": 25,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -37720,7 +37720,7 @@
      ],
      "id": "select20",
      "message": "6 figure(s), 5 box(es), 0 list(s), 2 table(s), 6 heading(s)",
-     "ms": 7,
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -37734,7 +37734,7 @@
      ],
      "id": "toggle",
      "message": "activate action_btn:7",
-     "ms": 28,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -37748,7 +37748,7 @@
      ],
      "id": "view234",
      "message": "6 figure(s), 5 box(es), 0 list(s), 2 table(s), 6 heading(s)",
-     "ms": 8,
+     "ms": 14,
      "result": "driven"
     },
     {
@@ -37772,7 +37772,7 @@
      ],
      "id": "seed",
      "message": "Math.random is mulberry32 seeded 7; reload for code that draws at load",
-     "ms": 4,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -37786,7 +37786,7 @@
      ],
      "id": "rebuild",
      "message": "activate action_btn:4",
-     "ms": 26,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -37800,7 +37800,7 @@
      ],
      "id": "twenty",
      "message": "activate action_btn:2",
-     "ms": 29,
+     "ms": 46,
      "result": "driven"
     },
     {
@@ -37884,7 +37884,7 @@
      ],
      "id": "seededAccesses",
      "message": "6 figure(s), 5 box(es), 0 list(s), 2 table(s), 6 heading(s)",
-     "ms": 6,
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -37908,7 +37908,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 7,
+     "ms": 13,
      "result": "driven"
     }
    ],
@@ -37920,11 +37920,11 @@
    "verdict": "PASS"
   },
   "page-tree-visualizer-science": {
-   "at": 1789451879,
+   "at": 1789999657,
    "claims": 71,
    "confirmed": 98,
    "gives": 7,
-   "goal": "On the tree visualizer, against an independent Python port of its four strategies: the boot red-black tree of 13 keys has height 4 (1.0x the optimal ceil(log2 14) = 4), 0 rotations, select(1) = 4, rank(42) = #7, median 42; inserting 7 makes 14 nodes at height 5 (1.3x), median 30, rank #8; 7 again is already present; 1..20 ascending into red-black is height 7 with 14 rotations; morphing rebuilds from the sorted keys: AVL height 5 (15 rotations), Splay height 20 (a spine, 4.0x), WB height 6, red-black 7. With the page's Math.random seeded (ADR-134), the two random-insert buttons are reproducible: mulberry32 seeded 42, with the page's own skip-a-key-already-present rule, draws 60 first and 19 eleventh, and the tree is 24 nodes after 15 draws. Then the two order-statistic inputs the task never drove -- select k-th and rank-of -- are exercised on a rebuilt three-key tree {10,20,30}: select(2) reads 20 and rank(30) reads #3, the page's own order-statistic queries held against the obvious answers.",
+   "goal": "On the tree visualizer, against an independent Python port of its four strategies: the boot red-black tree of 13 keys has height 4 (1.0x the optimal ceil(log2 14) = 4), 0 rotations, select(1) = 4, rank(42) = #7, median 42; inserting 7 makes 14 nodes at height 5 (1.3x), median 30, rank #8; 7 again is already present; 1..20 ascending into red-black is height 7 with 14 rotations; morphing rebuilds from the sorted keys: AVL height 5 (15 rotations), Splay height 20 (a spine, 4.0x), WB height 6, red-black 7. With the page's Math.random seeded (ADR-134), the two random-insert buttons are reproducible: mulberry32 seeded 42, with the page's own skip-a-key-already-present rule, after Clear, + Random then + 10 random draw eleven keys with none repeated, so nothing is redrawn: the first press reads inserted 60, the last reads inserted 24, and the tree is 11 nodes after 11 draws. Then the two order-statistic inputs the task never drove -- select k-th and rank-of -- are exercised on a rebuilt three-key tree {10,20,30}: select(2) reads 20 and rank(30) reads #3, the page's own order-statistic queries held against the obvious answers.",
    "held": true,
    "holds": 15,
    "id": "page-tree-visualizer-science",
@@ -37937,7 +37937,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the goal ends by clearing the tree and reading the empty visualizer: bClear is 'Clear'",
-   "seconds": 1.4,
+   "seconds": 2.4,
    "steps": [
     {
      "action": "observe",
@@ -38004,7 +38004,7 @@
      ],
      "id": "boot",
      "message": "4 figure(s), 7 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 7,
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -38018,7 +38018,7 @@
      ],
      "id": "key7",
      "message": "set-text text_in:0",
-     "ms": 26,
+     "ms": 51,
      "result": "driven"
     },
     {
@@ -38032,7 +38032,7 @@
      ],
      "id": "ins7",
      "message": "activate action_btn:5 -- the page said 'inserted 7'",
-     "ms": 23,
+     "ms": 47,
      "result": "driven"
     },
     {
@@ -38081,7 +38081,7 @@
      ],
      "id": "fourteen",
      "message": "4 figure(s), 7 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 4,
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -38095,7 +38095,7 @@
      ],
      "id": "again",
      "message": "activate action_btn:5 -- the page said '7 already present'",
-     "ms": 25,
+     "ms": 66,
      "result": "driven"
     },
     {
@@ -38114,7 +38114,7 @@
      ],
      "id": "present",
      "message": "4 figure(s), 7 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 4,
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -38128,7 +38128,7 @@
      ],
      "id": "asc",
      "message": "activate action_btn:10 -- the page said 'inserted 1\u202520 ascending \u2014 compare the shapes'",
-     "ms": 25,
+     "ms": 42,
      "result": "driven"
     },
     {
@@ -38172,7 +38172,7 @@
      ],
      "id": "rb20",
      "message": "4 figure(s), 7 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 5,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -38186,7 +38186,7 @@
      ],
      "id": "toAVL",
      "message": "activate action_btn:13 -- the page said 'morphed \u2192 AVL (rebuilt from 20 keys, height 5 vs optimal 5)'",
-     "ms": 27,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -38235,7 +38235,7 @@
      ],
      "id": "mAVL",
      "message": "4 figure(s), 7 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 4,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -38249,7 +38249,7 @@
      ],
      "id": "toSplay",
      "message": "activate action_btn:14 -- the page said 'morphed \u2192 Splay (rebuilt from 20 keys, height 20 vs optimal 5)'",
-     "ms": 32,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -38298,7 +38298,7 @@
      ],
      "id": "mSplay",
      "message": "4 figure(s), 7 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 4,
+     "ms": 81,
      "result": "driven"
     },
     {
@@ -38312,7 +38312,7 @@
      ],
      "id": "toWB",
      "message": "activate action_btn:15 -- the page said 'morphed \u2192 WB (rebuilt from 20 keys, height 6 vs optimal 5)'",
-     "ms": 26,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -38361,7 +38361,7 @@
      ],
      "id": "mWB",
      "message": "4 figure(s), 7 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 4,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -38375,7 +38375,7 @@
      ],
      "id": "toRB",
      "message": "activate action_btn:12 -- the page said 'morphed \u2192 RB (rebuilt from 20 keys, height 7 vs optimal 5)'",
-     "ms": 25,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -38438,7 +38438,7 @@
      ],
      "id": "g171-cmp",
      "message": "activate action_btn:4",
-     "ms": 36,
+     "ms": 44,
      "result": "driven"
     },
     {
@@ -38471,7 +38471,7 @@
      ],
      "id": "g171-single",
      "message": "activate action_btn:4 -- the page said 'morphed \u2192 RB (rebuilt from 20 keys, height 7 vs optimal 5)'",
-     "ms": 30,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -38495,7 +38495,7 @@
      ],
      "id": "g171-back",
      "message": "4 figure(s), 7 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 4,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -38509,7 +38509,7 @@
      ],
      "id": "wipe",
      "message": "activate action_btn:11 -- the page said 'cleared'",
-     "ms": 28,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -38533,7 +38533,7 @@
      ],
      "id": "seed",
      "message": "Math.random is mulberry32 seeded 42; reload for code that draws at load",
-     "ms": 4,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -38547,7 +38547,7 @@
      ],
      "id": "rand1",
      "message": "activate action_btn:8 -- the page said 'inserted 60'",
-     "ms": 24,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -38561,7 +38561,7 @@
      ],
      "id": "sawFirst",
      "message": "4 figure(s), 7 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 4,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -38575,7 +38575,7 @@
      ],
      "id": "rand10",
      "message": "activate action_btn:9 -- the page said 'inserted 24'",
-     "ms": 24,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -38599,7 +38599,7 @@
      ],
      "id": "seeded",
      "message": "4 figure(s), 7 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 4,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -38613,7 +38613,7 @@
      ],
      "id": "g169-clear",
      "message": "activate action_btn:11 -- the page said 'cleared'",
-     "ms": 26,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -38627,7 +38627,7 @@
      ],
      "id": "g169-in10",
      "message": "set-text text_in:0",
-     "ms": 23,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -38641,7 +38641,7 @@
      ],
      "id": "g169-ins10",
      "message": "activate action_btn:5 -- the page said 'inserted 10'",
-     "ms": 24,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -38655,7 +38655,7 @@
      ],
      "id": "g169-in30",
      "message": "set-text text_in:0",
-     "ms": 25,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -38669,7 +38669,7 @@
      ],
      "id": "g169-ins30",
      "message": "activate action_btn:5 -- the page said 'inserted 30'",
-     "ms": 25,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -38683,7 +38683,7 @@
      ],
      "id": "g169-in20",
      "message": "set-text text_in:0",
-     "ms": 25,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -38697,7 +38697,7 @@
      ],
      "id": "g169-ins20",
      "message": "activate action_btn:5 -- the page said 'inserted 20'",
-     "ms": 23,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -38711,7 +38711,7 @@
      ],
      "id": "g169-selk",
      "message": "set-text text_in:1",
-     "ms": 24,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -38725,7 +38725,7 @@
      ],
      "id": "g169-rnkk",
      "message": "set-text text_in:2",
-     "ms": 25,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -38744,7 +38744,7 @@
      ],
      "id": "g169-held",
      "message": "4 figure(s), 7 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 4,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -38768,7 +38768,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 5,
+     "ms": 8,
      "result": "driven"
     }
    ],

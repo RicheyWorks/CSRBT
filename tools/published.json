@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1789999345,
+      "at": 1790004712,
       "dated_by": "the version epoch in the filename",
-      "sha": "a4eba078cf35b07f496a7999364c76720c3d328c7ad771563d369130971dd5cb",
+      "sha": "fa4caed342842801d85ae0fff017b53f1b4c3cc89cc7048a3fb838151b9a7888",
       "via": "read"
     },
     "adr-031.html": {
@@ -243,9 +243,9 @@
       "via": "read"
     },
     "tree-proofs.html": {
-      "at": 1788477204,
-      "dated_by": "the version epoch in the filename",
-      "sha": "e8ac14956340f4fd4ee682b9d92bfb2c768edc69bbb2c91169ddedc1fc86d1bc",
+      "at": 1790004730,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "856cca1766e458d7125b238c70b0ee43c10cc522e408e4f1d3d90348c453049f",
       "via": "read"
     },
     "tree-visualizer.html": {
