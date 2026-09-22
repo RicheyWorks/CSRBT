@@ -1,6 +1,77 @@
 {
  "_comment": "Written by the mutant runners through tools/mutant_ledger.py. One entry per runner; a run updates only its own entry and keeps the rest, each with its own at.",
  "runners": {
+  "mutate_anchors": {
+   "at": 1790008924,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 12,
+   "mutants": 12,
+   "rows": [
+    {
+     "detail": "6 failure(s); first: a reworded line is stale, and so is an anchor found only in",
+     "name": "the runners count as a place an anchor can land",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: an anchor lands in a tool, a page, a task file, or the sibl",
+     "name": "the sibling engine is never read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: an anchor lands in a tool, a page, a task file, or the sibl",
+     "name": "the pages are not in the corpus",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: an anchor lands in a tool, a page, a task file, or the sibl",
+     "name": "the task files are not in the corpus",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: (target, name, find, repl, expect): a one-word target first",
+     "name": "a one-word target first is read as the name",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: (name, file, find, repl, expect): a file second, the anchor",
+     "name": "a file second is read as the anchor",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: a reworded line is stale, and so is an anchor found only in",
+     "name": "an anchor is never looked for",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: a renamed mutant is drift, named both ways: []",
+     "name": "drift is judged by the count alone",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every mutate_*.py is read and nothing else -- tools/mutate.",
+     "name": "a runner that does not import is skipped in silence",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: every mutate_*.py is read and nothing else -- tools/mutate.",
+     "name": "the sweep script is read as a runner",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: the problems are exactly the stale, the drifted, the unread",
+     "name": "drift is not a problem",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: an entry of an unknown shape is counted and said, not guess",
+     "name": "an entry of an unknown shape is passed over",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_audit_states": {
    "at": 1788701958,
    "equivalent": 3,
@@ -2592,7 +2663,7 @@
    "survived": 0
   },
   "mutate_entry": {
-   "at": 1788601498,
+   "at": 1790008915,
    "equivalent": 1,
    "equivalents": [
     {
@@ -2680,13 +2751,13 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a page that entered fewer fields than its floor makes --che",
+     "detail": "2 failure(s); first: a page that entered fewer fields than its floor makes the r",
      "name": "a reading below the floor is not one",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: ...and --check passes when no page is below its floor: a ga",
-     "name": "--check refuses whatever the reading",
+     "detail": "2 failure(s); first: a plain run records the reading and sets no floor: {'at': 1",
+     "name": "the run refuses whatever the reading",
      "verdict": "killed"
     }
    ],

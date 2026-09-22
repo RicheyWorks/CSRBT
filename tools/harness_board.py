@@ -70,6 +70,7 @@ HARNESS_SUITES = [
     ("verify_engine_sessions", "shipped sessions bound to the engine"),
     ("verify_harness", "the swarm's driver over the kit's pages"),
     ("verify_harness_matrix", "the swarm's verdicts mean something"),
+    ("verify_anchors", "the mutant ledger is about the code as it is: every anchor lands, no catalogue drifted"),
 ]
 
 RUNNERS = [
@@ -105,6 +106,7 @@ RUNNERS = [
     ("mutate_board", "this page: the arithmetic behind every tile, the verdict, and what each row renders"),
     ("mutate_mb", "the micro bench's reports: the saturation sentence, the breakpoint band, organism and medium"),
     ("mutate_proofs", "the tree proofs' worst-case sentence, read off the tree it describes"),
+    ("mutate_anchors", "the anchor audit: whether the ledger's kills are about the code as it is"),
 ]
 
 

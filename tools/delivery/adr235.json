@@ -1,0 +1,35 @@
+{
+ "id": "adr235",
+ "chain": "adr234",
+ "chain_probe": "docs/ADR-234-a-goals-figures-are-bound-2026-09-21.md",
+ "clean": [
+  "adr234"
+ ],
+ "once": true,
+ "subject": "ADR-235: the mutant ledger is about the code as it is -- a static audit of every runner's anchors and catalogue, and mutate_entry's thirteen days of kills against a catalogue it no longer had",
+ "body": "The board's mutant gate reads a ledger each runner writes when it runs, and nothing rereads the runner in between: ADR-234 found two mutate_brief anchors that no longer landed while the ledger said 14 of 14. tools/audit_anchors.py reads every runner's catalogue without running it and reports stale anchors (found nowhere in the code a runner could break, the sibling engine included) and drifted runners (catalogue not the one the ledger recorded). verify_anchors, 23 checks, holds it on a scratch kit and gates the real one: 33 runners, 1,185 mutants, none stale, none drifted. mutate_anchors, 12 of 12 killed. Found: mutate_entry had drifted since ADR-170; re-run it read one inconclusive, now fixed and 17 of 17.",
+ "paths": [
+  "docs/ADR-235-the-ledger-is-about-the-code-as-it-is-2026-09-21.md",
+  "docs/CHANGELOG-2026-09-21-adr235-the-ledger-is-about-the-code-as-it-is.md",
+  "docs/AI_HARNESS.md",
+  "tools/audit_anchors.py",
+  "tools/verify/verify_anchors.py",
+  "tools/mutate_anchors.py",
+  "tools/mutate_entry.py",
+  "tools/harness_board.py",
+  "tools/delivery/adr235.json",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json",
+  "tools/badinput_ledger.json",
+  "tools/carried_ledger.json",
+  "tools/destructive_ledger.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/readable_ledger.json",
+  "tools/restored_ledger.json",
+  "tools/takeaway_ledger.json"
+ ]
+}

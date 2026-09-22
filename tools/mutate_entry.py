@@ -121,7 +121,7 @@ ENTERABLE = ENTERABLE + ("readonly_out",)''',
             below.append((name, r["entered"], floor))''',
      '''        if False:
             below.append((name, r["entered"], floor))''',
-     "makes --check refuse"),
+     "makes the run REFUSE"),
     ("the run refuses whatever the reading",
      '''    return 1 if below else 0''',
      '''    return 1''',
