@@ -698,7 +698,7 @@
    "id": "g160-po0_0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:poGrid#0"
+    "selector": "@control:poGrid/honeybee"
    },
    "expect": {
     "ok": true
@@ -708,7 +708,7 @@
    "id": "g160-po0_1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:poGrid#0"
+    "selector": "@control:poGrid/honeybee"
    },
    "expect": {
     "ok": true
@@ -718,7 +718,7 @@
    "id": "g160-po0_2",
    "action": "activate",
    "arguments": {
-    "selector": "@control:poGrid#0"
+    "selector": "@control:poGrid/honeybee"
    },
    "expect": {
     "ok": true
@@ -728,7 +728,7 @@
    "id": "g160-po0_3",
    "action": "activate",
    "arguments": {
-    "selector": "@control:poGrid#0"
+    "selector": "@control:poGrid/honeybee"
    },
    "expect": {
     "ok": true
@@ -738,7 +738,7 @@
    "id": "g160-po1_0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:poGrid#1"
+    "selector": "@control:poGrid/bumblebee"
    },
    "expect": {
     "ok": true
@@ -748,7 +748,7 @@
    "id": "g160-po1_1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:poGrid#1"
+    "selector": "@control:poGrid/bumblebee"
    },
    "expect": {
     "ok": true
@@ -758,7 +758,7 @@
    "id": "g160-po1_2",
    "action": "activate",
    "arguments": {
-    "selector": "@control:poGrid#1"
+    "selector": "@control:poGrid/bumblebee"
    },
    "expect": {
     "ok": true
@@ -768,7 +768,7 @@
    "id": "g160-po2_0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:poGrid#2"
+    "selector": "@control:poGrid/hoverfly"
    },
    "expect": {
     "ok": true
@@ -778,7 +778,7 @@
    "id": "g160-po2_1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:poGrid#2"
+    "selector": "@control:poGrid/hoverfly"
    },
    "expect": {
     "ok": true
@@ -788,7 +788,7 @@
    "id": "g160-po3_0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:poGrid#3"
+    "selector": "@control:poGrid/butterfly"
    },
    "expect": {
     "ok": true
@@ -819,7 +819,7 @@
    "id": "g160-po4_0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:poGrid#4"
+    "selector": "@control:poGrid/mason"
    },
    "expect": {
     "ok": true

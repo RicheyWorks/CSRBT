@@ -71,6 +71,7 @@ HARNESS_SUITES = [
     ("verify_harness", "the swarm's driver over the kit's pages"),
     ("verify_harness_matrix", "the swarm's verdicts mean something"),
     ("verify_anchors", "the mutant ledger is about the code as it is: every anchor lands, no catalogue drifted"),
+    ("verify_addresses", "a control's name outlives pressing it: nothing renamed by its own count, nothing shadowed"),
 ]
 
 RUNNERS = [
@@ -109,6 +110,7 @@ RUNNERS = [
     ("mutate_anchors", "the anchor audit: whether the ledger's kills are about the code as it is"),
     ("mutate_ord", "the ordination page's verdicts: a perfect fit, the unreadable-value count, the toast"),
     ("mutate_sel", "the selection log's next-individual line: a cleared dial said, the missing named"),
+    ("mutate_addresses", "the address audit and the door's resolver: a name read off the page as it stands"),
 ]
 
 

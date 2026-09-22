@@ -1,0 +1,41 @@
+{
+ "id": "adr239",
+ "chain": "adr238",
+ "chain_probe": "docs/ADR-238-the-next-bird-says-what-it-will-carry-2026-09-22.md",
+ "clean": [
+  "adr238"
+ ],
+ "once": true,
+ "subject": "ADR-239: a name outlives the press -- every addressed control is pressed and its name read back; the door re-stamps before it resolves, and the tally cards are named by what they count, not by their count",
+ "body": "ADR-188's addresses were checked when published and never a moment later. The field notebook's tally card read species-a0 and one tap made it species-a1; its task had fallen back to specGrid#0. New audit_addresses presses every addressed control of every page through the door and reads the old name back: held, gone, renamed or shadowed. Its first reading found the door itself: data-h was stamped only at observe, so a press that rebuilt a list left a just-published name answering 'no control answers to it'; _resolve now re-stamps first. Then two pages whose tally cards were named by their count (field notebook 7, farm scout 4), and steppers named only '-' and '+'. Kit: 1,632 presses, 1,615 held, 17 gone, 0 renamed, 0 shadowed. Both tasks press by name; new verify_addresses (36) and mutate_addresses (12/12).",
+ "paths": [
+  "docs/ADR-239-a-name-outlives-the-press-2026-09-22.md",
+  "docs/CHANGELOG-2026-09-22-adr239-a-name-outlives-the-press.md",
+  "docs/AI_HARNESS.md",
+  "docs/field-notebook.html",
+  "docs/farm-scout.html",
+  "tools/harness_plugin_page.py",
+  "tools/audit_addresses.py",
+  "tools/address_ledger.json",
+  "tools/verify/verify_addresses.py",
+  "tools/mutate_addresses.py",
+  "tools/harness_board.py",
+  "tools/verify/run_all.py",
+  "tools/tasks/page-field-notebook-science.json",
+  "tools/tasks/page-farm-scout-science.json",
+  "tools/delivery/adr239.json",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json",
+  "tools/badinput_ledger.json",
+  "tools/carried_ledger.json",
+  "tools/destructive_ledger.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/readable_ledger.json",
+  "tools/restored_ledger.json",
+  "tools/takeaway_ledger.json"
+ ]
+}

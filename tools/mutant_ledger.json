@@ -1,6 +1,77 @@
 {
  "_comment": "Written by the mutant runners through tools/mutant_ledger.py. One entry per runner; a run updates only its own entry and keeps the rest, each with its own at.",
  "runners": {
+  "mutate_addresses": {
+   "at": 1790067613,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 12,
+   "mutants": 12,
+   "rows": [
+    {
+     "detail": "11 failure(s); first: A TALLY WHOSE NAME CARRIES ITS COUNT IS RENAMED, and says ",
+     "name": "the door reads names off the stamps of the last observe",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: field-notebook.html, the page the audit found, holds its na",
+     "name": "the field notebook's tally card is named by its count again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: farm-scout.html, the page the audit found, holds its names ",
+     "name": "the farm scout's tally card is named by its count again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every tally and stepper on the field notebook answers to a ",
+     "name": "a quadrat's + no longer says which quadrat",
+     "verdict": "killed"
+    },
+    {
+     "detail": "11 failure(s); first: rebuilt, and a control under the same host differs from th",
+     "name": "a rebuilt count is not recognised as the same control",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the old name resolves to nothing and the pressed node is st",
+     "name": "a node that kept its place under a new name is called gone",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: the old name resolves to ANOTHER control while the pressed ",
+     "name": "a name that lands on another control is called held",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a control rebuilt under the SAME ID is the same control, wh",
+     "name": "an id rebuilt with a new label is not the same control",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: ...and so is every card of that board: None",
+     "name": "a renamed control is pressed again under its new name",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a page with a renamed or shadowed control, or that could no",
+     "name": "a shadowed page is not a problem",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a stable button is HELD: None",
+     "name": "only names are pressed, never ids",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: ...even when both carry a digit, if the words differ",
+     "name": "the digit rule ignores letters too",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_anchors": {
    "at": 1790008924,
    "equivalent": 0,

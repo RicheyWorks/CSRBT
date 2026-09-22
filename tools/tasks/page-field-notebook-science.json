@@ -26,7 +26,7 @@
    "id": "a0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:specGrid#0"
+    "selector": "@control:specGrid/species-a"
    },
    "expect": {
     "ok": true
@@ -36,7 +36,7 @@
    "id": "a1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:specGrid#0"
+    "selector": "@control:specGrid/species-a"
    },
    "expect": {
     "ok": true
@@ -46,7 +46,7 @@
    "id": "a2",
    "action": "activate",
    "arguments": {
-    "selector": "@control:specGrid#0"
+    "selector": "@control:specGrid/species-a"
    },
    "expect": {
     "ok": true
@@ -56,7 +56,7 @@
    "id": "a3",
    "action": "activate",
    "arguments": {
-    "selector": "@control:specGrid#0"
+    "selector": "@control:specGrid/species-a"
    },
    "expect": {
     "ok": true
@@ -66,7 +66,7 @@
    "id": "a4",
    "action": "activate",
    "arguments": {
-    "selector": "@control:specGrid#0"
+    "selector": "@control:specGrid/species-a"
    },
    "expect": {
     "ok": true
@@ -76,7 +76,7 @@
    "id": "a5",
    "action": "activate",
    "arguments": {
-    "selector": "@control:specGrid#0"
+    "selector": "@control:specGrid/species-a"
    },
    "expect": {
     "ok": true
@@ -86,7 +86,7 @@
    "id": "b0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:specGrid#1"
+    "selector": "@control:specGrid/species-b"
    },
    "expect": {
     "ok": true
@@ -96,7 +96,7 @@
    "id": "b1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:specGrid#1"
+    "selector": "@control:specGrid/species-b"
    },
    "expect": {
     "ok": true
@@ -106,7 +106,7 @@
    "id": "b2",
    "action": "activate",
    "arguments": {
-    "selector": "@control:specGrid#1"
+    "selector": "@control:specGrid/species-b"
    },
    "expect": {
     "ok": true
@@ -137,7 +137,7 @@
    "id": "c0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:specGrid#2"
+    "selector": "@control:specGrid/clover"
    },
    "expect": {
     "ok": true
@@ -183,7 +183,7 @@
    "id": "q2",
    "action": "activate",
    "arguments": {
-    "selector": "@control:quadGrid#3"
+    "selector": "@control:add one to Q2"
    },
    "expect": {
     "ok": true
@@ -193,7 +193,7 @@
    "id": "q3_0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:quadGrid#5"
+    "selector": "@control:add one to Q3"
    },
    "expect": {
     "ok": true
@@ -203,7 +203,7 @@
    "id": "q3_1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:quadGrid#5"
+    "selector": "@control:add one to Q3"
    },
    "expect": {
     "ok": true
@@ -213,7 +213,7 @@
    "id": "q4_0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:quadGrid#7"
+    "selector": "@control:add one to Q4"
    },
    "expect": {
     "ok": true
@@ -223,7 +223,7 @@
    "id": "q4_1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:quadGrid#7"
+    "selector": "@control:add one to Q4"
    },
    "expect": {
     "ok": true
@@ -233,7 +233,7 @@
    "id": "q4_2",
    "action": "activate",
    "arguments": {
-    "selector": "@control:quadGrid#7"
+    "selector": "@control:add one to Q4"
    },
    "expect": {
     "ok": true
@@ -243,7 +243,7 @@
    "id": "q4_3",
    "action": "activate",
    "arguments": {
-    "selector": "@control:quadGrid#7"
+    "selector": "@control:add one to Q4"
    },
    "expect": {
     "ok": true
@@ -253,7 +253,7 @@
    "id": "q4_4",
    "action": "activate",
    "arguments": {
-    "selector": "@control:quadGrid#7"
+    "selector": "@control:add one to Q4"
    },
    "expect": {
     "ok": true
@@ -263,7 +263,7 @@
    "id": "q4_5",
    "action": "activate",
    "arguments": {
-    "selector": "@control:quadGrid#7"
+    "selector": "@control:add one to Q4"
    },
    "expect": {
     "ok": true
@@ -273,7 +273,7 @@
    "id": "q4_6",
    "action": "activate",
    "arguments": {
-    "selector": "@control:quadGrid#7"
+    "selector": "@control:add one to Q4"
    },
    "expect": {
     "ok": true
@@ -283,7 +283,7 @@
    "id": "q4_7",
    "action": "activate",
    "arguments": {
-    "selector": "@control:quadGrid#7"
+    "selector": "@control:add one to Q4"
    },
    "expect": {
     "ok": true
@@ -293,7 +293,7 @@
    "id": "q4_8",
    "action": "activate",
    "arguments": {
-    "selector": "@control:quadGrid#7"
+    "selector": "@control:add one to Q4"
    },
    "expect": {
     "ok": true
@@ -338,7 +338,7 @@
    "id": "m0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:p-more#1"
+    "selector": "@control:add one to Marked (M)"
    },
    "expect": {
     "ok": true
@@ -348,7 +348,7 @@
    "id": "m1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:p-more#1"
+    "selector": "@control:add one to Marked (M)"
    },
    "expect": {
     "ok": true
@@ -358,7 +358,7 @@
    "id": "m2",
    "action": "activate",
    "arguments": {
-    "selector": "@control:p-more#1"
+    "selector": "@control:add one to Marked (M)"
    },
    "expect": {
     "ok": true
@@ -368,7 +368,7 @@
    "id": "m3",
    "action": "activate",
    "arguments": {
-    "selector": "@control:p-more#1"
+    "selector": "@control:add one to Marked (M)"
    },
    "expect": {
     "ok": true
@@ -378,7 +378,7 @@
    "id": "m4",
    "action": "activate",
    "arguments": {
-    "selector": "@control:p-more#1"
+    "selector": "@control:add one to Marked (M)"
    },
    "expect": {
     "ok": true
@@ -388,7 +388,7 @@
    "id": "cc0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:p-more#3"
+    "selector": "@control:add one to 2nd catch (C)"
    },
    "expect": {
     "ok": true
@@ -398,7 +398,7 @@
    "id": "cc1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:p-more#3"
+    "selector": "@control:add one to 2nd catch (C)"
    },
    "expect": {
     "ok": true
@@ -408,7 +408,7 @@
    "id": "cc2",
    "action": "activate",
    "arguments": {
-    "selector": "@control:p-more#3"
+    "selector": "@control:add one to 2nd catch (C)"
    },
    "expect": {
     "ok": true
@@ -418,7 +418,7 @@
    "id": "cc3",
    "action": "activate",
    "arguments": {
-    "selector": "@control:p-more#3"
+    "selector": "@control:add one to 2nd catch (C)"
    },
    "expect": {
     "ok": true
@@ -438,7 +438,7 @@
    "id": "r0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:p-more#5"
+    "selector": "@control:add one to Recaptured (R)"
    },
    "expect": {
     "ok": true
@@ -448,7 +448,7 @@
    "id": "r1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:p-more#5"
+    "selector": "@control:add one to Recaptured (R)"
    },
    "expect": {
     "ok": true
@@ -517,7 +517,7 @@
    "id": "g165-forage0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:ethoGrid#0"
+    "selector": "@control:ethoGrid/forage"
    },
    "expect": {
     "ok": true
@@ -527,7 +527,7 @@
    "id": "g165-forage1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:ethoGrid#0"
+    "selector": "@control:ethoGrid/forage"
    },
    "expect": {
     "ok": true
@@ -537,7 +537,7 @@
    "id": "g165-forage2",
    "action": "activate",
    "arguments": {
-    "selector": "@control:ethoGrid#0"
+    "selector": "@control:ethoGrid/forage"
    },
    "expect": {
     "ok": true
@@ -547,7 +547,7 @@
    "id": "g165-forage3",
    "action": "activate",
    "arguments": {
-    "selector": "@control:ethoGrid#0"
+    "selector": "@control:ethoGrid/forage"
    },
    "expect": {
     "ok": true
@@ -557,7 +557,7 @@
    "id": "g165-preen0",
    "action": "activate",
    "arguments": {
-    "selector": "@control:ethoGrid#5"
+    "selector": "@control:ethoGrid/preen"
    },
    "expect": {
     "ok": true
@@ -567,7 +567,7 @@
    "id": "g165-preen1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:ethoGrid#5"
+    "selector": "@control:ethoGrid/preen"
    },
    "expect": {
     "ok": true

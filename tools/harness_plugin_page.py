@@ -1877,6 +1877,16 @@ class PagePlugin(Plugin):
                 return sel
             form, name, stamp = ":", m.group(1), m.group(2)
         try:
+            # ADR-239: stamp the page as it stands BEFORE reading a name off it.
+            # `data-h` is written by DISCOVER, and DISCOVER ran at the last
+            # observe -- so a press that rebuilt a list (a picker collapsing to
+            # its pick, a tally board re-rendering) left the rebuilt controls
+            # unstamped, and the very name the door had just published answered
+            # "no control answers to @isoPick/pepper" until the client observed
+            # again. A name is supposed to be the thing that does not need that.
+            # A stamped index is compared against the numbering as it is NOW,
+            # which is the only numbering it can honestly be compared against.
+            self.page.evaluate(H.DISCOVER, self.kinds)
             r = self.page.evaluate(RESOLVE, [form, name, stamp])
         except Exception as e:
             raise Unavailable("page not readable: %s" % str(e)[:120])

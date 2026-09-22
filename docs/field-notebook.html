@@ -472,11 +472,11 @@
     <div class="card">
       <div class="mr">
         <div class="mrbox"><div class="l">Marked (M)</div><div class="v" id="mrM">0</div>
-          <div class="qb"><button class="step" data-mr="M" data-d="-1" type="button">−</button><button class="step" data-mr="M" data-d="1" type="button">+</button></div></div>
+          <div class="qb"><button class="step" data-mr="M" data-d="-1" type="button" aria-label="take one from Marked (M)">−</button><button class="step" data-mr="M" data-d="1" type="button" aria-label="add one to Marked (M)">+</button></div></div>
         <div class="mrbox"><div class="l">2nd catch (C)</div><div class="v" id="mrC">0</div>
-          <div class="qb"><button class="step" data-mr="C" data-d="-1" type="button">−</button><button class="step" data-mr="C" data-d="1" type="button">+</button></div></div>
+          <div class="qb"><button class="step" data-mr="C" data-d="-1" type="button" aria-label="take one from 2nd catch (C)">−</button><button class="step" data-mr="C" data-d="1" type="button" aria-label="add one to 2nd catch (C)">+</button></div></div>
         <div class="mrbox"><div class="l">Recaptured (R)</div><div class="v" id="mrR">0</div>
-          <div class="qb"><button class="step" data-mr="R" data-d="-1" type="button">−</button><button class="step" data-mr="R" data-d="1" type="button">+</button></div></div>
+          <div class="qb"><button class="step" data-mr="R" data-d="-1" type="button" aria-label="take one from Recaptured (R)">−</button><button class="step" data-mr="R" data-d="1" type="button" aria-label="add one to Recaptured (R)">+</button></div></div>
       </div>
       <div class="reading" id="mrOut" style="margin-top:12px">Enter your catches — the estimate appears here.</div>
     </div>
@@ -1833,7 +1833,12 @@ var OUT = (function(){
       items.forEach(function(it, idx){
         var b=document.createElement("button");
         b.type="button"; b.className="tally";
-        b.innerHTML='<span class="x" data-x="'+idx+'">✕</span><div class="name">'+esc(it.name)+'</div><div class="count">'+it.n+'</div>';
+        /* ADR-239: the card's NAME is the category, not the category run
+           together with its count. The name div is the .nm a reader takes as
+           the name (the kit's rule since ADR-128); without it the card read
+           "species-a0", and one tap made it "species-a1" -- an address that
+           lasted exactly one press, on the page's primary data-entry control. */
+        b.innerHTML='<span class="x" data-x="'+idx+'">✕</span><div class="name nm">'+esc(it.name)+'</div><div class="count">'+it.n+'</div>';
         renameable(b, b.querySelector(".name"),
           function(){ return it.name; },
           function(v){
@@ -1940,9 +1945,12 @@ var OUT = (function(){
     var g=$("quadGrid"); g.innerHTML="";
     quads.forEach(function(q,i){
       var d=document.createElement("div"); d.className="quad";
+      /* ADR-239: a stepper says which quadrat it counts. "−" and "+" were
+         every quadrat's buttons, so the only way to name Q4's + was to count
+         to the eighth button of the grid. */
       d.innerHTML='<div class="ql">Q'+(i+1)+'</div><div class="qv">'+q+'</div>'
-        +'<div class="qb"><button class="step" data-q="'+i+'" data-d="-1" type="button">−</button>'
-        +'<button class="step" data-q="'+i+'" data-d="1" type="button">+</button></div>';
+        +'<div class="qb"><button class="step" data-q="'+i+'" data-d="-1" type="button" aria-label="take one from Q'+(i+1)+'">−</button>'
+        +'<button class="step" data-q="'+i+'" data-d="1" type="button" aria-label="add one to Q'+(i+1)+'">+</button></div>';
       g.appendChild(d);
     });
     g.querySelectorAll(".step").forEach(function(b){

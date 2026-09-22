@@ -1842,7 +1842,10 @@ var OUT = (function(){
     var g=$("poGrid"); g.innerHTML="";
     po.forEach(function(it,idx){
       var b=document.createElement("button"); b.type="button"; b.className="tally";
-      b.innerHTML='<span class="x" data-x="1">✕</span><div class="name">'+esc(it.name)+'</div><div class="count">'+it.n+'</div>';
+      /* ADR-239: the card's name is the visitor, not the visitor and its
+         count run together ("honeybee0", then "honeybee1" -- an address that
+         lasted one press). The .nm is what a reader takes as the name. */
+      b.innerHTML='<span class="x" data-x="1">✕</span><div class="name nm">'+esc(it.name)+'</div><div class="count">'+it.n+'</div>';
       renameable(b, b.querySelector(".name"),
         function(){ return it.name; },
         function(v){
