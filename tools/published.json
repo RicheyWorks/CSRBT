@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1790059815,
+      "at": 1790065748,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "a0344c8f9db343c8a6a8acc15fec028b36d27d32264350ff4dc441a858945617",
+      "sha": "0739f6515aae0bf1622a0fc2212d87a6140eb58652125630cb6aff8dea8d02b6",
       "via": "read"
     },
     "adr-031.html": {
@@ -207,9 +207,9 @@
       "via": "read"
     },
     "selection-log.html": {
-      "at": 1789523659,
+      "at": 1790065748,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "c93cd0b7a642a044f7f33df05001f092decec60bf59a3ea2f7bc8da0a797f998",
+      "sha": "b6e630b60e270a8ec3cd7ef32f09efa9b9878ad3a227356196b8941cdb76c51c",
       "via": "read"
     },
     "soil-bench.html": {

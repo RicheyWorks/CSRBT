@@ -5712,6 +5712,57 @@
    ],
    "survived": 0
   },
+  "mutate_sel": {
+   "at": 1790062166,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 8,
+   "mutants": 8,
+   "rows": [
+    {
+     "detail": "2 failure(s); first: THE TRAP, SAID: tapping the selected age clears it, and the",
+     "name": "a clear is never noticed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: choosing a different sex is a change, not a clear  << You c",
+     "name": "switching to another value is called a clear",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: THE TRAP, SAID: tapping the selected age clears it, and the",
+     "name": "what the dial held is never remembered",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: adding after the clear says what the record is missing: 'Ad",
+     "name": "the add confirmation names nothing missing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: with neither recorded the confirmation names both: 'Added A",
+     "name": "a missing sex is not counted as missing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: after an add the 'you cleared' warning has done its job and",
+     "name": "the clear warning outlives the add",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: THE TRAP, SAID: tapping the selected age clears it, and the",
+     "name": "the field names are swapped",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a restored sheet says what its restored dials will carry, a",
+     "name": "a restore leaves the line at its boot state",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_takeaway": {
    "at": 1789707095,
    "equivalent": 0,

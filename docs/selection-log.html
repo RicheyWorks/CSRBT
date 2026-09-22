@@ -496,6 +496,7 @@
         <label class="f">cohort / year<input type="text" id="iCoh" placeholder="2026" autocomplete="off"></label>
       </div>
       <div id="indEntry" style="margin-top:16px"></div>
+      <p class="fine" id="indNote" role="status" aria-live="polite"></p>
       <input type="hidden" id="iSex"><input type="hidden" id="iAge">
       <label class="f" style="margin-top:10px">natural history note<textarea id="iNote" placeholder="Caught in mist-net 3 at 06:40. Bill tip worn. Feeding on hard seed at the ridge — not seen at the seep with the others."></textarea></label>
       <div class="btn-row">
@@ -2056,16 +2057,50 @@ var OUT = (function(){
   var MIND=null, POFF=null, PDAM=null, PSIRE=null;
   var MTRAIT=null, STRAIT=null, HTRAIT=null;
 
+  /* ADR-238: WHAT THE NEXT BIRD WILL CARRY, SAID. The dials carry forward from
+     one individual to the next -- which is right, a morning of adults is a
+     morning of adults -- and a dial pressed while it is already selected
+     clears it, which is how a mistake is taken back. Together those made a
+     silent trap: the eighth blind trial pressed "adult" for the third bird
+     while it was still selected from the second, the press cleared it, and A3
+     was logged with no age -- with nothing on the page saying so, and nothing
+     supervised able to undo it. So the page now says what the next individual
+     will be logged as, after every press, and says it in words when a press
+     has CLEARED a dial rather than set it. */
+  var indLast={ iSex:"", iAge:"" }, indCleared=null;
+  var IND_NAMES={ iSex:"sex", iAge:"age class" };
+  function indNext(){
+    var box=$("indNote"); if(!box) return;
+    var sx=val("iSex"), ag=val("iAge");
+    var line="The next individual will be logged as: sex "+(sx?"<b>"+esc(sx)+"</b>":"<b>not recorded</b>")
+      +" &middot; age class "+(ag?"<b>"+esc(ag)+"</b>":"<b>not recorded</b>")+".";
+    if(indCleared){
+      line="<b>You cleared "+IND_NAMES[indCleared.f]+"</b> by tapping <b>"+esc(indCleared.v)
+        +"</b> while it was selected, so the next individual will be logged with no "
+        +IND_NAMES[indCleared.f]+". Tap a value to record one. "+line;
+    }
+    box.innerHTML=line;
+  }
+  function indDial(f,v){
+    indCleared = (v==null && indLast[f]) ? { f:f, v:indLast[f] } : null;
+    indLast[f] = v==null ? "" : v;
+    push(f,v); indNext();
+  }
+  function indMissing(sx,ag){
+    var miss=[]; if(!sx) miss.push("sex"); if(!ag) miss.push("age class");
+    return miss.length ? " \u2014 no "+miss.join(" or ")+" recorded" : "";
+  }
   var ISEX=FEK.dial({ field:"iSex", label:"sex",
     options:[{value:"F",label:"F",ramp:0},{value:"M",label:"M",ramp:2},
              {value:"unknown",label:"unknown",ramp:3}],
-    onchange:function(v){ push("iSex",v); } });
+    onchange:function(v){ indDial("iSex",v); } });
   var IAGE=FEK.dial({ field:"iAge", label:"age class",
     options:[{value:"juvenile",label:"juvenile",ramp:0},{value:"subadult",label:"subadult",ramp:1},
              {value:"adult",label:"adult",ramp:2},{value:"unknown",label:"unknown",ramp:4}],
-    onchange:function(v){ push("iAge",v); },
+    onchange:function(v){ indDial("iAge",v); },
     help:"Left blank is left blank — an unrecorded age is not the same as an unknown one, and <em>unknown</em> is a determination you made." });
   FEK.mount("indEntry",[ISEX,IAGE]);
+  indNext();
 
   var FCOMP=FEK.chips({ field:"fComp", label:"fitness component", single:true, value:["surv"],
     options:[{value:"surv",label:"survived the episode"},
@@ -2166,7 +2201,8 @@ var OUT = (function(){
     inds.push({id:"i"+(seq++),label:lab,coh:val("iCoh"),sex:val("iSex"),age:val("iAge"),
                note:val("iNote"),fit:null});
     ["iId","iNote"].forEach(function(x){$(x).value="";});
-    renderAll(); toast("Added "+lab); buzz(12);
+    renderAll(); toast("Added "+lab+indMissing(val("iSex"),val("iAge"))); buzz(12);
+    indCleared=null; indNext();
   });
   $("iUndo").addEventListener("click",function(){
     if(!inds.length){toast("Nothing to undo");return;}
@@ -2717,6 +2753,8 @@ var OUT = (function(){
          whichever trait the picker is on (ADR-210). */
       KEEP.formRestore(b.fields);
       renderRep();
+      /* what the dials came back holding is what the next bird will carry */
+      indLast.iSex=val("iSex"); indLast.iAge=val("iAge"); indCleared=null; indNext();
       return true;
     }
   });

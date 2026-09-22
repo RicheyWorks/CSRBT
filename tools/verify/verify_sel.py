@@ -365,6 +365,66 @@ with sync_playwright() as p:
        pg.evaluate("()=>document.querySelectorAll('.fek-chip *').length") == 0,
        pg.evaluate("()=>[...document.querySelectorAll('.fek-chip *')].map(e=>e.tagName).slice(0,4)"))
 
+    # ---- ADR-238: what the next bird will carry, said --------------------
+    # The eighth blind trial pressed "adult" for the third bird while it was
+    # still selected from the second; the press CLEARED the dial and A3 was
+    # logged with no age, with nothing on the page saying so. Held here in a
+    # fresh context (no autosave from above), against the record the page
+    # actually keeps -- KEEP's own snapshot -- not only against the sentence.
+    ctx2 = b.new_context(viewport={"width": 880, "height": 1200})
+    q = ctx2.new_page(); q.set_default_timeout(15000)
+    q.route("**://fonts.googleapis.com/**", lambda r: r.abort())
+    q.route("**://fonts.gstatic.com/**", lambda r: r.abort())
+    q.goto(_u("selection-log.html"), wait_until="domcontentloaded"); q.wait_for_timeout(400)
+    nxt = lambda: q.inner_text("#indNote").strip()
+    def dial(lbl):
+        q.evaluate("""(l)=>{const b=[...document.querySelectorAll('#indEntry .fek-dial button')]
+          .find(x=>x.querySelector('span').textContent.trim()===l); b.click();}""", lbl)
+        q.wait_for_timeout(60)
+    def add(lab):
+        q.fill("#iId", lab); q.click("#iAdd"); q.wait_for_timeout(120)
+        return q.inner_text("#toast").strip()
+    def kept():
+        return q.evaluate("()=>{ const s=KEEP.live().snapshot(); return s && s.state ? s.state.inds : []; }")
+    LINE = "The next individual will be logged as: sex %s \u00b7 age class %s."
+    ck("a fresh sheet says the next individual would be logged with nothing recorded",
+       nxt() == LINE % ("not recorded", "not recorded"), nxt())
+    dial("M"); dial("adult")
+    ck("after M and adult it says so", nxt() == LINE % ("M", "adult"), nxt())
+    t1 = add("A1")
+    ck("adding with both set confirms the ID and names nothing missing: %r" % t1, t1 == "Added A1", t1)
+    ck("...and the dials carry forward, and the page says they do", nxt() == LINE % ("M", "adult"), nxt())
+    dial("adult")
+    ck("THE TRAP, SAID: tapping the selected age clears it, and the page says it was cleared, by which tap, "
+       "and what the next bird will carry",
+       nxt() == ("You cleared age class by tapping adult while it was selected, so the next individual will be "
+                 "logged with no age class. Tap a value to record one. " + LINE % ("M", "not recorded")), nxt())
+    t2 = add("A2")
+    ck("adding after the clear says what the record is missing: %r" % t2,
+       t2 == "Added A2 \u2014 no age class recorded", t2)
+    ks = kept()
+    ck("...and the record the page keeps really has no age for A2 and adult for A1 -- the sentence is about "
+       "the data, not beside it", [(k.get("label"), k.get("age")) for k in ks] == [("A1", "adult"), ("A2", "")],
+       [(k.get("label"), k.get("age")) for k in ks])
+    ck("after an add the 'you cleared' warning has done its job and goes; the state line stays",
+       nxt() == LINE % ("M", "not recorded"), nxt())
+    dial("F")
+    ck("choosing a different sex is a change, not a clear", nxt() == LINE % ("F", "not recorded"), nxt())
+    dial("F")
+    ck("...and tapping it again clears sex, and says sex",
+       nxt().startswith("You cleared sex by tapping F while it was selected, so the next individual will be "
+                        "logged with no sex.") and nxt().endswith(LINE % ("not recorded", "not recorded")), nxt())
+    t3 = add("A3")
+    ck("with neither recorded the confirmation names both: %r" % t3,
+       t3 == "Added A3 \u2014 no sex or age class recorded", t3)
+    dial("unknown")  # the first dial's 'unknown' is sex
+    dial("juvenile")
+    q.wait_for_timeout(900)   # the autosave debounce
+    q.reload(wait_until="domcontentloaded"); q.wait_for_timeout(600)
+    ck("a restored sheet says what its restored dials will carry, and nothing about a clear it did not see",
+       nxt() == LINE % ("unknown", "juvenile"), nxt())
+    ctx2.close()
+
     b.close()
 
 print("PASS %d"%len(P))

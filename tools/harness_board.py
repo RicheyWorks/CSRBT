@@ -108,6 +108,7 @@ RUNNERS = [
     ("mutate_proofs", "the tree proofs' worst-case sentence, read off the tree it describes"),
     ("mutate_anchors", "the anchor audit: whether the ledger's kills are about the code as it is"),
     ("mutate_ord", "the ordination page's verdicts: a perfect fit, the unreadable-value count, the toast"),
+    ("mutate_sel", "the selection log's next-individual line: a cleared dial said, the missing named"),
 ]
 
 

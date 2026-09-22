@@ -1,0 +1,36 @@
+{
+ "id": "adr238",
+ "chain": "adr237",
+ "chain_probe": "docs/ADR-237-a-perfect-fit-is-not-an-unstable-one-2026-09-22.md",
+ "clean": [
+  "adr237"
+ ],
+ "once": true,
+ "subject": "ADR-238: the next bird says what it will carry -- the selection log says what the next individual will be logged as, and says so when a tap on a selected dial clears it",
+ "body": "The eighth blind trial pressed adult for the third bird while it was still selected; the press cleared the dial and A3 was logged with no age, with nothing on the page saying so. The dials carry forward and a re-press clears, both on purpose; together they were a trap. The page now shows what the next individual will be logged as after every press, says in words when a tap has cleared a dial, and names in the add confirmation what the record is missing. Task 133 to 138 confirmed, verify_sel 83 to 95 held against the record KEEP keeps, new mutate_sel runner.",
+ "paths": [
+  "docs/ADR-238-the-next-bird-says-what-it-will-carry-2026-09-22.md",
+  "docs/CHANGELOG-2026-09-22-adr238-the-next-bird-says-what-it-will-carry.md",
+  "docs/AI_HARNESS.md",
+  "docs/selection-log.html",
+  "tools/tasks/page-selection-log-science.json",
+  "tools/task_ledger.json",
+  "tools/verify/verify_sel.py",
+  "tools/mutate_sel.py",
+  "tools/harness_board.py",
+  "tools/delivery/adr238.json",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json",
+  "tools/badinput_ledger.json",
+  "tools/carried_ledger.json",
+  "tools/destructive_ledger.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/readable_ledger.json",
+  "tools/restored_ledger.json",
+  "tools/takeaway_ledger.json"
+ ]
+}

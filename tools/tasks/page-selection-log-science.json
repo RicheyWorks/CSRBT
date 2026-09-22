@@ -2,7 +2,7 @@
  "id": "page-selection-log-science",
  "target": "page",
  "page": "selection-log.html",
- "goal": "On the selection log enter six marked individuals A1-A6 with cohort, sex and age, bill depths 8-13 mm measured by a named observer under a named episode, let A1 and A2 die and the rest survive, add a wing-chord trait, add a seventh bird A7 with a tarsus measurement and link it to A1 and A2 as parents, and get the selection analysis and all three exports right: mean before 10.500, SD 1.871, differential 1.000, intensity 0.586.",
+ "goal": "On the selection log enter six marked individuals A1-A6 with cohort, sex and age -- the page says what the next individual will be logged as, and says so in words when a tap on an already-selected age clears it -- bill depths 8-13 mm measured by a named observer under a named episode, let A1 and A2 die and the rest survive, add a wing-chord trait, add a seventh bird A7 with a tarsus measurement and link it to A1 and A2 as parents, and get the selection analysis and all three exports right: mean before 10.500, SD 1.871, differential 1.000, intensity 0.586.",
  "steps": [
   {
    "id": "look",
@@ -61,6 +61,47 @@
    },
    "expect": {
     "ok": true
+   }
+  },
+  {
+   "id": "g238-next",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.indNote": "The next individual will be logged as: sex M · age class adult."
+   }
+  },
+  {
+   "id": "g238-again",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:indEntry/adult"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g238-cleared",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.indNote": "You cleared age class by tapping adult while it was selected, so the next individual will be logged with no age class. Tap a value to record one. The next individual will be logged as: sex M · age class not recorded."
+   }
+  },
+  {
+   "id": "g238-back",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:indEntry/adult"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g238-restored",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.indNote": "The next individual will be logged as: sex M · age class adult."
    }
   },
   {

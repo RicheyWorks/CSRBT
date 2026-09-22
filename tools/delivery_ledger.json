@@ -1217,10 +1217,15 @@
    "by": "adr237",
    "sha": "0dec002d640a560f36cc2578e99dc1588201bffb3c5175673776a36727eec991"
   },
+  "docs/ADR-238-the-next-bird-says-what-it-will-carry-2026-09-22.md": {
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "a8b1973c63c245fea785267e036e2c43a5de2762c9d23248ff2e9c1f8c99018a"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "b817c25c4da764f8cd4e849d62e30a3c8e12db6bdda6922fe6122d4142c1d175"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "e347da1513d42d84d8eab85be08ec9e48e2a5d6fe75ae871ee25812513a245fa"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -2374,6 +2379,11 @@
    "by": "adr237",
    "sha": "39506e87ffe6f7dfdc8f9336c2f0c253edfa3dd2c9f4f7a21941acd5b21b3088"
   },
+  "docs/CHANGELOG-2026-09-22-adr238-the-next-bird-says-what-it-will-carry.md": {
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "5afa9ab5566df85c6c931e9d720804f64cdd5ad73f5d6dcf4e96ae27b3c7c1a9"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2831,10 +2841,9 @@
    "sha": "bf37dcc4c41aaac1eb79562a372d44e9e59879cf94b553e1daf6968f0623d842"
   },
   "docs/selection-log.html": {
-   "at": 1789690114,
-   "by": "adr211",
-   "evidence": "git",
-   "sha": "1cb0fb5c09f33578f69c3108af7bbdfaf9f5ca5b274a1146b17610f76b1830f3"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "f27019128abe63a49b0cb6f46c11015a648f40a082b79e6f1c99c1d768a22a9b"
   },
   "docs/soil-bench.html": {
    "at": 1789690114,
@@ -3083,9 +3092,9 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "7657686adf26b5dc7e52c0f430e9266a156e4d04d155269224c0cc66cd2249d6"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "c00d7bd7899f57367166d6621cc720926d3621bce75f70a8f60220e9ffc97f9e"
   },
   "tools/blind_console.py": {
    "at": 1789817593,
@@ -3093,9 +3102,9 @@
    "sha": "a6ed06413756f3e5509f4dc369b65242d453749e11a07a0f2d3cb1450c6f403c"
   },
   "tools/carried_ledger.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "c423de077037ee613a69492f343d4334167ca12b8127839a31a1169349715b7f"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "9d4c4d5fb5af07f6008a5928a2b55c4f7c03444444fc5762588fc28533052f24"
   },
   "tools/ci/ci.yml": {
    "at": 1789711865,
@@ -3596,15 +3605,20 @@
    "by": "adr237",
    "sha": "d844e8238d96379327700819f09f435207abb6d250b4b9cf991fe33439a92d95"
   },
+  "tools/delivery/adr238.json": {
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "2e684744a193984b2655baaf47b23d9cba917d520dcbf531cb38ce96cc30c7b8"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "994ad8d0495739e5fd427a44f03f35c575ac63077e40f996c2ee14826a3d6f9f"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "7e48ba5dfa141464f64e8cc6b284b6cfab36a702d9c03f5065d8214a6ea0adf3"
   },
   "tools/destructive_ledger.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "16916bdc1f10429a705d125a70160330f27b47b5478325d9fdfe99b497714ef6"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "d97fd480b3fbc569597a66d96334f8fbd186e1cec949d7bf6e4151f9c3a04dec"
   },
   "tools/dwc.py": {
    "at": 1789690114,
@@ -3648,9 +3662,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "0a1efac00ea96ea3e8bfde6f5eaa2a32500ee83793ecce17fc20b130a995d0d7"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "a35e81cdf55cce502b3517ab5cbf04b295e32d891ce8c07d8155050b5a2c97f7"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -3710,14 +3724,14 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "3b94f01441d197f3bc664e331c244ff86c0323e9bbea0d2454c86fa7180571ff"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "885309444d11e7c79f332e4ebfdc43b92da1e6ac22d3412d6985113453c97548"
   },
   "tools/harness_board.py": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "a1234d4433539486d7d49d47aed5697f7b3b8d8729e44f9132b9ebe593623aca"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "21ac87a27e61b2beb6d43632602088ef2e6806880d548d9fb32ae5953f7a3555"
   },
   "tools/harness_contract.py": {
    "at": 1789817593,
@@ -3810,9 +3824,9 @@
    "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
   },
   "tools/mutant_ledger.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "fa98331968a4bea1477a9651d1790993448a950424fcf9cb87fd0aed29b3f1f5"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "da80b9e53b3c8ee255c105f8fbc3833a63cf10fee68fc3afc32ba8a4a098629e"
   },
   "tools/mutant_ledger.py": {
    "at": 1788676926,
@@ -3984,6 +3998,11 @@
    "by": "adr224",
    "sha": "f45d965849c1f3f6f74bf19da19d5d937d94881c6aaf2c9bd54adb1be9b163bd"
   },
+  "tools/mutate_sel.py": {
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "44de6e68a2b8e5875d49aa1ab2559a267f97dafa73721c2d446c1c4ccdcff80e"
+  },
   "tools/mutate_takeaway.py": {
    "at": 1789711865,
    "by": "adr224",
@@ -4033,9 +4052,9 @@
    "sha": "b326bc268f68cd28544a28e49b34fea3ce04b026ec0098c9f9a5395788bde19f"
   },
   "tools/outputs_ledger.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "f0bb066facf8c8fdff22474f1ab9f2fa32b8abb550d09b3c2242c2087b112022"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "830743f314bb85b683d43d2104d19e42d8525ff708de5b161dfe1d94a492b00d"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -4068,9 +4087,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "a8c5e4e480e18fc125985805a591c72f6114b889479d33f227a9d5831b6f10be"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "b9b4e3c81d0d70df99044a8391f34eae61e5f4c5b4ad4e7e72f4a7c88733d25f"
   },
   "tools/push/push-adr225-siblings.ps1": {
    "at": 1789713249,
@@ -4083,14 +4102,14 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "b133e8ab8ac6915aeb62d7e3e643bec7c8fffcb2c3734ac608b63680e5ab9136"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "9765cc0fb0ae830e41e3d3a46ed94195ffcbe179c89d8fe41b36254f27b80c90"
   },
   "tools/restored_ledger.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "cc06f9ed6c13854bd173c3273e6d97cb5537570bc8ec973e90ee309424b0c1c5"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "fa0a95487a85eee70054f2417e311d01e3cb3e81159694d5623f08320f4bffb7"
   },
   "tools/routes.json": {
    "at": 1789690114,
@@ -4125,14 +4144,14 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/takeaway_ledger.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "795b9f6f8f802ee855d4082b0ffb3932cb8df23cf18adfe4da74601913a1d6ef"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "9ed6ef3f2a887acf92db522df2c595d085c825978ec194ccd600607303df432c"
   },
   "tools/task_ledger.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "a916c72cf37d95f31fde23adce1b39a2affe28f15d8cb32784addc5eb6720226"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "7db8b0eab72985cb01f839c7f8eb43a26940932a58eb7d98c3d80268803bec0b"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -4361,9 +4380,9 @@
    "sha": "1895e207373adc4537c4fb61b8dcaabc8992f116ce168eb3b2a97f3622ed2bc9"
   },
   "tools/tasks/page-selection-log-science.json": {
-   "at": 1788860747,
-   "by": "adr158",
-   "sha": "6fc44bd1a0ed6b8e773926e95408c78d947f127ca887f74c3e4c1d7fe3a4d925"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "9b078ac20e899bd81fc16dcadabb3eee5956bee6aea1f07d0ee304ec9a77e3d0"
   },
   "tools/tasks/page-soil-bench-science.json": {
    "at": 1789690114,
@@ -4684,9 +4703,9 @@
    "sha": "b5a35ba0a1cdc46ec58d68e733a4d59aef5c26fe1ccf964894107a9be47e6ae6"
   },
   "tools/verify/counts.json": {
-   "at": 1790059817,
-   "by": "adr237",
-   "sha": "0361b77f1002c94398b6714ef60066d19dab70346ed060be46f7dfb9db5bde5d"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "06fdc431d6ed1d37833357804e14d4e40f5388f7a7a5358b845f8e875b6604cf"
   },
   "tools/verify/run_all.py": {
    "at": 1789690114,
@@ -5090,9 +5109,9 @@
    "sha": "d8568fd74752c166aa0a6d0afac58dbee3e087895fbf7f1e482207dcfe2ba378"
   },
   "tools/verify/verify_sel.py": {
-   "at": 1788676930,
-   "by": "adr146b",
-   "sha": "1793b9d4b45dde17dc856ee5305cb6e7c18183f89e7adf9de87069090009a19d"
+   "at": 1790065750,
+   "by": "adr238",
+   "sha": "2ba138def45ad0120555af03d5a20b59aa0812f568bf39f80270647bb10a12f2"
   },
   "tools/verify/verify_soil.py": {
    "at": 1789690114,
@@ -5259,6 +5278,7 @@
   "adr234",
   "adr235",
   "adr236",
-  "adr237"
+  "adr237",
+  "adr238"
  ]
 }

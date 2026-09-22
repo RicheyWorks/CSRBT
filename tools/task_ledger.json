@@ -30145,13 +30145,13 @@
    "verdict": "PASS"
   },
   "page-selection-log-science": {
-   "at": 1789451847,
-   "claims": 42,
-   "confirmed": 133,
+   "at": 1790061653,
+   "claims": 45,
+   "confirmed": 138,
    "gives": 31,
-   "goal": "On the selection log enter six marked individuals A1-A6 with cohort, sex and age, bill depths 8-13 mm measured by a named observer under a named episode, let A1 and A2 die and the rest survive, add a wing-chord trait, add a seventh bird A7 with a tarsus measurement and link it to A1 and A2 as parents, and get the selection analysis and all three exports right: mean before 10.500, SD 1.871, differential 1.000, intensity 0.586.",
+   "goal": "On the selection log enter six marked individuals A1-A6 with cohort, sex and age -- the page says what the next individual will be logged as, and says so in words when a tap on an already-selected age clears it -- bill depths 8-13 mm measured by a named observer under a named episode, let A1 and A2 die and the rest survive, add a wing-chord trait, add a seventh bird A7 with a tarsus measurement and link it to A1 and A2 as parents, and get the selection analysis and all three exports right: mean before 10.500, SD 1.871, differential 1.000, intensity 0.586.",
    "held": true,
-   "holds": 13,
+   "holds": 16,
    "id": "page-selection-log-science",
    "must": "PASS",
    "refuted": 0,
@@ -30161,7 +30161,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 7.6,
+   "seconds": 9.2,
    "steps": [
     {
      "action": "observe",
@@ -30193,7 +30193,7 @@
      ],
      "id": "ind",
      "message": "opened pane p-ind",
-     "ms": 4,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -30207,7 +30207,7 @@
      ],
      "id": "g158-ep",
      "message": "set-text text_in:3",
-     "ms": 27,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -30221,7 +30221,7 @@
      ],
      "id": "g158-fc",
      "message": "activate chip:0",
-     "ms": 27,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -30234,8 +30234,8 @@
       }
      ],
      "id": "g158-sex",
-     "message": "activate dial_btn:1",
-     "ms": 27,
+     "message": "activate dial_btn:1 -- the page said 'The next individual will be logged as: sex M \u00b7 age class not recorded.'",
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -30248,8 +30248,78 @@
       }
      ],
      "id": "g158-age",
-     "message": "activate dial_btn:5",
-     "ms": 26,
+     "message": "activate dial_btn:5 -- the page said 'The next individual will be logged as: sex M \u00b7 age class adult.'",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.indNote == 'The next individual will be logged as: sex M \u00b7 age class adult.', got 'The next individual will be logged as: sex M \u00b7 age class adult.'",
+       "path": "output.boxes.indNote",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g238-next",
+     "message": "0 figure(s), 18 box(es), 1 list(s), 0 table(s), 18 heading(s)",
+     "ms": 10,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g238-again",
+     "message": "activate dial_btn:5 -- the page said 'You cleared age class by tapping adult while it was selected, so the next individu",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.indNote == 'You cleared age class by tapping adult while it was selected, so the next individual will be logged with no age class. Tap a value to record one. The next individual will be logged as: sex M \u00b7 age class not recorded.', got 'You cleared age class by tapping adult while it was selected, so the next individual will be logged with no age class. Tap a value to record one. The next individual will be logged as: sex M \u00b7 age class not recorded.'",
+       "path": "output.boxes.indNote",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g238-cleared",
+     "message": "0 figure(s), 18 box(es), 1 list(s), 0 table(s), 18 heading(s)",
+     "ms": 8,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g238-back",
+     "message": "activate dial_btn:5 -- the page said 'The next individual will be logged as: sex M \u00b7 age class adult.'",
+     "ms": 32,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.indNote == 'The next individual will be logged as: sex M \u00b7 age class adult.', got 'The next individual will be logged as: sex M \u00b7 age class adult.'",
+       "path": "output.boxes.indNote",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g238-restored",
+     "message": "0 figure(s), 18 box(es), 1 list(s), 0 table(s), 18 heading(s)",
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -30263,7 +30333,7 @@
      ],
      "id": "g158-note",
      "message": "set-text text_in:2",
-     "ms": 25,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -30277,7 +30347,7 @@
      ],
      "id": "i1",
      "message": "set-text text_in:0",
-     "ms": 26,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -30290,8 +30360,8 @@
       }
      ],
      "id": "ia1",
-     "message": "activate action_btn:0 -- the page said 'Added A1'",
-     "ms": 28,
+     "message": "activate action_btn:0 -- the page said 'The next individual will be logged as: sex M \u00b7 age class adult.'",
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -30305,7 +30375,7 @@
      ],
      "id": "i2",
      "message": "set-text text_in:0",
-     "ms": 27,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -30318,8 +30388,8 @@
       }
      ],
      "id": "ia2",
-     "message": "activate action_btn:0 -- the page said 'Added A2'",
-     "ms": 27,
+     "message": "activate action_btn:0 -- the page said 'The next individual will be logged as: sex M \u00b7 age class adult.'",
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -30333,7 +30403,7 @@
      ],
      "id": "i3",
      "message": "set-text text_in:0",
-     "ms": 25,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -30346,8 +30416,8 @@
       }
      ],
      "id": "ia3",
-     "message": "activate action_btn:0 -- the page said 'Added A3'",
-     "ms": 26,
+     "message": "activate action_btn:0 -- the page said 'The next individual will be logged as: sex M \u00b7 age class adult.'",
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -30361,7 +30431,7 @@
      ],
      "id": "i4",
      "message": "set-text text_in:0",
-     "ms": 26,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -30374,7 +30444,7 @@
       }
      ],
      "id": "ia4",
-     "message": "activate action_btn:0 -- the page said 'Added A4'",
+     "message": "activate action_btn:0 -- the page said 'The next individual will be logged as: sex M \u00b7 age class adult.'",
      "ms": 28,
      "result": "driven"
     },
@@ -30389,7 +30459,7 @@
      ],
      "id": "i5",
      "message": "set-text text_in:0",
-     "ms": 26,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -30402,8 +30472,8 @@
       }
      ],
      "id": "ia5",
-     "message": "activate action_btn:0 -- the page said 'Added A5'",
-     "ms": 27,
+     "message": "activate action_btn:0 -- the page said 'The next individual will be logged as: sex M \u00b7 age class adult.'",
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -30417,7 +30487,7 @@
      ],
      "id": "i6",
      "message": "set-text text_in:0",
-     "ms": 26,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -30430,8 +30500,8 @@
       }
      ],
      "id": "ia6",
-     "message": "activate action_btn:0 -- the page said 'Added A6'",
-     "ms": 28,
+     "message": "activate action_btn:0 -- the page said 'The next individual will be logged as: sex M \u00b7 age class adult.'",
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -30444,8 +30514,8 @@
       }
      ],
      "id": "six",
-     "message": "0 figure(s), 17 box(es), 2 list(s), 0 table(s), 18 heading(s)",
-     "ms": 9,
+     "message": "0 figure(s), 18 box(es), 2 list(s), 0 table(s), 18 heading(s)",
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -30506,7 +30576,7 @@
      ],
      "id": "mp1",
      "message": "pick pick_search:0",
-     "ms": 148,
+     "ms": 155,
      "result": "driven"
     },
     {
@@ -30520,7 +30590,7 @@
      ],
      "id": "mt1",
      "message": "activate chip:3",
-     "ms": 26,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -30534,7 +30604,7 @@
      ],
      "id": "mv1",
      "message": "set-text field_in:0",
-     "ms": 27,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -30548,7 +30618,7 @@
      ],
      "id": "ma1",
      "message": "activate action_btn:8 -- the page said 'Recorded 8.00 for A1'",
-     "ms": 27,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -30581,7 +30651,7 @@
      ],
      "id": "mt2",
      "message": "activate chip:3",
-     "ms": 25,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -30595,7 +30665,7 @@
      ],
      "id": "mv2",
      "message": "set-text field_in:0",
-     "ms": 28,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -30609,7 +30679,7 @@
      ],
      "id": "ma2",
      "message": "activate action_btn:8 -- the page said 'Recorded 9.00 for A2'",
-     "ms": 29,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -30628,7 +30698,7 @@
      ],
      "id": "mp3",
      "message": "pick pick_search:0",
-     "ms": 148,
+     "ms": 153,
      "result": "driven"
     },
     {
@@ -30656,7 +30726,7 @@
      ],
      "id": "mv3",
      "message": "set-text field_in:0",
-     "ms": 26,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -30670,7 +30740,7 @@
      ],
      "id": "ma3",
      "message": "activate action_btn:8 -- the page said 'Recorded 10.00 for A3'",
-     "ms": 30,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -30689,7 +30759,7 @@
      ],
      "id": "mp4",
      "message": "pick pick_search:0",
-     "ms": 148,
+     "ms": 151,
      "result": "driven"
     },
     {
@@ -30703,7 +30773,7 @@
      ],
      "id": "mt4",
      "message": "activate chip:3",
-     "ms": 25,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -30731,7 +30801,7 @@
      ],
      "id": "ma4",
      "message": "activate action_btn:8 -- the page said 'Recorded 11.00 for A4'",
-     "ms": 27,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -30750,7 +30820,7 @@
      ],
      "id": "mp5",
      "message": "pick pick_search:0",
-     "ms": 149,
+     "ms": 155,
      "result": "driven"
     },
     {
@@ -30764,7 +30834,7 @@
      ],
      "id": "mt5",
      "message": "activate chip:3",
-     "ms": 24,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -30778,7 +30848,7 @@
      ],
      "id": "mv5",
      "message": "set-text field_in:0",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -30811,7 +30881,7 @@
      ],
      "id": "mp6",
      "message": "pick pick_search:0",
-     "ms": 147,
+     "ms": 151,
      "result": "driven"
     },
     {
@@ -30825,7 +30895,7 @@
      ],
      "id": "mt6",
      "message": "activate chip:3",
-     "ms": 26,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -30839,7 +30909,7 @@
      ],
      "id": "mv6",
      "message": "set-text field_in:0",
-     "ms": 27,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -30853,7 +30923,7 @@
      ],
      "id": "ma6",
      "message": "activate action_btn:8 -- the page said 'Recorded 13.00 for A6'",
-     "ms": 29,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -30866,8 +30936,8 @@
       }
      ],
      "id": "measured",
-     "message": "4 figure(s), 17 box(es), 3 list(s), 0 table(s), 19 heading(s)",
-     "ms": 28,
+     "message": "4 figure(s), 18 box(es), 3 list(s), 0 table(s), 19 heading(s)",
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -30881,7 +30951,7 @@
      ],
      "id": "ind2",
      "message": "opened pane p-ind",
-     "ms": 75,
+     "ms": 88,
      "result": "driven"
     },
     {
@@ -30895,7 +30965,7 @@
      ],
      "id": "w0",
      "message": "activate dial_btn:7",
-     "ms": 29,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -30909,7 +30979,7 @@
      ],
      "id": "w1",
      "message": "activate dial_btn:9",
-     "ms": 31,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -30923,7 +30993,7 @@
      ],
      "id": "w2",
      "message": "activate dial_btn:12",
-     "ms": 27,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -30937,7 +31007,7 @@
      ],
      "id": "w3",
      "message": "activate dial_btn:14",
-     "ms": 27,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -30951,7 +31021,7 @@
      ],
      "id": "w4",
      "message": "activate dial_btn:16",
-     "ms": 26,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -30965,7 +31035,7 @@
      ],
      "id": "w5",
      "message": "activate dial_btn:18",
-     "ms": 26,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -30979,7 +31049,7 @@
      ],
      "id": "sel",
      "message": "opened pane p-sel",
-     "ms": 104,
+     "ms": 112,
      "result": "driven"
     },
     {
@@ -31032,7 +31102,7 @@
       }
      ],
      "id": "report",
-     "message": "9 figure(s), 17 box(es), 3 list(s), 0 table(s), 20 heading(s)",
+     "message": "9 figure(s), 18 box(es), 3 list(s), 0 table(s), 20 heading(s)",
      "ms": 11,
      "result": "driven"
     },
@@ -31046,8 +31116,8 @@
       }
      ],
      "id": "upward",
-     "message": "9 figure(s), 17 box(es), 3 list(s), 0 table(s), 20 heading(s)",
-     "ms": 9,
+     "message": "9 figure(s), 18 box(es), 3 list(s), 0 table(s), 20 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -31060,8 +31130,8 @@
       }
      ],
      "id": "grad",
-     "message": "9 figure(s), 17 box(es), 3 list(s), 0 table(s), 20 heading(s)",
-     "ms": 8,
+     "message": "9 figure(s), 18 box(es), 3 list(s), 0 table(s), 20 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -31104,8 +31174,8 @@
       }
      ],
      "id": "charts",
-     "message": "9 figure(s), 17 box(es), 3 list(s), 0 table(s), 20 heading(s)",
-     "ms": 6,
+     "message": "9 figure(s), 18 box(es), 3 list(s), 0 table(s), 20 heading(s)",
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -31129,7 +31199,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 6,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -31143,7 +31213,7 @@
      ],
      "id": "g158-tmea",
      "message": "opened pane p-mea",
-     "ms": 81,
+     "ms": 68,
      "result": "driven"
     },
     {
@@ -31171,7 +31241,7 @@
      ],
      "id": "g158-tu",
      "message": "set-text text_in:7",
-     "ms": 28,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -31185,7 +31255,7 @@
      ],
      "id": "g158-tadd",
      "message": "activate action_btn:10 -- the page said 'Added wing chord'",
-     "ms": 28,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -31199,7 +31269,7 @@
      ],
      "id": "g158-a7pane",
      "message": "opened pane p-ind",
-     "ms": 72,
+     "ms": 89,
      "result": "driven"
     },
     {
@@ -31213,7 +31283,7 @@
      ],
      "id": "g158-a7coh",
      "message": "set-text text_in:1",
-     "ms": 26,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -31227,7 +31297,7 @@
      ],
      "id": "g158-a7id",
      "message": "set-text text_in:0",
-     "ms": 26,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -31240,8 +31310,8 @@
       }
      ],
      "id": "g158-a7add",
-     "message": "activate action_btn:0 -- the page said 'Added A7'",
-     "ms": 26,
+     "message": "activate action_btn:0 -- the page said 'The next individual will be logged as: sex M \u00b7 age class adult.'",
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -31255,7 +31325,7 @@
      ],
      "id": "g158-mpane",
      "message": "opened pane p-mea",
-     "ms": 76,
+     "ms": 85,
      "result": "driven"
     },
     {
@@ -31269,7 +31339,7 @@
      ],
      "id": "g158-a7pick",
      "message": "pick pick_search:0",
-     "ms": 146,
+     "ms": 151,
      "result": "driven"
     },
     {
@@ -31283,7 +31353,7 @@
      ],
      "id": "g158-a7tr",
      "message": "activate chip:5",
-     "ms": 26,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -31297,7 +31367,7 @@
      ],
      "id": "g158-a7v",
      "message": "set-text field_in:0",
-     "ms": 26,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -31325,7 +31395,7 @@
      ],
      "id": "g158-hpane",
      "message": "opened pane p-her",
-     "ms": 78,
+     "ms": 85,
      "result": "driven"
     },
     {
@@ -31339,7 +31409,7 @@
      ],
      "id": "g158-poff",
      "message": "pick pick_search:1",
-     "ms": 147,
+     "ms": 151,
      "result": "driven"
     },
     {
@@ -31353,7 +31423,7 @@
      ],
      "id": "g158-pdam",
      "message": "pick pick_search:2",
-     "ms": 147,
+     "ms": 151,
      "result": "driven"
     },
     {
@@ -31367,7 +31437,7 @@
      ],
      "id": "g158-psire",
      "message": "pick pick_search:3",
-     "ms": 148,
+     "ms": 150,
      "result": "driven"
     },
     {
@@ -31381,7 +31451,7 @@
      ],
      "id": "g158-plink",
      "message": "activate action_btn:18 -- the page said 'Linked'",
-     "ms": 26,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -31395,7 +31465,7 @@
      ],
      "id": "g158-a7surv-pane",
      "message": "opened pane p-ind",
-     "ms": 68,
+     "ms": 66,
      "result": "driven"
     },
     {
@@ -31409,7 +31479,7 @@
      ],
      "id": "g158-a7surv",
      "message": "activate dial_btn:20",
-     "ms": 33,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -31423,7 +31493,7 @@
      ],
      "id": "g158-hpane2",
      "message": "opened pane p-her",
-     "ms": 94,
+     "ms": 93,
      "result": "driven"
     },
     {
@@ -31437,7 +31507,7 @@
      ],
      "id": "g158-htr",
      "message": "activate chip:13",
-     "ms": 25,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -31451,7 +31521,7 @@
      ],
      "id": "g158-spane",
      "message": "opened pane p-sel",
-     "ms": 92,
+     "ms": 88,
      "result": "driven"
     },
     {
@@ -31465,7 +31535,7 @@
      ],
      "id": "g158-str",
      "message": "activate chip:8",
-     "ms": 26,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -31479,7 +31549,7 @@
      ],
      "id": "g158-xpane",
      "message": "opened pane p-her",
-     "ms": 96,
+     "ms": 90,
      "result": "driven"
     },
     {
@@ -31493,7 +31563,7 @@
      ],
      "id": "g158-csv",
      "message": "activate action_btn:20 -- the page said 'Measurements CSV copied \u2014 7 rows' -- 1 payload(s) produced",
-     "ms": 30,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -31536,7 +31606,7 @@
      ],
      "id": "g158-ind",
      "message": "activate action_btn:21 -- the page said 'Individuals CSV copied \u2014 one row per individual, ready for a multiple regressio",
-     "ms": 25,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -31560,7 +31630,7 @@
      ],
      "id": "g158-indout",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -31574,36 +31644,36 @@
      ],
      "id": "g158-eco",
      "message": "activate action_btn:22 -- the page said 'Study sheet copied' -- 1 payload(s) produced",
-     "ms": 27,
+     "ms": 29,
      "result": "driven"
     },
     {
      "action": "collect-output",
      "expectations": [
       {
-       "detail": "output.payloads.0.text contains '# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)', got '# selection log\\n# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)\\n# 7 individuals, 7 measurements, 1 parent links\\n\\n  bill depth        n=6  mean 10.500  SD 1.871  R=not measured\\n  tarsus            n=1  mean 19.200  SD \u2014  R=not measured\\n\\n# no p-values are computed: effect size and its uncertainty are the quantities of interest'",
+       "detail": "output.payloads.0.text contains '# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)', got '# selection log\\n# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)\\n# 7 individuals, 7 measurements, 1 parent links\\n\\n  bill depth        n=6  mean 10.500  SD 1.871  R=not measured\\n  tarsus            n=1  mean 19.200  SD \u2014  R=not measured\\n\\n# selection on bill depth   n = 6 with fitness recorded\\n  differential S       1.000 mm\\n  intensity i          0.586   (SD units)\\n  gradient \u03b2            0.586   (univariate; = i for a single trait)\\n  SE of \u03b2               0.198\\n  mean after           11.500\\n\\n# no p-values are computed: effect size and its uncertainty are the quantities of interest'",
        "path": "output.payloads.0.text",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains '# 7 individuals, 7 measurements, 1 parent links', got '# selection log\\n# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)\\n# 7 individuals, 7 measurements, 1 parent links\\n\\n  bill depth        n=6  mean 10.500  SD 1.871  R=not measured\\n  tarsus            n=1  mean 19.200  SD \u2014  R=not measured\\n\\n# no p-values are computed: effect size and its uncertainty are the quantities of interest'",
+       "detail": "output.payloads.0.text contains '# 7 individuals, 7 measurements, 1 parent links', got '# selection log\\n# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)\\n# 7 individuals, 7 measurements, 1 parent links\\n\\n  bill depth        n=6  mean 10.500  SD 1.871  R=not measured\\n  tarsus            n=1  mean 19.200  SD \u2014  R=not measured\\n\\n# selection on bill depth   n = 6 with fitness recorded\\n  differential S       1.000 mm\\n  intensity i          0.586   (SD units)\\n  gradient \u03b2            0.586   (univariate; = i for a single trait)\\n  SE of \u03b2               0.198\\n  mean after           11.500\\n\\n# no p-values are computed: effect size and its uncertainty are the quantities of interest'",
        "path": "output.payloads.0.text#2",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'n=6  mean 10.500  SD 1.871  R=not measured', got '# selection log\\n# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)\\n# 7 individuals, 7 measurements, 1 parent links\\n\\n  bill depth        n=6  mean 10.500  SD 1.871  R=not measured\\n  tarsus            n=1  mean 19.200  SD \u2014  R=not measured\\n\\n# no p-values are computed: effect size and its uncertainty are the quantities of interest'",
+       "detail": "output.payloads.0.text contains 'n=6  mean 10.500  SD 1.871  R=not measured', got '# selection log\\n# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)\\n# 7 individuals, 7 measurements, 1 parent links\\n\\n  bill depth        n=6  mean 10.500  SD 1.871  R=not measured\\n  tarsus            n=1  mean 19.200  SD \u2014  R=not measured\\n\\n# selection on bill depth   n = 6 with fitness recorded\\n  differential S       1.000 mm\\n  intensity i          0.586   (SD units)\\n  gradient \u03b2            0.586   (univariate; = i for a single trait)\\n  SE of \u03b2               0.198\\n  mean after           11.500\\n\\n# no p-values are computed: effect size and its uncertainty are the quantities of interest'",
        "path": "output.payloads.0.text#3",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'n=1  mean 19.200  SD \u2014  R=not measured', got '# selection log\\n# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)\\n# 7 individuals, 7 measurements, 1 parent links\\n\\n  bill depth        n=6  mean 10.500  SD 1.871  R=not measured\\n  tarsus            n=1  mean 19.200  SD \u2014  R=not measured\\n\\n# no p-values are computed: effect size and its uncertainty are the quantities of interest'",
+       "detail": "output.payloads.0.text contains 'n=1  mean 19.200  SD \u2014  R=not measured', got '# selection log\\n# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)\\n# 7 individuals, 7 measurements, 1 parent links\\n\\n  bill depth        n=6  mean 10.500  SD 1.871  R=not measured\\n  tarsus            n=1  mean 19.200  SD \u2014  R=not measured\\n\\n# selection on bill depth   n = 6 with fitness recorded\\n  differential S       1.000 mm\\n  intensity i          0.586   (SD units)\\n  gradient \u03b2            0.586   (univariate; = i for a single trait)\\n  SE of \u03b2               0.198\\n  mean after           11.500\\n\\n# no p-values are computed: effect size and its uncertainty are the quantities of interest'",
        "path": "output.payloads.0.text#4",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g158-ecoout",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -31617,7 +31687,7 @@
      ],
      "id": "g158-endpane",
      "message": "opened pane p-sel",
-     "ms": 69,
+     "ms": 87,
      "result": "driven"
     },
     {
@@ -31655,7 +31725,7 @@
       }
      ],
      "id": "g158-endreport",
-     "message": "9 figure(s), 17 box(es), 4 list(s), 0 table(s), 20 heading(s)",
+     "message": "9 figure(s), 18 box(es), 4 list(s), 0 table(s), 20 heading(s)",
      "ms": 10,
      "result": "driven"
     },
@@ -31680,7 +31750,7 @@
      ],
      "id": "g158-endintact",
      "message": "read the page",
-     "ms": 6,
+     "ms": 7,
      "result": "driven"
     }
    ],
