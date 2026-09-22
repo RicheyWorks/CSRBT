@@ -497,6 +497,131 @@ with sync_playwright() as p:
     ]:
         ck("method page: %s" % why, phrase in met, phrase)
 
+    # ================= ADR-237: what the page says beside a perfect fit =================
+    # The eighth blind trial met "1 of 12 starts converged to the same
+    # configuration. That is not a stable solution." beside stress 0.000 on
+    # four and five sites, "1 value ... were taken as zero", and the demo's
+    # toast still reading "Simulated: ... no gradient at all" after it had
+    # pasted its own data. Held here against the page's own state and, for the
+    # claim that matters, against an independent construction.
+    def start_box():
+        return pg.evaluate("()=>document.getElementById('startBox').innerText").strip()
+
+    def copied(btn):
+        pg.evaluate("""()=>{ window.__cp=[]; const ec=document.execCommand.bind(document);
+          document.execCommand=function(c){ if(c==='copy'){ const t=document.querySelector('textarea:last-of-type');
+            window.__cp.push(document.activeElement && document.activeElement.value!==undefined
+              ? document.activeElement.value : (t?t.value:'')); return true; } return ec.apply(null, arguments); }; }""")
+        pg.click('.tab[data-pane="p-ord"]'); pg.wait_for_timeout(200)
+        pg.click(btn); pg.wait_for_timeout(250)
+        return (pg.evaluate("()=>window.__cp") or [""])[-1]
+
+    FOUR = "site,a,b,c,d\nP,5,1,0,0\nQ,4,2,1,0\nR,1,4,3,0\nS,0,1,5,2"
+    for label, text, nsites in (("four sites", FOUR, 4),
+                                ("five sites", FOUR + "\nT,0,0,2,6", 5)):
+        feed(text)
+        sb = start_box()
+        m = re.match(r"(\d+) of (\d+) starts reached a perfect fit \(stress 0\.000\), and (\d+) of them (is|are) "
+                     r"this configuration\.", sb)
+        ck("%s at stress 0.000: the starts verdict says how many reached a PERFECT fit, not that the "
+           "solution is unstable -- %r" % (label, sb[:150]),
+           bool(m) and "not a stable solution" not in sb and "converged to the same configuration" not in sb, sb[:200])
+        if m:
+            pf, n, ag, verb = int(m.group(1)), int(m.group(2)), int(m.group(3)), m.group(4)
+            tile = stat("starts agreeing") or ""
+            ck("%s: the counts are consistent -- agreeing (%d) within perfect (%d) within starts (%d), the "
+               "tile reads %s, and the verb agrees with the count" % (label, ag, pf, n, tile),
+               1 <= ag <= pf <= n and tile.replace(" ", "") == "%d/%d" % (ag, n)
+               and verb == ("is" if ag == 1 else "are"), (ag, pf, n, tile, verb))
+            ck("%s: 'with %d sites' names the page's own site count, and the rest are accounted for iff "
+               "some start missed the perfect fit" % (label, nsites),
+               ("with %d sites" % nsites) in sb
+               and (("stopped in local minima" in sb) == (pf < n)), sb[-200:])
+            coords = copied("#copyCoord")
+            ck("%s: the copied coordinates say how many starts reached stress 0 and that the arrangement is "
+               "one of several" % label,
+               ("; %d of %d random starts agree, %d of %d reach stress 0 -- one of several exact arrangements"
+                % (ag, n, pf, n)) in coords, coords[-220:])
+            if np is not None and nsites == 4:
+                # THE CLAIM, INDEPENDENTLY: more than one arrangement reproduces the
+                # rank order exactly. Take the page's own configuration, move every
+                # point by an amount that keeps the order of the six distances, and
+                # compute Kruskal's stress-1 in Python with its own isotonic fit:
+                # still zero, and not the same configuration up to rotation, reflection
+                # and scale.
+                rows_ = [r.split(",") for r in coords.split("\n") if r and not r.startswith("#")][1:]
+                Y = np.array([[float(v) for v in r[1:3]] for r in rows_])
+                Xq = np.array([[5, 1, 0, 0], [4, 2, 1, 0], [1, 4, 3, 0], [0, 1, 5, 2]], float)
+                Dq = bray(wisconsin(np.sqrt(Xq)))
+                iu = np.triu_indices(4, 1)
+                dis = Dq[iu]
+                def _stress(Yc):
+                    d = np.sqrt(((Yc[:, None, :] - Yc[None, :, :]) ** 2).sum(-1))[iu]
+                    order = np.argsort(dis, kind="mergesort")
+                    y = list(d[order]); blocks = [[v, 1] for v in y]; i = 0
+                    while i < len(blocks) - 1:          # pool adjacent violators
+                        if blocks[i][0] > blocks[i + 1][0] + 1e-15:
+                            tot = blocks[i][0] * blocks[i][1] + blocks[i + 1][0] * blocks[i + 1][1]
+                            cnt = blocks[i][1] + blocks[i + 1][1]
+                            blocks[i:i + 2] = [[tot / cnt, cnt]]; i = max(i - 1, 0)
+                        else:
+                            i += 1
+                    dh = np.concatenate([[v] * c for v, c in blocks])
+                    ds = d[order]
+                    return math.sqrt(((ds - dh) ** 2).sum() / (ds ** 2).sum())
+                def _procrustes_fit(A, B):
+                    A = A - A.mean(0); B = B - B.mean(0)
+                    A = A / np.linalg.norm(A); B = B / np.linalg.norm(B)
+                    return np.linalg.svd(A.T @ B, compute_uv=False).sum()
+                rng_ = np.random.RandomState(237)
+                alt = None
+                for _ in range(4000):
+                    cand = Y + rng_.normal(0, 0.25 * np.abs(Y).max(), Y.shape)
+                    if _stress(cand) < 1e-12 and _procrustes_fit(Y, cand) < 0.99:
+                        alt = cand; break
+                ck("four sites: an independent construction finds a second arrangement with stress-1 = 0 "
+                   "(Python's own isotonic fit) that is NOT the page's up to rotation, reflection and scale "
+                   "-- so 'one of several exact ones' is true, and 'not a stable solution' was false",
+                   alt is not None and _stress(Y) < 1e-6,
+                   "page stress %.2e, alternative %s" % (_stress(Y), None if alt is None else "found"))
+
+    # the old verdict is kept where it belongs: a real fit with real stress
+    pg.click('.tab[data-pane="p-data"]'); pg.wait_for_timeout(200)
+    pg.click("#demo1"); pg.wait_for_timeout(1800)
+    pg.click('.tab[data-pane="p-ord"]'); pg.wait_for_timeout(200)
+    sb = start_box()
+    ck("the twenty-site demo (stress above zero) keeps the convergence verdict it always had: %r" % sb[:90],
+       re.match(r"\d+ of \d+ starts converged to the same configuration\.", sb) is not None
+       and "perfect fit" not in sb, sb[:200])
+    coords = copied("#copyCoord")
+    ck("...and its coordinates say nothing about stress 0",
+       "random starts agree" in coords and "reach stress 0" not in coords, coords[-200:])
+
+    # one value, two values
+    feed("site,a,b,c\nX,1,two,3\nY,3,2,1\nZ,0,5,5\nW,1,1,1\nV,2,2,2")
+    po = pg.evaluate("()=>document.getElementById('parseOut').innerText")
+    ck("one unreadable value 'was taken as zero', not 'were'",
+       "1 value could not be read as a number and was taken as zero: X / b = two" in po
+       and "were taken" not in po, po[-260:])
+    feed("site,a,b,c\nX,1,two,3\nY,3,x,1\nZ,0,5,5\nW,1,1,1\nV,2,2,2")
+    po = pg.evaluate("()=>document.getElementById('parseOut').innerText")
+    ck("two unreadable values 'could not be read as numbers and were taken as zero'",
+       "2 values could not be read as numbers and were taken as zero: X / b = two; Y / b = x" in po, po[-260:])
+
+    # a toast that has gone says nothing
+    pg.click('.tab[data-pane="p-data"]'); pg.wait_for_timeout(150)
+    pg.click("#demo2"); pg.wait_for_timeout(200)
+    t0 = pg.evaluate("()=>document.getElementById('toast').textContent")
+    pg.wait_for_timeout(2500)
+    t1 = pg.evaluate("()=>[document.getElementById('toast').textContent, document.getElementById('toast').classList.contains('on')]")
+    ck("the demo's toast says what it did while it is showing, and nothing once it has gone: %r then %r"
+       % (t0, t1), t0.startswith("Simulated") and t1 == ["", False], (t0, t1))
+    feed(FOUR)
+    pg.wait_for_timeout(2500)
+    t2 = pg.evaluate("()=>document.getElementById('toast').textContent")
+    ck("...so after the reader's own data is in, the page is not still saying 'Simulated': %r" % t2,
+       "Simulated" not in t2, t2)
+
     b.close()
 
 # ---- four paths a mutation sweep found untested ----

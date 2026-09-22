@@ -107,6 +107,7 @@ RUNNERS = [
     ("mutate_mb", "the micro bench's reports: the saturation sentence, the breakpoint band, organism and medium"),
     ("mutate_proofs", "the tree proofs' worst-case sentence, read off the tree it describes"),
     ("mutate_anchors", "the anchor audit: whether the ledger's kills are about the code as it is"),
+    ("mutate_ord", "the ordination page's verdicts: a perfect fit, the unreadable-value count, the toast"),
 ]
 
 

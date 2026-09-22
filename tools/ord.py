@@ -15,7 +15,7 @@ which redoes that comparison every run rather than trusting this comment.
     python3 tools/ord_emit.py           # rewrite the consumer
     python3 tools/ord_emit.py --check   # report drift, write nothing
 """
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 JS = """
 /* ---- Ordination v%s : NMDS (Kruskal 1964) and PCoA (Gower 1966) ---- */
@@ -296,6 +296,12 @@ var ORD = (function(){
       if(r2.stress < best.stress + 1e-4 && procrustes(best.coords, r2.coords) > 0.999) agree++;
     });
     best.starts=all.length; best.agree=agree+1;
+    /* ADR-237: how many starts reached a PERFECT fit. At stress 0 the rank
+       order is reproduced exactly, and with few sites more than one
+       arrangement does that -- so starts disagreeing about the configuration
+       is not instability, and "1 of 12 agree" beside stress 0.000 read as a
+       contradiction to the blind operator who met it. */
+    best.perfect=all.filter(function(r2){ return r2.stress < 1e-4; }).length;
     best.stresses=all.map(function(r2){return r2.stress;}).sort(function(a,b){return a-b;});
     return best;
   }

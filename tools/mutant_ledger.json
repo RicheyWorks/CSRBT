@@ -3811,6 +3811,57 @@
    ],
    "survived": 0
   },
+  "mutate_ord": {
+   "at": 1790056161,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 8,
+   "mutants": 8,
+   "rows": [
+    {
+     "detail": "2 failure(s); first: four sites at stress 0.000: the starts verdict says how man",
+     "name": "a perfect fit gets the instability verdict again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the twenty-site demo (stress above zero) keeps the converge",
+     "name": "any stress under 1 is called a perfect fit",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: five sites: 'with 5 sites' names the page's own site count,",
+     "name": "the site count is typed as four",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: four sites: the copied coordinates say how many starts reac",
+     "name": "the coordinates never say how many starts reached stress 0",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and its coordinates say nothing about stress 0  << ell. ",
+     "name": "the coordinates say stress 0 whatever the stress",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: one unreadable value 'was taken as zero', not 'were'  << si",
+     "name": "one value 'were' taken as zero again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: two unreadable values 'could not be read as numbers and wer",
+     "name": "two values could not be read as 'a number'",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the demo's toast says what it did while it is showing, and ",
+     "name": "a toast that has gone keeps its words",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_organism": {
    "at": 1788347195,
    "equivalent": 4,

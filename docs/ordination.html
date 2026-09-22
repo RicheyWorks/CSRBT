@@ -1830,7 +1830,7 @@ var OUT = (function(){
            status:function(){ return LIVE ? LIVE.status() : null; } };
 })();
 
-/* ---- Ordination v1.0.0 : NMDS (Kruskal 1964) and PCoA (Gower 1966) ---- */
+/* ---- Ordination v1.1.0 : NMDS (Kruskal 1964) and PCoA (Gower 1966) ---- */
 var ORD = (function(){
   function zeros(n,m){ var A=[],i,j; for(i=0;i<n;i++){ A.push([]); for(j=0;j<m;j++) A[i].push(0);} return A; }
 
@@ -2108,6 +2108,12 @@ var ORD = (function(){
       if(r2.stress < best.stress + 1e-4 && procrustes(best.coords, r2.coords) > 0.999) agree++;
     });
     best.starts=all.length; best.agree=agree+1;
+    /* ADR-237: how many starts reached a PERFECT fit. At stress 0 the rank
+       order is reproduced exactly, and with few sites more than one
+       arrangement does that -- so starts disagreeing about the configuration
+       is not instability, and "1 of 12 agree" beside stress 0.000 read as a
+       contradiction to the blind operator who met it. */
+    best.perfect=all.filter(function(r2){ return r2.stress < 1e-4; }).length;
     best.stresses=all.map(function(r2){return r2.stress;}).sort(function(a,b){return a-b;});
     return best;
   }
@@ -2129,8 +2135,13 @@ var ORD = (function(){
   function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
     return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
   var toastT;
+  /* ADR-237: a toast that has gone says nothing. It used to slide away and
+     keep its words, so the demo's "Simulated: ... no gradient at all" was
+     still the page's toast after the reader had pasted their own data -- and
+     a reader of the page (the blind operator's read-report) read it as current. */
   function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
-    clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove("on"); },1900); }
+    clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove("on");
+      toastT=setTimeout(function(){ t.textContent=""; },300); },1900); }
   function copyText(s,msg,id){
     var a=document.createElement("textarea"); a.value=s;
     a.style.position="fixed"; a.style.opacity="0"; document.body.appendChild(a);
@@ -2274,8 +2285,9 @@ var ORD = (function(){
         + esc(absent.slice(0,8).join(", ")) + (absent.length>8 ? ", &hellip;" : "") + '.</div>';
     }
     if(M.bad && M.bad.length){
-      h += '<div class="verdict warn"><b>' + M.bad.length + ' value'+(M.bad.length===1?"":"s")
-        + ' could not be read as a number and were taken as zero:</b> '
+      h += '<div class="verdict warn"><b>' + M.bad.length
+        + (M.bad.length===1 ? ' value could not be read as a number and was taken as zero:</b> '
+                            : ' values could not be read as numbers and were taken as zero:</b> ')
         + esc(M.bad.slice(0,6).join("; ")) + (M.bad.length>6?"; &hellip;":"")
         + '. A blank cell is a legitimate zero; a typo is not, and the page cannot tell them apart.</div>';
     }
@@ -2542,6 +2554,19 @@ var ORD = (function(){
       return;
     }
     var agree=RES.agree, n=RES.starts, worst=RES.stresses[RES.stresses.length-1];
+    if(RES.stress < 1e-4){
+      var pf=RES.perfect||0, rest=n-pf;
+      b.innerHTML='<div class="verdict warn"><b>'+pf+' of '+n+' starts reached a perfect fit (stress '
+        + RES.stress.toFixed(3)+'), and '+agree+' of them '+(agree===1?'is':'are')+' this configuration.</b> '
+        + 'At stress zero the rank order of the dissimilarities is reproduced exactly, and with '
+        + M.sites.length+' sites more than one arrangement does that &mdash; so starts that disagree here '
+        + 'are not a sign of an unstable fit. The picture is one of several exact ones: read its rank '
+        + 'order, which all of them share, and not its distances.'
+        + (rest>0 ? ' The other '+rest+' start'+(rest===1?'':'s')+' stopped in local minima, the worst at stress '
+            + worst.toFixed(3)+'.' : '')
+        + '</div>';
+      return;
+    }
     var cls = agree===n ? "" : (agree >= Math.ceil(n/2) ? "warn" : "act");
     var h='<div class="verdict '+cls+'"><b>'+agree+' of '+n+' starts converged to the same configuration.</b> ';
     if(agree===n){
@@ -2668,7 +2693,9 @@ var ORD = (function(){
     L.push("# fitted from " + M.sites.length + " sites x " + M.taxa.length + " species = "
          + (M.sites.length*M.taxa.length) + " cells recorded, " + pctZero() + "% zeroes"
          + ", " + (M.sites.length*(M.sites.length-1)/2) + " pairs fitted"
-         + (RES.starts ? ("; " + RES.agree + " of " + RES.starts + " random starts agree") : ""));
+         + (RES.starts ? ("; " + RES.agree + " of " + RES.starts + " random starts agree"
+            + (RES.stress < 1e-4 ? (", " + (RES.perfect||0) + " of " + RES.starts
+               + " reach stress 0 -- one of several exact arrangements") : "")) : ""));
     copyText(L.join("\n"), "Coordinates copied", "coords");
   });
   $("copyDis").addEventListener("click",function(){

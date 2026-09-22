@@ -1,0 +1,37 @@
+{
+ "id": "adr237",
+ "chain": "adr236",
+ "chain_probe": "docs/ADR-236-a-figure-the-clock-carries-is-not-carried-2026-09-22.md",
+ "clean": [
+  "adr236"
+ ],
+ "once": true,
+ "subject": "ADR-237: a perfect fit is not an unstable one -- the ordination page stops calling stress 0.000 unstable, counts its unreadable values in agreement, and clears a toast that has gone",
+ "body": "The eighth blind trial filed three ordination defects and all three were live. At stress 0.000 on four and five sites the starts box said the solution was not stable because 1 of 12 starts agreed; at stress zero every start that reached it is an exact fit and with few sites there are many, so it now says how many reached a perfect fit and that the picture is one of several exact ones, and the copied coordinates say so too. One unreadable value was taken as zero, not were. A toast that has slid away is cleared, so the demo's message is not still read after your own data. Found: the page seeds its starts from the clock, so the task holds the sentence and the suite holds the counts' consistency. Task 89 to 100 confirmed, verify_ord 114 to 129 with an independent second stress-0 arrangement, new mutate_ord 8 of 8.",
+ "paths": [
+  "docs/ADR-237-a-perfect-fit-is-not-an-unstable-one-2026-09-22.md",
+  "docs/CHANGELOG-2026-09-22-adr237-a-perfect-fit-is-not-an-unstable-one.md",
+  "docs/AI_HARNESS.md",
+  "docs/ordination.html",
+  "tools/ord.py",
+  "tools/tasks/page-ordination-science.json",
+  "tools/task_ledger.json",
+  "tools/verify/verify_ord.py",
+  "tools/mutate_ord.py",
+  "tools/harness_board.py",
+  "tools/delivery/adr237.json",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json",
+  "tools/badinput_ledger.json",
+  "tools/carried_ledger.json",
+  "tools/destructive_ledger.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/readable_ledger.json",
+  "tools/restored_ledger.json",
+  "tools/takeaway_ledger.json"
+ ]
+}

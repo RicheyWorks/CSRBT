@@ -2,7 +2,7 @@
  "id": "page-ordination-science",
  "target": "page",
  "page": "ordination.html",
- "goal": "On the ordination page: the two-gradient demo parses to 20 sites x 24 species, NMDS in 2 dimensions carries a stress with Clarke's bands, the Shepard diagram fits 190 pairs (20*19/2), PCoA reports axis percentages over positive eigenvalues only with negative eigenvalues counted for a semi-metric; the no-structure demo will not help you read the picture; three sites are refused (four minimum); four sites at k=2 fit exactly by construction at stress 0.000 with the free-coordinates warning, five sites without it; an empty site, an unreadable value and a quoted comma in a species name are each named, not swallowed. Then every NMDS setting is driven from its own pane -- the square-root transform chip, the Bray-Curtis dissimilarity, the dimensions and the random-starts steppers -- each returned to its default so the seeded ordination is unchanged, and the quoted-data parse is read once more. Then the page's three exports are read: the copied dissimilarity matrix is the 4x4 Bray-Curtis of the square-rooted, Wisconsin-standardised quoted data to six decimals, byte for byte (X to Y 0.189902, X to W 0.101337, Y to Z 0.480846, zeros on the diagonal); the copied coordinates carry site,NMDS1,NMDS2, one row per site and the page's own warning that NMDS axes are arbitrary with stress-1 = 0.0000, and no NaN; and the print button prints.",
+ "goal": "On the ordination page: the two-gradient demo parses to 20 sites x 24 species, NMDS in 2 dimensions carries a stress with Clarke's bands, the Shepard diagram fits 190 pairs (20*19/2), PCoA reports axis percentages over positive eigenvalues only with negative eigenvalues counted for a semi-metric; the no-structure demo will not help you read the picture; three sites are refused (four minimum); four sites at k=2 fit exactly by construction at stress 0.000 with the free-coordinates warning, five sites without it; at stress 0.000 the page says how many starts reached a perfect fit and that the picture is one of several exact arrangements, never that it is unstable; an empty site, an unreadable value (one 'was' taken as zero, two 'were') and a quoted comma in a species name are each named, not swallowed. Then every NMDS setting is driven from its own pane -- the square-root transform chip, the Bray-Curtis dissimilarity, the dimensions and the random-starts steppers -- each returned to its default so the seeded ordination is unchanged, and the quoted-data parse is read once more. Then the page's three exports are read: the copied dissimilarity matrix is the 4x4 Bray-Curtis of the square-rooted, Wisconsin-standardised quoted data to six decimals, byte for byte (X to Y 0.189902, X to W 0.101337, Y to Z 0.480846, zeros on the diagonal); the copied coordinates carry site,NMDS1,NMDS2, one row per site and the page's own warning that NMDS axes are arbitrary with stress-1 = 0.0000, and no NaN; and the print button prints.",
  "steps": [
   {
    "id": "look",
@@ -237,7 +237,19 @@
      "op": "contains",
      "value": "Stress 0.000"
     },
-    "output.by.ordStat.sites": "4"
+    "output.by.ordStat.sites": "4",
+    "output.boxes.startBox": {
+     "op": "contains",
+     "value": " starts reached a perfect fit (stress 0.000), and "
+    },
+    "output.boxes.startBox#2": {
+     "op": "excludes",
+     "value": "not a stable solution"
+    },
+    "output.boxes.startBox#3": {
+     "op": "contains",
+     "value": "At stress zero the rank order of the dissimilarities is reproduced exactly, and with 4 sites more than one arrangement does that"
+    }
    }
   },
   {
@@ -279,6 +291,14 @@
     "output.boxes.ordVerdict": {
      "op": "contains",
      "value": "Stress 0.000"
+    },
+    "output.boxes.startBox": {
+     "op": "contains",
+     "value": " starts reached a perfect fit (stress 0.000), and "
+    },
+    "output.boxes.startBox#2": {
+     "op": "contains",
+     "value": "with 5 sites more than one arrangement does that"
     }
    }
   },
@@ -360,7 +380,52 @@
    "expect": {
     "output.boxes.parseOut": {
      "op": "contains",
-     "value": "could not be read as a number"
+     "value": "1 value could not be read as a number and was taken as zero: X / b = two."
+    },
+    "output.boxes.parseOut#2": {
+     "op": "excludes",
+     "value": "were taken as zero"
+    }
+   }
+  },
+  {
+   "id": "data7b",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-data"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "bad2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:raw",
+    "value": "site,a,b,c\nX,1,two,3\nY,3,x,1\nZ,0,5,5\nW,1,1,1\nV,2,2,2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "run7b",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:runBtn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "unreadable2",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.parseOut": {
+     "op": "contains",
+     "value": "2 values could not be read as numbers and were taken as zero: X / b = two; Y / b = x."
     }
    }
   },
@@ -546,6 +611,10 @@
     "output.payloads.1": {
      "op": "exists",
      "value": false
+    },
+    "output.payloads.0.text#7": {
+     "op": "contains",
+     "value": " reach stress 0 -- one of several exact arrangements"
     }
    }
   },
