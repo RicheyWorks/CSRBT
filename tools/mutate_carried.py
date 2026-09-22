@@ -163,6 +163,42 @@ MUTANTS += [
      "the record is a COPY"),
 ]
 
+MUTANTS += [
+    # ---- ADR-236: two clocks ----------------------------------------------
+    ("the page is read under the real clock only",
+     '''            for off in shifts:''',
+     '''            for off in shifts[:1]:''',
+     "A FIGURE ONLY THE CLOCK CARRIES IS LOST"),
+    ("the second clock is never installed",
+     '''                if off:
+                    ctx.add_init_script(SHIFT_JS % off)''',
+     '''                if False:
+                    ctx.add_init_script(SHIFT_JS % off)''',
+     "A FIGURE ONLY THE CLOCK CARRIES IS LOST"),
+    ("the shift script shifts nothing",
+     '''  if (!off) return;''',
+     '''  return;''',
+     "A FIGURE ONLY THE CLOCK CARRIES IS LOST"),
+    ("the shift moves the date but not the hour or minute",
+     '''SHIFTS_MS = (0, ((405 * 24 + 7) * 60 + 23) * 60 * 1000 + 31 * 1000 + 457)''',
+     '''SHIFTS_MS = (0, ((405 * 24 + 0) * 60 + 0) * 60 * 1000 + 31 * 1000 + 457)''',
+     "A FIGURE ONLY THE CLOCK CARRIES IS LOST"),
+    ("a figure is lost only if EVERY clock lost it",
+     '''    lost = sorted(set(l for r in ok for l in (r.get("lost") or [])))''',
+     '''    lost = sorted(set.intersection(*[set(r.get("lost") or []) for r in ok]))''',
+     "A FIGURE ONLY THE CLOCK CARRIES IS LOST"),
+    ("the figures are the first clock's labels only",
+     '''    labels = sorted(set(l for r in ok for l in (r.get("labels") or [])))''',
+     '''    labels = sorted(ok[0].get("labels") or [])''',
+     "combine: a figure is lost if any clock lost it"),
+    ("a reading that failed under one clock is dropped",
+     '''    if len(ok) < len(readings):
+        return [r for r in readings if r.get("error")][0]''',
+     '''    if False:
+        return [r for r in readings if r.get("error")][0]''',
+     "a reading that failed under either clock is the reading"),
+]
+
 
 def run_one(find, repl, expect):
     tmp = tempfile.mkdtemp(prefix="mutcarried_")

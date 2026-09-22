@@ -196,6 +196,23 @@ write("halfratio.html", fixture(
 write("noexport.html", fixture(u'""').replace(
     '<button id="csvCopy" type="button">Copy the sheet</button>', ''))
 
+# A page whose export is stamped with the time, and one of whose figures the
+# time alone can carry (ADR-236). The stamp tile is 100 + the UTC hour read off
+# the REAL clock (a Date built from performance, which no shift touches); the
+# export writes 100 + the hour of `new Date()`, which is the page's clock. On
+# the real clock the two agree, and a single reading called the figure carried.
+# On the shifted clock they cannot -- the shift moves the hour by seven -- so it
+# is lost, which is the truth: nothing the page hands over carries it. 100+ puts
+# it out of reach of every other number in the payload (a row count, a date's
+# fields), and the hour rather than the minute keeps the page and its export on
+# the same side of a boundary for as long as a reading takes.
+write("clock.html", fixture(
+    u'"rows,"+n+"\\nmean,"+mean.toFixed(2)+"\\ncells,6.00\\u00d710\\u2075\\nscored,"+n+" / 5"'
+    u'+"\\nstamp,"+(100+new Date().getUTCHours())+"\\nat,"+new Date().toISOString()').replace(
+    "+ '<div class=\"tile\"><div class=\"v\">fruiting</div>",
+    "+ '<div class=\"tile\"><div class=\"v\">'+(100+new Date(performance.timeOrigin+performance.now()).getUTCHours())"
+    "+'</div><div class=\"l\">hour stamp</div></div>'\n      + '<div class=\"tile\"><div class=\"v\">fruiting</div>"))
+
 S.TASKS_DIR = tasks_dir
 os.environ["CSRBT_DOCS_DIR"] = docs
 A.LEDGER = os.path.join(tmp, "carried_ledger.json")
@@ -251,6 +268,37 @@ ck(got["noexport.html"].get("noexport") is True
    "everything it works out: whether a page with a data trap and no export is a defect is "
    "audit_outputs' TRAP_ENTRY and its mute ratchet, and a second copy of that judgement here is "
    "the shape ADR-141 keeps finding: %s" % got["noexport.html"])
+
+# ---- G. two clocks (ADR-236) ------------------------------------------------
+ck(got["clock.html"]["figures"] == 5 and "hour stamp" in (got["clock.html"].get("labels") or []),
+   "the clock fixture publishes the four figures and an hour stamp: %s" % got["clock.html"].get("labels"))
+ck(lost("clock.html") == ["hour stamp"],
+   "A FIGURE ONLY THE CLOCK CARRIES IS LOST: the export's own timestamp matched it on the real "
+   "clock and cannot on a shifted one, so it is counted as what it is -- nothing the page hands "
+   "over carries it: %s" % lost("clock.html"))
+ck(got["clock.html"].get("clock_only") == ["hour stamp"],
+   "...and the reading says it was the clock: carried under one clock, lost under the other: %s"
+   % got["clock.html"].get("clock_only"))
+ck(all(r.get("clocks") == 2 for k, r in got.items() if not r.get("noexport")),
+   "every measured page is read under both clocks: %s"
+   % sorted((k, r.get("clocks")) for k, r in got.items() if not r.get("noexport")))
+ck(all(not r.get("clock_only") for k, r in got.items() if k != "clock.html" and not r.get("noexport")),
+   "...and no other fixture changes with the clock -- the shift moves what the page stamps, not "
+   "what it works out: %s" % [(k, r.get("clock_only")) for k, r in got.items() if r.get("clock_only")])
+_c = A.combine([{"labels": ["a", "b"], "lost": ["a"], "exports": 1},
+                {"labels": ["a", "b", "c"], "lost": ["c"], "exports": 2}])
+ck(_c["lost"] == ["a", "c"] and _c["figures"] == 3 and _c["clock_only"] == ["a", "c"] and _c["exports"] == 2,
+   "combine: a figure is lost if any clock lost it, and the figures are every label any clock "
+   "read: %s" % _c)
+_e1 = {"error": "boom"}
+ck(A.combine([{"labels": ["a"], "lost": []}, _e1]) is _e1 and A.combine([{"noexport": True}, {"noexport": True}])
+   == {"noexport": True},
+   "...a reading that failed under either clock is the reading, and a page with no export stays one")
+ck(A.SHIFTS_MS[0] == 0 and len(A.SHIFTS_MS) == 2 and A.SHIFTS_MS[1] > 366 * 86400000
+   and (A.SHIFTS_MS[1] // 3600000) % 24 not in (0,) and (A.SHIFTS_MS[1] // 60000) % 60 not in (0,)
+   and (A.SHIFTS_MS[1] // 1000) % 60 not in (0,),
+   "the second clock moves the year and the hour, minute and second, so no field of a timestamp "
+   "is the same under both: %d ms" % A.SHIFTS_MS[1])
 
 # ---- E. which controls are pressed ------------------------------------------
 _src = io.open(os.path.join(_kit.TOOLS_DIR, "audit_carried.py"), encoding="utf-8").read()

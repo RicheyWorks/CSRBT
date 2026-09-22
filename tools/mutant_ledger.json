@@ -850,7 +850,7 @@
    "survived": 0
   },
   "mutate_carried": {
-   "at": 1789708569,
+   "at": 1790047134,
    "equivalent": 1,
    "equivalents": [
     {
@@ -859,16 +859,16 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 29,
-   "mutants": 29,
+   "killed": 36,
+   "mutants": 36,
    "rows": [
     {
-     "detail": "11 failure(s); first: A FIGURE IN NO PAYLOAD IS LOST -- and only that one, so th",
+     "detail": "13 failure(s); first: A FIGURE IN NO PAYLOAD IS LOST -- and only that one, so th",
      "name": "nothing is ever lost",
      "verdict": "killed"
     },
     {
-     "detail": "13 failure(s); first: ...so a figure in scientific notation is carried by a file",
+     "detail": "15 failure(s); first: ...so a figure in scientific notation is carried by a file",
      "name": "everything is lost, because nothing is ever found",
      "verdict": "killed"
     },
@@ -923,22 +923,22 @@
      "verdict": "killed"
     },
     {
-     "detail": "10 failure(s); first: THE FIGURES ARE THE ONES THE PAGE PUBLISHES, read from rea",
+     "detail": "12 failure(s); first: THE FIGURES ARE THE ONES THE PAGE PUBLISHES, read from rea",
      "name": "a figure with no number in it is counted as lost",
      "verdict": "killed"
     },
     {
-     "detail": "8 failure(s); first: A PAGE THAT EXPORTS WHAT IT WORKS OUT LOSES NOTHING: ['cell",
+     "detail": "10 failure(s); first: A PAGE THAT EXPORTS WHAT IT WORKS OUT LOSES NOTHING: ['cel",
      "name": "the payload is never parsed, so no figure is ever in it",
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: THE FIGURES ARE THE ONES THE PAGE PUBLISHES, read from read",
+     "detail": "10 failure(s); first: THE FIGURES ARE THE ONES THE PAGE PUBLISHES, read from rea",
      "name": "the page is never entered, so the export is pressed on an empty sheet",
      "verdict": "killed"
     },
     {
-     "detail": "15 failure(s); first: THE FIGURES ARE THE ONES THE PAGE PUBLISHES, read from rea",
+     "detail": "18 failure(s); first: THE FIGURES ARE THE ONES THE PAGE PUBLISHES, read from rea",
      "name": "which controls hand something over is decided here, by the label alone",
      "verdict": "killed"
     },
@@ -1005,6 +1005,41 @@
     {
      "detail": "1 failure(s); first: the record is a COPY, not the audit's live list: a row hold",
      "name": "the row holds the audit's own live list rather than a copy of it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A FIGURE ONLY THE CLOCK CARRIES IS LOST: the export's own t",
+     "name": "the page is read under the real clock only",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A FIGURE ONLY THE CLOCK CARRIES IS LOST: the export's own t",
+     "name": "the second clock is never installed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A FIGURE ONLY THE CLOCK CARRIES IS LOST: the export's own t",
+     "name": "the shift script shifts nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A FIGURE ONLY THE CLOCK CARRIES IS LOST: the export's own t",
+     "name": "the shift moves the date but not the hour or minute",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A FIGURE ONLY THE CLOCK CARRIES IS LOST: the export's own t",
+     "name": "a figure is lost only if EVERY clock lost it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: combine: a figure is lost if any clock lost it, and the fig",
+     "name": "the figures are the first clock's labels only",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...a reading that failed under either clock is the reading,",
+     "name": "a reading that failed under one clock is dropped",
      "verdict": "killed"
     }
    ],

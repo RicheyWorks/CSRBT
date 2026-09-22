@@ -1,0 +1,33 @@
+{
+ "id": "adr236",
+ "chain": "adr235",
+ "chain_probe": "docs/ADR-235-the-ledger-is-about-the-code-as-it-is-2026-09-21.md",
+ "clean": [
+  "adr235"
+ ],
+ "once": true,
+ "subject": "ADR-236: a figure the clock carries is not carried -- audit_carried reads every page under two clocks, and a figure counts as carried only if both carry it",
+ "body": "audit_carried matches each figure a page works out against every number in its exports, and exports carry their time: ADR-234's run read the releve's 49 taxa in pack as carried by a timestamp's 49 and flipped its declaration idle. Every page is now read twice, on the real clock and on one shifted by 405 days 7 h 23 m 31 s, so no field of a timestamp is the same under both; a figure is carried only if both readings carry it. The clock is shifted, not frozen, so durations still tick. verify_carried 47 to 55 with a fixture whose figure only its export's timestamp carries; mutate_carried 29 to 36. The kit reads exactly what it read before: 317 figures, none lost.",
+ "paths": [
+  "docs/ADR-236-a-figure-the-clock-carries-is-not-carried-2026-09-22.md",
+  "docs/CHANGELOG-2026-09-22-adr236-a-figure-the-clock-carries-is-not-carried.md",
+  "docs/AI_HARNESS.md",
+  "tools/audit_carried.py",
+  "tools/verify/verify_carried.py",
+  "tools/mutate_carried.py",
+  "tools/delivery/adr236.json",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json",
+  "tools/carried_ledger.json",
+  "tools/badinput_ledger.json",
+  "tools/destructive_ledger.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/readable_ledger.json",
+  "tools/restored_ledger.json",
+  "tools/takeaway_ledger.json"
+ ]
+}

@@ -281,20 +281,90 @@ def measure(ctx, name, tasks_dir=None):
             pass
 
 
-def walk(only=None, tasks_dir=None):
+# TWO CLOCKS, AND A FIGURE IS CARRIED ONLY IF IT IS CARRIED UNDER BOTH (ADR-236).
+#
+# A figure is matched by any number in any export, and exports carry the time
+# they were made. So a count of 49 was "carried" by an export stamped at 14:49
+# and lost by the same export a minute later: the relevé's declaration for
+# "taxa in pack" read IDLE in one full run and covering in the next (ADR-234).
+# Nothing about the page had changed; the audit was measuring the clock.
+#
+# The page is measured twice, once on the real clock and once on a clock
+# SHIFTED by an offset that moves the year, month, day, hour, minute and
+# second all at once. Every export's own timestamp therefore differs in every
+# field between the two readings, and a number that only the clock supplied
+# cannot be found in both. The clock is shifted, not frozen: a frozen
+# harness clock also stops performance.now(), which would turn every elapsed
+# duration a page works out into 0 -- a figure that any 0 in any export
+# "carries". Durations are differences of the same clock, so a shift leaves
+# them alone. A task that pins the clock itself (set-clock) is left pinned:
+# the shift applies only while the harness clock is unpinned.
+SHIFTS_MS = (0, ((405 * 24 + 7) * 60 + 23) * 60 * 1000 + 31 * 1000 + 457)
+
+SHIFT_JS = r"""
+(function (off) {
+  if (!off) return;
+  var B = window.Date;
+  function S(y, m, d, h, mi, s, ms) {
+    var pinned = window.__D && window.__D.epoch !== null && window.__D.epoch !== undefined;
+    if (!(this instanceof S)) return new B(pinned ? B.now() : B.now() + off).toString();
+    if (arguments.length === 0) return new B(pinned ? B.now() : B.now() + off);
+    var a = [null].concat(Array.prototype.slice.call(arguments));
+    return new (Function.prototype.bind.apply(B, a))();
+  }
+  S.prototype = B.prototype;
+  S.now = function () {
+    var pinned = window.__D && window.__D.epoch !== null && window.__D.epoch !== undefined;
+    return pinned ? B.now() : B.now() + off;
+  };
+  S.parse = B.parse; S.UTC = B.UTC;
+  window.Date = S;
+})(%d);
+"""
+
+
+def combine(readings):
+    """One reading from several taken under different clocks: a label is LOST
+    if any reading in which it was measured lost it, so it is CARRIED only if
+    every reading carried it."""
+    ok = [r for r in readings if not r.get("error")]
+    if not ok:
+        return readings[0]
+    if len(ok) < len(readings):
+        return [r for r in readings if r.get("error")][0]
+    if all(r.get("noexport") for r in ok):
+        return ok[0]
+    labels = sorted(set(l for r in ok for l in (r.get("labels") or [])))
+    lost = sorted(set(l for r in ok for l in (r.get("lost") or [])))
+    return {"exports": max(r.get("exports", 0) for r in ok),
+            "bytes": max(r.get("bytes", 0) for r in ok),
+            "figures": len(labels), "labels": labels, "lost": lost, "noexport": False,
+            "clocks": len(ok),
+            # carried under one clock and not another: the figures the clock
+            # alone was carrying, which a single reading would have called carried
+            "clock_only": sorted(set(lost) - set.intersection(*[set(r.get("lost") or []) for r in ok]))}
+
+
+def walk(only=None, tasks_dir=None, shifts=SHIFTS_MS):
     from playwright.sync_api import sync_playwright
     out = {}
     names = [only] if only else pages()
     with sync_playwright() as pw:
         b = pw.chromium.launch()
         for name in names:
-            # Its own context, so that one page's autosave is not another page's
-            # starting data -- ADR-209's defect, found next door.
-            ctx = b.new_context(viewport=H.VIEWPORT)
-            ctx.set_offline(True)
-            ctx.add_init_script(H.STUBS)
-            out[name] = measure(ctx, name, tasks_dir)
-            ctx.close()
+            readings = []
+            for off in shifts:
+                # Its own context, so that one page's autosave is not another page's
+                # starting data -- ADR-209's defect, found next door -- and one
+                # clock's reading is not the other's.
+                ctx = b.new_context(viewport=H.VIEWPORT)
+                ctx.set_offline(True)
+                ctx.add_init_script(H.STUBS)
+                if off:
+                    ctx.add_init_script(SHIFT_JS % off)
+                readings.append(measure(ctx, name, tasks_dir))
+                ctx.close()
+            out[name] = combine(readings)
         b.close()
     return out
 
