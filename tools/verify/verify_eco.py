@@ -846,14 +846,113 @@ with sync_playwright() as p:
                and _v(s, "output.by.t-island-tiles.mean residence") == LM.island(c)["tiles"]["mean residence"] for s, c in (("boot", 12), ("island", 32))),
        (_v("boot", "output.boxes.t-meadow-read"), _v("island", "output.by.t-island-tiles.mean residence")))
     _A = dict(zip(("area", "temp", "wind", "dist"), _HAB))
-    ck("the lab task holds the theory bench's chart to the port's model at `logistic-again` (r 0.25, N0 10, 30 steps, the typed habitat), at `competition` (two curves of 81) and at `still` (the defaults, the neutral habitat the import restored)",
+    ck("the lab task holds the theory bench's chart to the port's model at `logistic-again` (r 0.25, N0 10, 30 steps, the typed habitat), at `competition` (two curves of 81) and at `still` (the same numbers, the neutral habitat the import restored -- ADR-243: a model keeps the numbers it was given)",
        _held("logistic-again", "wb-theory-out", LM.theory_chart("logistic", [0.25, 120, 10, 30], **_A))
        and _held("competition", "wb-theory-out", LM.theory_chart("competition", LM.MODEL_PARAMS["competition"], **_A))
-       and _held("still", "wb-theory-out", LM.theory_chart("logistic", LM.MODEL_PARAMS["logistic"]))
+       and _held("still", "wb-theory-out", LM.theory_chart("logistic", [0.25, 120, 10, 30]))
        and _v("logistic-again", "output.boxes.wb-theory-out") == LM.theory_note("logistic", [0.25, 120, 10, 30], **_A) + " habitat: area 2.5 · temp 1.4 · wind 0.6 · distance 3"
        and _v("competition", "output.boxes.wb-theory-out#2") == LM.theory_note("competition", LM.MODEL_PARAMS["competition"], **_A) + " habitat: area 2.5 · temp 1.4 · wind 0.6 · distance 3"
-       and _v("still", "output.boxes.wb-theory-out") == LM.theory_note("logistic", LM.MODEL_PARAMS["logistic"]) + " habitat: area 1 · temp 1 · wind 1 · distance 0",
+       and _v("still", "output.boxes.wb-theory-out") == LM.theory_note("logistic", [0.25, 120, 10, 30]) + " habitat: area 1 · temp 1 · wind 1 · distance 0",
        (_v("still", "output.charts.wb-theory-out.aligned.col"), _v("still", "output.boxes.wb-theory-out")))
+
+    # ---------- A MODEL KEEPS THE NUMBERS IT WAS GIVEN (ADR-243) ----------
+    # buildParams rebuilt the boxes from the defaults on every model change, so
+    # r 0.25, N0 10 and 30 steps typed into the logistic were gone after a look
+    # at competition and back, and the .eco line built next was a protocol of
+    # numbers nobody typed. The tenth blind trial filed it; the task certified
+    # it ("the sixty-one-point default curve"). Held here against the BOXES,
+    # the line under them, the .eco line and the curve -- not the sentence alone.
+    pg.reload(wait_until="domcontentloaded"); pg.wait_for_timeout(300)
+    def _boxes(): return pg.evaluate("()=>[...document.querySelectorAll('.wb-mp')].map(e=>e.value)")
+    def _note(): return _text("wb-params-note")
+    ck("at boot the line under the theory bench says the logistic is drawn from its starting numbers, every one named",
+       _note() == "logistic growth is drawn from its starting numbers: r 0.15 · K 120 · N₀ 5 · steps 60. Change any of them and the change is kept while you look at another model.", _note())
+    _type("wb-mp0", "0.25"); _type("wb-mp2", "10"); _type("wb-mp3", "30")
+    ck("...and once a number is typed it says the model is drawn from the numbers you gave it, the typed ones among them",
+       _note() == "logistic growth is drawn from the numbers you gave it: r 0.25 · K 120 · N₀ 10 · steps 30 — kept while you look at another model.", _note())
+    pg.select_option("#wb-model", "competition"); pg.wait_for_timeout(120)
+    ck("choosing competition shows competition's starting numbers and says so",
+       _boxes() == [str(v) for v in LM.MODEL_PARAMS["competition"]] and _note().startswith("L–V competition is drawn from its starting numbers: r₁ 0.4 · K₁ 100"), (_boxes(), _note()))
+    _type("wb-mp1", "90")
+    pg.select_option("#wb-model", "logistic"); pg.wait_for_timeout(120)
+    ck("back on the logistic the boxes hold what was typed, not the defaults",
+       _boxes() == ["0.25", "120", "10", "30"], _boxes())
+    ck("...the line says whose numbers they are", _note() == "logistic growth is drawn from the numbers you gave it: r 0.25 · K 120 · N₀ 10 · steps 30 — kept while you look at another model.", _note())
+    ok, g = _chart_is("wb-theory-out", LM.theory_chart("logistic", [0.25, 120, 10, 30]))
+    ck("...and the curve is the port's model of those numbers: thirty-one points, not sixty-one", ok, (g.get("col"), g.get("marks")))
+    ck("...under the port's reading", LM.theory_note("logistic", [0.25, 120, 10, 30]) in _text("wb-theory-out"), _text("wb-theory-out")[:80])
+    pg.click("#wb-eco-build"); pg.wait_for_timeout(250)
+    _eco2 = pg.eval_on_selector("#wb-eco-out", "e=>e.value")
+    ck("the .eco line built next is the numbers the model was given, not the defaults it was born with",
+       "model: logistic 0.25 120 10 30" in _eco2 and "model: logistic 0.15 120 5 60" not in _eco2, [l for l in _eco2.split("\n") if l.startswith("model: logistic")])
+    pg.select_option("#wb-model", "competition"); pg.wait_for_timeout(120)
+    ck("competition kept its typed K₁ too: each model keeps its own numbers",
+       _boxes()[1] == "90" and _note().startswith("L–V competition is drawn from the numbers you gave it: r₁ 0.4 · K₁ 90 ·"), (_boxes(), _note()))
+    pg.select_option("#wb-model", "logistic"); pg.wait_for_timeout(120)
+    _type("wb-eco-in", "name: imported pond\ndata: pondA cattail=18 duckweed=44 azolla=9\n")
+    pg.click("#wb-eco-import"); pg.wait_for_timeout(250)
+    ck("an import with no model line leaves the logistic's numbers where they were (the habitat goes neutral, as ADR-186 says)",
+       _boxes() == ["0.25", "120", "10", "30"] and "habitat: area 1 · temp 1 · wind 1 · distance 0" in _text("wb-theory-out"), (_boxes(), _text("wb-theory-out")[:90]))
+    _type("wb-eco-in", "name: pond\nmodel: island 0.3 0.1 100 0 40\n")
+    pg.click("#wb-eco-import"); pg.wait_for_timeout(250)
+    ck("an import WITH a model line puts that model up and says its numbers are the file's, not its starting ones",
+       pg.evaluate("()=>document.getElementById('wb-model').value") == "island" and _boxes() == ["0.3", "0.1", "100", "0", "40"]
+       and _note().startswith("island colonization is drawn from its starting numbers"), (_boxes(), _note()))
+    _type("wb-eco-in", "name: pond\nmodel: island 0.5 0.1 100 0 40\n")
+    pg.click("#wb-eco-import"); pg.wait_for_timeout(250)
+    ck("...and a file whose numbers are not the starting ones is said to be the source of them",
+       _boxes() == ["0.5", "0.1", "100", "0", "40"] and _note().startswith("island colonization is drawn from the numbers you gave it: c 0.5"), (_boxes(), _note()))
+    pg.select_option("#wb-model", "logistic"); pg.wait_for_timeout(120)
+    ck("...and the logistic still holds what it was given after the file's model came and went", _boxes() == ["0.25", "120", "10", "30"], _boxes())
+    ck("the lab task holds the restored logistic at `g243-back` and at `still` to the port's model of the numbers it was given",
+       _held("g243-back", "wb-theory-out", LM.theory_chart("logistic", [0.25, 120, 10, 30], **_A))
+       and _held("still", "wb-theory-out", LM.theory_chart("logistic", [0.25, 120, 10, 30]))
+       and _v("still", "output.boxes.wb-theory-out") == LM.theory_note("logistic", [0.25, 120, 10, 30]) + " habitat: area 1 · temp 1 · wind 1 · distance 0"
+       and _v("eco", "output.value#2") == "model: logistic 0.25 120 10 30",
+       (_v("still", "output.charts.wb-theory-out.aligned.col"), LM.theory_chart("logistic", [0.25, 120, 10, 30])["col"]))
+
+    # ---------- THE SITES VERDICT SAYS WHICH FIGURE IT IS READING (ADR-243) ----------
+    # Bray-Curtis weighs by count. Two sites whose abundant kinds match read
+    # "nearly identical" at 0.17 beside "share 3 of 7 kinds"; the tenth blind
+    # trial read the two together and filed it. The verdict is ported here from
+    # statSites' three figures, so the page's word is held to the arithmetic
+    # that produced the tiles beside it.
+    def _sites(a, b):
+        A = {}; B = {}
+        for txt, d in ((a, A), (b, B)):
+            for ln in txt.strip().split("\n"):
+                n, c = ln.rsplit(" ", 1); d[n] = int(c)
+        shared = [k for k in A if k in B]; union = len(set(A) | set(B))
+        smin = sum(min(A.get(k, 0), B.get(k, 0)) for k in set(A) | set(B)); stot = sum(A.values()) + sum(B.values())
+        j = len(shared) / union; bc = 1 - 2 * smin / stot; only = union - len(shared)
+        if only == 0 and bc == 0: word = "identical communities: the same kinds in the same counts"
+        elif bc <= 0.2 and only == 0: word = "nearly identical communities"
+        elif bc <= 0.2: word = ("the abundant kinds are nearly the same (Bray–Curtis %s weighs by count), and %d of %d kinds %s at one site only (Jaccard %s): the turnover is among the scarce kinds"
+                                % (L.fmt(bc, 2), only, union, "is" if only == 1 else "are", L.fmt(j, 2)))
+        elif bc <= 0.6: word = "moderate turnover"
+        else: word = "major turnover — substantially different communities"
+        return "share %d of %d kinds — %s." % (len(shared), union, word), L.fmt(bc, 2), L.fmt(j, 2)
+    def _sites_read():
+        return pg.evaluate("()=>{const p=document.querySelector('#wb-sites-out .reading'); return p?p.textContent.replace(/\\s+/g,' ').trim():'';}")
+    _CASESITES = (("abundant kinds agree, membership does not", "cattail 18\nduckweed 44\nfrogbit 3\nazolla 9\nrush 6\nlily 7", "cattail 18\nduckweed 44\nfrogbit 3\nmoss 5"),
+                  ("membership agrees, one count moves", "cattail 18\nduckweed 44\nfrogbit 3", "cattail 18\nduckweed 40\nfrogbit 3"),
+                  ("identical", "cattail 18\nduckweed 44", "cattail 18\nduckweed 44"),
+                  ("one kind at one site only", "cattail 18\nduckweed 44\nfrogbit 3", "cattail 18\nduckweed 44\nfrogbit 3\nmoss 1"),
+                  ("moderate", "robin 10\nsparrow 4\nwren 2", "robin 3\nsparrow 9\ncrow 5"),
+                  ("major", "robin 10\nsparrow 4", "crow 30\nsparrow 1"))
+    for name, sa, sb in _CASESITES:
+        _type("wb-siteA", sa); _type("wb-siteB", sb)
+        want, bcs, js = _sites(sa, sb)
+        got = _sites_read(); gotw = got.split(" Shared:")[0]
+        ck("sites (%s): the verdict is the port's word for Bray–Curtis %s and Jaccard %s -- %s" % (name, bcs, js, want[:60]),
+           gotw == want, gotw)
+        ck("...and its figures are the tiles' own", _tiles("wb-sites-out").get("Bray–Curtis") == bcs and _tiles("wb-sites-out").get("Jaccard") == js, _tiles("wb-sites-out"))
+    ck("the lab task holds the verdict at `sites-moss`, `sites-trimmed` and `sites-identical` to the port's word",
+       _v("sites-moss", "output.boxes.wb-sites-out#2") in _sites("cattail 18\nduckweed 44\nfrogbit 3\nazolla 9\nrush 6\nlily 7", "cattail 18\nduckweed 44\nfrogbit 3\nmoss 5")[0]
+       and _v("sites-trimmed", "output.boxes.wb-sites-out#2") in _sites("cattail 18\nduckweed 44\nfrogbit 3", "cattail 18\nduckweed 44\nfrogbit 3\nazolla 9\nrush 6\nlily 7")[0]
+       and _v("sites-identical", "output.boxes.wb-sites-out") in _sites("cattail 18\nduckweed 44\nfrogbit 3\nazolla 9\nrush 6\nlily 7", "cattail 18\nduckweed 44\nfrogbit 3\nazolla 9\nrush 6\nlily 7")[0],
+       (_v("sites-moss", "output.boxes.wb-sites-out#2"),))
+
 
     b.close()
 

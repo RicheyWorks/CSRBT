@@ -1242,10 +1242,15 @@
    "by": "adr242",
    "sha": "6e3889b0e6fe52c17b094e03a87ac092364617f88031bb86ee2a43d9d0d29826"
   },
+  "docs/ADR-243-a-model-keeps-the-numbers-it-was-given-2026-09-23.md": {
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "fa0228823983a640009c91fc20953ace25dddd528fbf924ccddd778e8c42bcb3"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "e829a62faefff63c3098c48be38a19feca21844b54c5aaf72bb9e17c9843ecb8"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "28ef5d4237136e4966030e609ea084699c61825b45a4d6318c1df434bd23a4a1"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -2424,6 +2429,11 @@
    "by": "adr242",
    "sha": "902cd4e59a23b40816c8aaa3cafee73026c1e482db6cae7327b671dad69b904e"
   },
+  "docs/CHANGELOG-2026-09-23-adr243-a-model-keeps-the-numbers-it-was-given.md": {
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "691f95de130ebc5710b15ed4c6aff7a2890a666d1588817ab914744b2914dbdd"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2666,10 +2676,9 @@
    "sha": "55fde6efe30b2e5d91cd06cd06ae1eb04ada2bdd954229cda3c5c4bbbb2fd338"
   },
   "docs/ecology-lab.html": {
-   "at": 1789690114,
-   "by": "adr214",
-   "evidence": "git",
-   "sha": "3f389207ea643d64cda4e1ef69596bfc65fd4b6c7ef1066f3d817989ccd87337"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "50dcfa684a761f862798e0d4e56aa3bee3e8ac54a4fd6cfdba666d6bd7aa7e59"
   },
   "docs/ecology-teachers-guide.html": {
    "at": 1788676924,
@@ -3012,9 +3021,9 @@
    "sha": "6c2f24bb8892f8aa6f27be694e3309d06d7d5ffffd27044c141b2115d60ac043"
   },
   "tools/address_ledger.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "332033a522443533101b99a90cfb75f42008fe4074ecf7195658ab636bb4517f"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "bd59ac0cc6c6a1c8601206a07e0d23c5f23b0610e01b499b616a60e48dc2cbca"
   },
   "tools/artifact_map.json": {
    "at": 1788676925,
@@ -3137,9 +3146,9 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "3585a2d8b6a6076c3c006584a4626e48107cea1fe11858efd3372d926a0baf0f"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "e276e93e138426a52e3a038935423c8c0373d421265912166a8200df2bc0e8eb"
   },
   "tools/blind_console.py": {
    "at": 1789817593,
@@ -3147,9 +3156,9 @@
    "sha": "a6ed06413756f3e5509f4dc369b65242d453749e11a07a0f2d3cb1450c6f403c"
   },
   "tools/carried_ledger.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "0feabc074466f163f05407603bf96dc7d874da8a366f6695887a63593f30a7d7"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "14ab244bceb9f01756eb35456766aa16ddf8e2ba1f3deade615b953cc2e5d8ea"
   },
   "tools/ci/ci.yml": {
    "at": 1789711865,
@@ -3675,15 +3684,20 @@
    "by": "adr242",
    "sha": "801ad725f9dc2132689e56884cb5eecd26ff39a494b439418ecc4f6a1506c33d"
   },
+  "tools/delivery/adr243.json": {
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "3d402b2fcfba4be73ae6c9b5c7aff4a44faf86e36df7640adfb669d030e239e1"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "b272392b677cce8e197e519efb8091e291d199c17761e92215db7f021da55165"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "8a2d9ef08816d6186c3e8a388201e2243acd352ba982869d0397e6636b255e88"
   },
   "tools/destructive_ledger.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "895c2771df3fb7d4b1c27ba7ae9375670cc78cb9535ce259adfd5474beea9037"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "5030dcfbcc30067eca29f5a2fed458ca5bcc7a07002f08546d5fd3ebe7877ee5"
   },
   "tools/dwc.py": {
    "at": 1789690114,
@@ -3727,9 +3741,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "29a7d61610131c48e65b034efabf7c7f97e5f53209ee1ce514a8eec7e84e8eee"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "dc62044c088332f95654361a5d6f939396b53d7f43796ff3fd37baf8e5897a9a"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -3794,14 +3808,14 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "4a91426a607f877fee076d6b6257ba3e20ad3c23a3dceaf0387d85f949e81950"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "43e0dafebe345b902acadecb74e71602402575ba5cc849d8677ea550df755914"
   },
   "tools/harness_board.py": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "b3175eb838cfc63e9fae8414509b88684d97de668ce376ce0ca0fd0c9ddd3c13"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "5ca7f11c43f9f04bb246c9e7113bc63b167bf4d82ce6f7d353f8d798bde5bdff"
   },
   "tools/harness_contract.py": {
    "at": 1789817593,
@@ -3894,9 +3908,9 @@
    "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
   },
   "tools/mutant_ledger.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "ef7d616cd508e094569a54099763434b4512edb98817a6cf0ca26e76a2609339"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "04c7c7dcfb80011409b782d3149ecb39b25f3de4c59f3d0ce42d0b2332071248"
   },
   "tools/mutant_ledger.py": {
    "at": 1788676926,
@@ -3973,6 +3987,11 @@
    "at": 1789711865,
    "by": "adr224",
    "sha": "3b386ed1abd5ad7cc66c8b448dc527fe72aaac5301e5f2efa406897b0c916236"
+  },
+  "tools/mutate_ecolab.py": {
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "468e334449e00dfc8dfec7b5d1f9856626f0156034df19fc8b64485e1e3af9fe"
   },
   "tools/mutate_engines.py": {
    "at": 1789711865,
@@ -4142,9 +4161,9 @@
    "sha": "b326bc268f68cd28544a28e49b34fea3ce04b026ec0098c9f9a5395788bde19f"
   },
   "tools/outputs_ledger.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "f38e367bc8ddc05d14845d8e5df752e96fbe0095e2dae6b3fcacc72e93ea56b9"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "6280a20bba9ff152af0164ea5a7f612000e01050d603eaa80c971d425cff18a8"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -4177,9 +4196,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "62a70373a19cadc479211441ec756fb8a05a5216bd50fdf569b42dd1a2b4282b"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "5dddf49c170636a2d178bb110f0b6c15e611ad4d0c987a3cf73cca83382b5673"
   },
   "tools/push/push-adr225-siblings.ps1": {
    "at": 1789713249,
@@ -4192,14 +4211,14 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "9a61dd8aafdecabebe875d4a0481649062babff872376bdad2ded11a058ffd33"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "4be3e99ea14256c09054e1d467468747cfc0ad4927bebaeea22ae59824efe9ab"
   },
   "tools/restored_ledger.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "4cc52882188687b0bbd80e8ef6c3d28b2c26dd296935c03f02efd5547c7f3cb4"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "130d6ba658d2307968c325491d1e54fd922b1eeb19acd5ed8cfcaed4e049f939"
   },
   "tools/routes.json": {
    "at": 1789690114,
@@ -4234,14 +4253,14 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/takeaway_ledger.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "3e3b55df52b7d36ccae737cf470ecfe3f5b4941789745f0fd6ce552c50b1dc19"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "e55127c4ab4875fc92043d660339bff95608905c3518598fa92073fa5a3a9648"
   },
   "tools/task_ledger.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "abe8575bdbb6ee39756df37d04941892b050abf3575008f2f359904441024e7a"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "bd8977432c6f544f2dda86edf1e65f00b5ca2bdf7128487a474f9cbb64ffe218"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -4375,9 +4394,9 @@
    "sha": "d74a58df549a93a8e94a130a0965ba3b2715270a8f2bb2f80abbb71675e3edc4"
   },
   "tools/tasks/page-ecology-lab-science.json": {
-   "at": 1790004743,
-   "by": "adr234",
-   "sha": "cd125c4ae57a693e3f83c5a0d173f97580d31d3d0eb8cad75da723129665766e"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "a2631e2131136e1584887b01c2c44af22e582cebc0c12045a3a09f7469cd97fd"
   },
   "tools/tasks/page-ecology-reference.json": {
    "at": 1788676928,
@@ -4792,9 +4811,9 @@
    "sha": "b5a35ba0a1cdc46ec58d68e733a4d59aef5c26fe1ccf964894107a9be47e6ae6"
   },
   "tools/verify/counts.json": {
-   "at": 1790158942,
-   "by": "adr242",
-   "sha": "d9bbeb31fab1ca3c2040e8012dd78776a8166600311748a9268d41664a4334a9"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "e3066346805afff0100bc44c63fa36351a161d4412d8072c6d9ab42de8322e09"
   },
   "tools/verify/floors.json": {
    "at": 1790158918,
@@ -4950,10 +4969,9 @@
    "sha": "2ed803768e6c73b9e811f983459300363b0209732c9e9711f5ebc066c623cb85"
   },
   "tools/verify/verify_eco.py": {
-   "at": 1789690114,
-   "by": "adr214",
-   "evidence": "git",
-   "sha": "936b4be78839840808639cf1c4df7271b9e5c7fd45fda7915816595413be1423"
+   "at": 1790171498,
+   "by": "adr243",
+   "sha": "c1ec00628cb799e7b6ae0634144422bca662af2c60e73a9c5f9cf0bb1d7fc5e8"
   },
   "tools/verify/verify_eco_experiment.py": {
    "at": 1788676929,
@@ -5380,6 +5398,7 @@
   "adr239",
   "adr240",
   "adr241",
-  "adr242"
+  "adr242",
+  "adr243"
  ]
 }

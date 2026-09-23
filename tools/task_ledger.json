@@ -11649,13 +11649,13 @@
    "verdict": "PASS"
   },
   "page-ecology-lab-science": {
-   "at": 1789999674,
-   "claims": 263,
-   "confirmed": 345,
+   "at": 1790167650,
+   "claims": 277,
+   "confirmed": 359,
    "gives": 61,
-   "goal": "Drive the interactive lab's whole workbench against independent Python ports. The seeded terrarium reads evenness J' 0.73, 29.2 effective species and Chao1 100 on the meadow and 616/604 on the island, 0.43 at a 95% hot share, 0.88 at a hot set of 20, 342/310 at capacity 32. THE TWO ENTRY PATHS AGREE: adding heron 5 through the chip adder writes 'heron 5' into the textarea and moves the figures to six species, H' 1.33, J' 0.75, Chao1 6, and typing the old list back into the textarea returns them. Two sites read Jaccard 0.5, Sorensen 0.67, Bray-Curtis 0.31 sharing 3 of 6 kinds, 0.67/0.8/0.25 once site A gains lily, and 1/1/0 when the sites are made identical. Mark-recapture M 120 C 90 R 30 is Lincoln-Petersen 360, Chapman 354, 95% CI 268-440; R = 0 leaves Lincoln-Petersen undefined and Chapman at 11,010; R above min(M, C) is refused. Quadrats 12 0 3 45 2 0 0 28 1 0 are variance/mean 26.12 and Morisita 3.51, eight equal quadrats 0 and 0.82, and one quadrat is refused. Hardy-Weinberg 298/489/213 gives p 0.543, q 0.458, chi-square 0.22, expected 294/496/209 and consistent; 400/489/213 gives 8.19 and out of equilibrium; 250/500/250 gives exactly zero. A monohybrid cross is 3 R_ : 1 rr and Mendel's 5474/1850 is chi-square 0.263 against critical 3.841; incomplete dominance makes it 1 : 2 : 1; the dihybrid is 9 : 3 : 3 : 1 and 315/108/101/32 is 0.47 against 7.815. A three-couplet key walks to butterfly or moth and keeps the trail; a key that points at itself is caught as a loop rather than walked forever. A Newick string of seven taxa is depth 6 and (A,(B,(C,D))) is four taxa at depth 4 -- depth counts the levels from the root to the deepest leaf, both included. A five-card drill at seed 7 deals detritivore first and at seed 0 decomposer -- zero is a seed, not a missing one. The theory bench refuses K = 0, K1 = 0 and a negative distance in the page's own words, and the habitat chip carries area 2.5, temp 1.4, wind 0.6, distance 3. The field station's rank chart is five rounded bars from 34 down to 1 under ticks 0, 9, 18, 27, 36, each bar's box where the chart's own scale puts it; the twelve quadrats draw seven bars (the five empty quadrats draw none) under ticks to 63. At boot the ten station charts under the reader's cap are held to the shipped session they chart: the meadow's two rank-abundance bar charts and its rarefaction curves, the demography station's survivorship steps and growth fit, the archipelago's occupancy steps, the fossils' inherited-fraction bars and the grid's quadrat and leaf bars -- every bar's box, every curve's extent, every tick label, from the session file and the chart's own arithmetic. The terrarium's charts are the seeded stream drawn: forty rank bars and ten turnover bars at every slider setting the task visits, each box where the page's own scale puts it. The theory bench's curve is the model: thirty-one points of logistic growth to K 300 in the typed habitat, two curves of eighty-one under competition, and the sixty-one-point default curve once the import has restored the neutral habitat. Copy the run record hands over one clipboard text carrying every figure the nine stations report, read from the session they were drawn from: the meadow's two phases at J' 1 and 0.521 with 100 and 11 effective species and Chao1 100 and 103.5, Pianka 0.259 and Bray-Curtis 0.812; 1,134 completed lives at a mean age of 228 ops on a type II curve, r 0.0026 and K 138.5 with r\u00b2 0.472; three local extinctions and three recolonizations against a Levins occupancy of 83% observed at 100%; 33% turnover a generation with 80% of keys and 57.5% of physical nodes inherited; and an island of capacity 12 with 54 immigrations, 42 extinctions and a last turnover of 6 per interval.",
+   "goal": "Drive the interactive lab's whole workbench against independent Python ports. The seeded terrarium reads evenness J' 0.73, 29.2 effective species and Chao1 100 on the meadow and 616/604 on the island, 0.43 at a 95% hot share, 0.88 at a hot set of 20, 342/310 at capacity 32. THE TWO ENTRY PATHS AGREE: adding heron 5 through the chip adder writes 'heron 5' into the textarea and moves the figures to six species, H' 1.33, J' 0.75, Chao1 6, and typing the old list back into the textarea returns them. Two sites read Jaccard 0.5, Sorensen 0.67, Bray-Curtis 0.31 sharing 3 of 6 kinds, 0.67/0.8/0.25 once site A gains lily, and 1/1/0 when the sites are made identical. Mark-recapture M 120 C 90 R 30 is Lincoln-Petersen 360, Chapman 354, 95% CI 268-440; R = 0 leaves Lincoln-Petersen undefined and Chapman at 11,010; R above min(M, C) is refused. Quadrats 12 0 3 45 2 0 0 28 1 0 are variance/mean 26.12 and Morisita 3.51, eight equal quadrats 0 and 0.82, and one quadrat is refused. Hardy-Weinberg 298/489/213 gives p 0.543, q 0.458, chi-square 0.22, expected 294/496/209 and consistent; 400/489/213 gives 8.19 and out of equilibrium; 250/500/250 gives exactly zero. A monohybrid cross is 3 R_ : 1 rr and Mendel's 5474/1850 is chi-square 0.263 against critical 3.841; incomplete dominance makes it 1 : 2 : 1; the dihybrid is 9 : 3 : 3 : 1 and 315/108/101/32 is 0.47 against 7.815. A three-couplet key walks to butterfly or moth and keeps the trail; a key that points at itself is caught as a loop rather than walked forever. A Newick string of seven taxa is depth 6 and (A,(B,(C,D))) is four taxa at depth 4 -- depth counts the levels from the root to the deepest leaf, both included. A five-card drill at seed 7 deals detritivore first and at seed 0 decomposer -- zero is a seed, not a missing one. The theory bench refuses K = 0, K1 = 0 and a negative distance in the page's own words, and the habitat chip carries area 2.5, temp 1.4, wind 0.6, distance 3. The field station's rank chart is five rounded bars from 34 down to 1 under ticks 0, 9, 18, 27, 36, each bar's box where the chart's own scale puts it; the twelve quadrats draw seven bars (the five empty quadrats draw none) under ticks to 63. At boot the ten station charts under the reader's cap are held to the shipped session they chart: the meadow's two rank-abundance bar charts and its rarefaction curves, the demography station's survivorship steps and growth fit, the archipelago's occupancy steps, the fossils' inherited-fraction bars and the grid's quadrat and leaf bars -- every bar's box, every curve's extent, every tick label, from the session file and the chart's own arithmetic. The terrarium's charts are the seeded stream drawn: forty rank bars and ten turnover bars at every slider setting the task visits, each box where the page's own scale puts it. The theory bench's curve is the model: thirty-one points of logistic growth to K 300 in the typed habitat, two curves of eighty-one under competition, and the same thirty-one-point curve at r 0.25 to K 120 once the import has restored the neutral habitat -- the numbers the logistic was given are still its numbers. Copy the run record hands over one clipboard text carrying every figure the nine stations report, read from the session they were drawn from: the meadow's two phases at J' 1 and 0.521 with 100 and 11 effective species and Chao1 100 and 103.5, Pianka 0.259 and Bray-Curtis 0.812; 1,134 completed lives at a mean age of 228 ops on a type II curve, r 0.0026 and K 138.5 with r\u00b2 0.472; three local extinctions and three recolonizations against a Levins occupancy of 83% observed at 100%; 33% turnover a generation with 80% of keys and 57.5% of physical nodes inherited; and an island of capacity 12 with 54 immigrations, 42 extinctions and a last turnover of 6 per interval. At Bray-Curtis 0.17 sharing 3 of 7 kinds the sites verdict says the abundant kinds are nearly the same and 4 of 7 kinds are at one site only, at 0.14 sharing 3 of 6 it says the same of 3 of 6, and sites made identical are called identical communities, not nearly so. The theory bench keeps the numbers a model was given: r 0.25, N0 10 and 30 steps typed into the logistic are back after a look at L-V competition, the line under the boxes says which numbers a model is drawn from, the .eco line built next reads model: logistic 0.25 120 10 30, and an import with no model line leaves them in place.",
    "held": true,
-   "holds": 55,
+   "holds": 57,
    "id": "page-ecology-lab-science",
    "must": "PASS",
    "refuted": 0,
@@ -11665,7 +11665,7 @@
     "MUTATE"
    ],
    "rungsWhy": "nothing here removes a recorded row -- the drill and the key rebuild their own output, and every box is recomputed from the fields rather than cleared",
-   "seconds": 15.3,
+   "seconds": 13.3,
    "steps": [
     {
      "action": "observe",
@@ -12121,8 +12121,8 @@
       }
      ],
      "id": "boot",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 85,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 59,
      "result": "driven"
     },
     {
@@ -12136,7 +12136,7 @@
      ],
      "id": "hot95",
      "message": "set-slider slider:0",
-     "ms": 39,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -12194,8 +12194,8 @@
       }
      ],
      "id": "uneven",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 64,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -12209,7 +12209,7 @@
      ],
      "id": "hot60",
      "message": "set-slider slider:0",
-     "ms": 43,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -12223,7 +12223,7 @@
      ],
      "id": "set20",
      "message": "set-slider slider:1",
-     "ms": 35,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -12281,8 +12281,8 @@
       }
      ],
      "id": "even",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 47,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -12404,8 +12404,8 @@
       }
      ],
      "id": "island",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 57,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -12438,8 +12438,8 @@
       }
      ],
      "id": "field-defaults",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 53,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -12453,7 +12453,7 @@
      ],
      "id": "chip-name",
      "message": "set-text text_in:0",
-     "ms": 31,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -12467,7 +12467,7 @@
      ],
      "id": "chip-count",
      "message": "set-text text_in:1",
-     "ms": 29,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -12481,7 +12481,7 @@
      ],
      "id": "chip-add",
      "message": "activate action_btn:15",
-     "ms": 35,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -12514,8 +12514,8 @@
       }
      ],
      "id": "field-six",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 63,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 69,
      "result": "driven"
     },
     {
@@ -12534,7 +12534,7 @@
      ],
      "id": "chip-wrote",
      "message": "read text_in:2",
-     "ms": 17,
+     "ms": 15,
      "result": "driven"
     },
     {
@@ -12548,7 +12548,7 @@
      ],
      "id": "field-text",
      "message": "set-text text_in:2",
-     "ms": 35,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -12596,8 +12596,8 @@
       }
      ],
      "id": "field-back",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 45,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 42,
      "result": "driven"
     },
     {
@@ -12622,11 +12622,16 @@
        "detail": "output.boxes.wb-sites-out contains 'share 3 of 6', got '0.5Jaccard0.67S\u00f8rensen0.31Bray\u2013Curtis share 3 of 6 kinds \u2014 moderate turnover. Shared: duckweed, azolla, rush.'",
        "path": "output.boxes.wb-sites-out",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.wb-sites-out contains 'kinds \u2014 moderate turnover.', got '0.5Jaccard0.67S\u00f8rensen0.31Bray\u2013Curtis share 3 of 6 kinds \u2014 moderate turnover. Shared: duckweed, azolla, rush.'",
+       "path": "output.boxes.wb-sites-out#2",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "sites-defaults",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 41,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 40,
      "result": "driven"
     },
     {
@@ -12640,7 +12645,7 @@
      ],
      "id": "lily-name",
      "message": "set-text text_in:3",
-     "ms": 28,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -12668,7 +12673,7 @@
      ],
      "id": "lily-add",
      "message": "activate action_btn:31",
-     "ms": 32,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -12696,8 +12701,8 @@
       }
      ],
      "id": "sites-lily",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 36,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 44,
      "result": "driven"
     },
     {
@@ -12711,7 +12716,7 @@
      ],
      "id": "site-b-same",
      "message": "set-text text_in:8",
-     "ms": 30,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -12733,14 +12738,14 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.wb-sites-out contains 'nearly identical communities', got '1Jaccard1S\u00f8rensen0Bray\u2013Curtis share 6 of 6 kinds \u2014 nearly identical communities. Shared: cattail, duckweed, frogbit, azolla, rush, lily.'",
+       "detail": "output.boxes.wb-sites-out contains 'share 6 of 6 kinds \u2014 identical communities: the same kinds in the same counts.', got '1Jaccard1S\u00f8rensen0Bray\u2013Curtis share 6 of 6 kinds \u2014 identical communities: the same kinds in the same counts. Shared: cattail, duckweed, frogbit, azolla, rush, lily.'",
        "path": "output.boxes.wb-sites-out",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "sites-identical",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 42,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -12754,7 +12759,7 @@
      ],
      "id": "site-a-text",
      "message": "set-text text_in:5",
-     "ms": 30,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -12776,14 +12781,19 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.wb-sites-out contains 'share 3 of 6', got '0.5Jaccard0.67S\u00f8rensen0.14Bray\u2013Curtis share 3 of 6 kinds \u2014 nearly identical communities. Shared: cattail, duckweed, frogbit.'",
+       "detail": "output.boxes.wb-sites-out contains 'share 3 of 6', got '0.5Jaccard0.67S\u00f8rensen0.14Bray\u2013Curtis share 3 of 6 kinds \u2014 the abundant kinds are nearly the same (Bray\u2013Curtis 0.14 weighs by count), and 3 of 6 kinds are at one site only (Jaccard 0.5): the turnover is among the scarce kinds. Shared: cattail, duckweed, frogbit.'",
        "path": "output.boxes.wb-sites-out",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.wb-sites-out contains 'the abundant kinds are nearly the same (Bray\u2013Curtis 0.14 weighs by count), and 3 of 6 kinds are at one site only (Jaccard 0.5): the turnover is among the scarce kinds.', got '0.5Jaccard0.67S\u00f8rensen0.14Bray\u2013Curtis share 3 of 6 kinds \u2014 the abundant kinds are nearly the same (Bray\u2013Curtis 0.14 weighs by count), and 3 of 6 kinds are at one site only (Jaccard 0.5): the turnover is among the scarce kinds. Shared: cattail, duckweed, frogbit.'",
+       "path": "output.boxes.wb-sites-out#2",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "sites-trimmed",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 50,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -12797,7 +12807,7 @@
      ],
      "id": "moss-name",
      "message": "set-text text_in:6",
-     "ms": 32,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -12811,7 +12821,7 @@
      ],
      "id": "moss-count",
      "message": "set-text text_in:7",
-     "ms": 31,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -12825,7 +12835,7 @@
      ],
      "id": "moss-add",
      "message": "activate action_btn:44",
-     "ms": 34,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -12847,14 +12857,19 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.wb-sites-out contains 'share 3 of 7', got '0.43Jaccard0.6S\u00f8rensen0.17Bray\u2013Curtis share 3 of 7 kinds \u2014 nearly identical communities. Shared: cattail, duckweed, frogbit.'",
+       "detail": "output.boxes.wb-sites-out contains 'share 3 of 7', got '0.43Jaccard0.6S\u00f8rensen0.17Bray\u2013Curtis share 3 of 7 kinds \u2014 the abundant kinds are nearly the same (Bray\u2013Curtis 0.17 weighs by count), and 4 of 7 kinds are at one site only (Jaccard 0.43): the turnover is among the scarce kinds. Shared: cattail, duckweed, frogbit.'",
        "path": "output.boxes.wb-sites-out",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.wb-sites-out contains 'the abundant kinds are nearly the same (Bray\u2013Curtis 0.17 weighs by count), and 4 of 7 kinds are at one site only (Jaccard 0.43): the turnover is among the scarce kinds.', got '0.43Jaccard0.6S\u00f8rensen0.17Bray\u2013Curtis share 3 of 7 kinds \u2014 the abundant kinds are nearly the same (Bray\u2013Curtis 0.17 weighs by count), and 4 of 7 kinds are at one site only (Jaccard 0.43): the turnover is among the scarce kinds. Shared: cattail, duckweed, frogbit.'",
+       "path": "output.boxes.wb-sites-out#2",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "sites-moss",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 79,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 71,
      "result": "driven"
     },
     {
@@ -12877,8 +12892,8 @@
       }
      ],
      "id": "mr-defaults",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 37,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -12892,7 +12907,7 @@
      ],
      "id": "mr-r0",
      "message": "set-text text_in:11",
-     "ms": 28,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -12910,8 +12925,8 @@
       }
      ],
      "id": "mr-zero",
-     "message": "48 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 40,
+     "message": "48 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -12925,7 +12940,7 @@
      ],
      "id": "mr-m",
      "message": "set-text text_in:9",
-     "ms": 29,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -12939,7 +12954,7 @@
      ],
      "id": "mr-c",
      "message": "set-text text_in:10",
-     "ms": 32,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -12953,7 +12968,7 @@
      ],
      "id": "mr-r",
      "message": "set-text text_in:11",
-     "ms": 32,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -12976,8 +12991,8 @@
       }
      ],
      "id": "mr-again",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 42,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 43,
      "result": "driven"
     },
     {
@@ -12991,7 +13006,7 @@
      ],
      "id": "mr-bad",
      "message": "set-text text_in:11",
-     "ms": 29,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -13004,8 +13019,8 @@
       }
      ],
      "id": "mr-refused",
-     "message": "46 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 37,
+     "message": "46 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -13019,7 +13034,7 @@
      ],
      "id": "mr-fix",
      "message": "set-text text_in:11",
-     "ms": 30,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -13037,8 +13052,8 @@
       }
      ],
      "id": "quad-defaults",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 82,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 55,
      "result": "driven"
     },
     {
@@ -13052,7 +13067,7 @@
      ],
      "id": "quad-even",
      "message": "set-text text_in:12",
-     "ms": 34,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13070,8 +13085,8 @@
       }
      ],
      "id": "quad-uniform",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 36,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 40,
      "result": "driven"
     },
     {
@@ -13085,7 +13100,7 @@
      ],
      "id": "quad-more",
      "message": "set-text text_in:12",
-     "ms": 30,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -13123,8 +13138,8 @@
       }
      ],
      "id": "quad-twelve",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 36,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -13138,7 +13153,7 @@
      ],
      "id": "quad-one",
      "message": "set-text text_in:12",
-     "ms": 37,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -13151,8 +13166,8 @@
       }
      ],
      "id": "quad-refused",
-     "message": "47 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 44,
+     "message": "47 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -13199,8 +13214,8 @@
       }
      ],
      "id": "hw-defaults",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 38,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -13214,7 +13229,7 @@
      ],
      "id": "hw-aa",
      "message": "set-text text_in:13",
-     "ms": 33,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -13237,8 +13252,8 @@
       }
      ],
      "id": "hw-out",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 74,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 69,
      "result": "driven"
     },
     {
@@ -13280,7 +13295,7 @@
      ],
      "id": "hw-b",
      "message": "set-text text_in:15",
-     "ms": 31,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -13303,8 +13318,8 @@
       }
      ],
      "id": "hw-perfect",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 36,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -13332,8 +13347,8 @@
       }
      ],
      "id": "punnett-defaults",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 64,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 63,
      "result": "driven"
     },
     {
@@ -13347,7 +13362,7 @@
      ],
      "id": "inc-on",
      "message": "set-checkbox checkbox:0",
-     "ms": 32,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -13360,7 +13375,7 @@
       }
      ],
      "id": "incomplete",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
      "ms": 37,
      "result": "driven"
     },
@@ -13375,7 +13390,7 @@
      ],
      "id": "inc-off",
      "message": "set-checkbox checkbox:0",
-     "ms": 29,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -13389,7 +13404,7 @@
      ],
      "id": "dihybrid",
      "message": "choose-option select:0",
-     "ms": 29,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -13417,8 +13432,8 @@
       }
      ],
      "id": "nine",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 39,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -13432,7 +13447,7 @@
      ],
      "id": "p1",
      "message": "set-text text_in:16",
-     "ms": 34,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -13446,7 +13461,7 @@
      ],
      "id": "p2",
      "message": "set-text text_in:17",
-     "ms": 33,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -13460,7 +13475,7 @@
      ],
      "id": "obs2",
      "message": "set-text text_in:18",
-     "ms": 32,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -13473,8 +13488,8 @@
       }
      ],
      "id": "testcross",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 35,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -13488,7 +13503,7 @@
      ],
      "id": "key-in",
      "message": "set-text text_in:19",
-     "ms": 35,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -13501,8 +13516,8 @@
       }
      ],
      "id": "key-start",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 86,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 59,
      "result": "driven"
     },
     {
@@ -13516,7 +13531,7 @@
      ],
      "id": "key-yes",
      "message": "activate action_btn:82",
-     "ms": 31,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -13529,8 +13544,8 @@
       }
      ],
      "id": "key-two",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 49,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 40,
      "result": "driven"
     },
     {
@@ -13544,7 +13559,7 @@
      ],
      "id": "key-no",
      "message": "activate action_btn:83",
-     "ms": 35,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -13557,8 +13572,8 @@
       }
      ],
      "id": "key-three",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 42,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -13572,7 +13587,7 @@
      ],
      "id": "key-yes2",
      "message": "activate action_btn:82",
-     "ms": 36,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -13590,8 +13605,8 @@
       }
      ],
      "id": "key-id",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 43,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -13605,7 +13620,7 @@
      ],
      "id": "key-loop",
      "message": "set-text text_in:19",
-     "ms": 36,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -13619,7 +13634,7 @@
      ],
      "id": "key-loop-yes",
      "message": "activate action_btn:82",
-     "ms": 35,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -13632,8 +13647,8 @@
       }
      ],
      "id": "key-loops",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 42,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -13647,7 +13662,7 @@
      ],
      "id": "key-bad",
      "message": "set-text text_in:19",
-     "ms": 31,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -13660,8 +13675,8 @@
       }
      ],
      "id": "key-shape",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 36,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -13679,8 +13694,8 @@
       }
      ],
      "id": "tree-defaults",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 39,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 41,
      "result": "driven"
     },
     {
@@ -13694,7 +13709,7 @@
      ],
      "id": "tree-in",
      "message": "set-text text_in:20",
-     "ms": 34,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -13712,8 +13727,8 @@
       }
      ],
      "id": "tree-small",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 41,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -13727,7 +13742,7 @@
      ],
      "id": "tree-bad",
      "message": "set-text text_in:20",
-     "ms": 33,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -13740,8 +13755,8 @@
       }
      ],
      "id": "tree-refused",
-     "message": "47 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 55,
+     "message": "47 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 41,
      "result": "driven"
     },
     {
@@ -13755,7 +13770,7 @@
      ],
      "id": "tree-back",
      "message": "set-text text_in:20",
-     "ms": 38,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -13769,7 +13784,7 @@
      ],
      "id": "deck-list",
      "message": "set-text text_in:22",
-     "ms": 29,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -13783,7 +13798,7 @@
      ],
      "id": "deck-seed",
      "message": "set-text text_in:21",
-     "ms": 32,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -13797,7 +13812,7 @@
      ],
      "id": "deck-start",
      "message": "activate action_btn:82",
-     "ms": 36,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -13810,8 +13825,8 @@
       }
      ],
      "id": "deck-first",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 105,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 76,
      "result": "driven"
     },
     {
@@ -13825,7 +13840,7 @@
      ],
      "id": "deck-flip",
      "message": "set-checkbox checkbox:1",
-     "ms": 31,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -13839,7 +13854,7 @@
      ],
      "id": "deck-again",
      "message": "activate action_btn:82",
-     "ms": 37,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13852,8 +13867,8 @@
       }
      ],
      "id": "deck-flipped",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 50,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 41,
      "result": "driven"
     },
     {
@@ -13867,7 +13882,7 @@
      ],
      "id": "deck-unflip",
      "message": "set-checkbox checkbox:1",
-     "ms": 33,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13881,7 +13896,7 @@
      ],
      "id": "deck-seed0",
      "message": "set-text text_in:21",
-     "ms": 35,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13895,7 +13910,7 @@
      ],
      "id": "deck-zero",
      "message": "activate action_btn:82",
-     "ms": 37,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -13908,8 +13923,8 @@
       }
      ],
      "id": "deck-zero-out",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 43,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 44,
      "result": "driven"
     },
     {
@@ -13937,7 +13952,7 @@
      ],
      "id": "deck-none",
      "message": "activate action_btn:82",
-     "ms": 30,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13950,8 +13965,8 @@
       }
      ],
      "id": "deck-refused",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 40,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -13965,7 +13980,7 @@
      ],
      "id": "deck-pick",
      "message": "choose-option select:1",
-     "ms": 32,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13979,7 +13994,7 @@
      ],
      "id": "area",
      "message": "set-text text_in:27",
-     "ms": 32,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -13993,7 +14008,7 @@
      ],
      "id": "temp",
      "message": "set-text text_in:28",
-     "ms": 32,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -14007,7 +14022,7 @@
      ],
      "id": "wind",
      "message": "set-text text_in:29",
-     "ms": 35,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -14021,7 +14036,7 @@
      ],
      "id": "dist",
      "message": "set-text text_in:30",
-     "ms": 33,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -14034,8 +14049,8 @@
       }
      ],
      "id": "habitat",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 37,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -14048,8 +14063,8 @@
       }
      ],
      "id": "k-zero",
-     "message": "set-text text_in:24",
-     "ms": 30,
+     "message": "set-text text_in:24 -- the page said 'logistic growth is drawn from the numbers you gave it: r 0.15 \u00b7 K 0 \u00b7 N\u2080 5 \u00b7 steps",
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -14062,8 +14077,8 @@
       }
      ],
      "id": "k-refused",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 66,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 52,
      "result": "driven"
     },
     {
@@ -14076,8 +14091,8 @@
       }
      ],
      "id": "k-back",
-     "message": "set-text text_in:24",
-     "ms": 40,
+     "message": "set-text text_in:24 -- the page said 'logistic growth is drawn from its starting numbers: r 0.15 \u00b7 K 120 \u00b7 N\u2080 5 \u00b7 steps ",
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -14090,8 +14105,8 @@
       }
      ],
      "id": "steps-bad",
-     "message": "set-text text_in:26",
-     "ms": 33,
+     "message": "set-text text_in:26 -- the page said 'logistic growth is drawn from the numbers you gave it: r 0.15 \u00b7 K 120 \u00b7 N\u2080 5 \u00b7 ste",
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -14104,8 +14119,8 @@
       }
      ],
      "id": "steps-refused",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 44,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -14118,8 +14133,8 @@
       }
      ],
      "id": "r-up",
-     "message": "set-text text_in:23",
-     "ms": 32,
+     "message": "set-text text_in:23 -- the page said 'logistic growth is drawn from the numbers you gave it: r 0.25 \u00b7 K 120 \u00b7 N\u2080 5 \u00b7 ste",
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -14132,8 +14147,8 @@
       }
      ],
      "id": "n0",
-     "message": "set-text text_in:25",
-     "ms": 32,
+     "message": "set-text text_in:25 -- the page said 'logistic growth is drawn from the numbers you gave it: r 0.25 \u00b7 K 120 \u00b7 N\u2080 10 \u00b7 st",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -14146,8 +14161,8 @@
       }
      ],
      "id": "steps",
-     "message": "set-text text_in:26",
-     "ms": 34,
+     "message": "set-text text_in:26 -- the page said 'logistic growth is drawn from the numbers you gave it: r 0.25 \u00b7 K 120 \u00b7 N\u2080 10 \u00b7 st",
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -14195,7 +14210,7 @@
       }
      ],
      "id": "logistic-again",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
      "ms": 39,
      "result": "driven"
     },
@@ -14210,7 +14225,7 @@
      ],
      "id": "dist-bad",
      "message": "set-text text_in:30",
-     "ms": 28,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -14223,8 +14238,8 @@
       }
      ],
      "id": "dist-refused",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 47,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 41,
      "result": "driven"
     },
     {
@@ -14238,7 +14253,7 @@
      ],
      "id": "dist-fix",
      "message": "set-text text_in:30",
-     "ms": 32,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -14251,8 +14266,8 @@
       }
      ],
      "id": "model-comp",
-     "message": "choose-option select:2",
-     "ms": 35,
+     "message": "choose-option select:2 -- the page said 'L\u2013V competition is drawn from its starting numbers: r\u2081 0.4 \u00b7 K\u2081 100 \u00b7 r\u2082 0.4 \u00b7 ",
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -14300,8 +14315,22 @@
       }
      ],
      "id": "competition",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 38,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 35,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.wb-params-note == 'L\u2013V competition is drawn from its starting numbers: r\u2081 0.4 \u00b7 K\u2081 100 \u00b7 r\u2082 0.4 \u00b7 K\u2082 80 \u00b7 \u03b1\u2081\u2082 0.7 \u00b7 \u03b1\u2082\u2081 1.1 \u00b7 N\u2081 5 \u00b7 N\u2082 5 \u00b7 steps 80. Change any of them and the change is kept while you look at another model.', got 'L\u2013V competition is drawn from its starting numbers: r\u2081 0.4 \u00b7 K\u2081 100 \u00b7 r\u2082 0.4 \u00b7 K\u2082 80 \u00b7 \u03b1\u2081\u2082 0.7 \u00b7 \u03b1\u2082\u2081 1.1 \u00b7 N\u2081 5 \u00b7 N\u2082 5 \u00b7 steps 80. Change any of them and the change is kept while you look at another model.'",
+       "path": "output.boxes.wb-params-note",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g243-comp-note",
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -14314,8 +14343,8 @@
       }
      ],
      "id": "k1-zero",
-     "message": "set-text text_in:24",
-     "ms": 28,
+     "message": "set-text text_in:24 -- the page said 'L\u2013V competition is drawn from the numbers you gave it: r\u2081 0.4 \u00b7 K\u2081 0 \u00b7 r\u2082 0.4 \u00b7 K\u2082",
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -14328,8 +14357,8 @@
       }
      ],
      "id": "k1-refused",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 38,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 78,
      "result": "driven"
     },
     {
@@ -14342,8 +14371,8 @@
       }
      ],
      "id": "k1-back",
-     "message": "set-text text_in:24",
-     "ms": 33,
+     "message": "set-text text_in:24 -- the page said 'L\u2013V competition is drawn from its starting numbers: r\u2081 0.4 \u00b7 K\u2081 100 \u00b7 r\u2082 0.4 \u00b7 K\u2082 ",
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -14356,8 +14385,57 @@
       }
      ],
      "id": "model-back",
-     "message": "choose-option select:2",
-     "ms": 35,
+     "message": "choose-option select:2 -- the page said 'logistic growth is drawn from the numbers you gave it: r 0.25 \u00b7 K 120 \u00b7 N\u2080 10 \u00b7",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.wb-params-note == 'logistic growth is drawn from the numbers you gave it: r 0.25 \u00b7 K 120 \u00b7 N\u2080 10 \u00b7 steps 30 \u2014 kept while you look at another model.', got 'logistic growth is drawn from the numbers you gave it: r 0.25 \u00b7 K 120 \u00b7 N\u2080 10 \u00b7 steps 30 \u2014 kept while you look at another model.'",
+       "path": "output.boxes.wb-params-note",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.wb-theory-out contains 'effective r=0.35, K=300 habitat: area 2.5 \u00b7 temp 1.4 \u00b7 wind 0.6 \u00b7 distance 3', got 'effective r=0.35, K=300 habitat: area 2.5 \u00b7 temp 1.4 \u00b7 wind 0.6 \u00b7 distance 3081162243324t'",
+       "path": "output.boxes.wb-theory-out",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.longest == 31, got 31",
+       "path": "output.charts.wb-theory-out.longest",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.aligned.col == ['324', '243', '162', '81', '0'], got ['324', '243', '162', '81', '0']",
+       "path": "output.charts.wb-theory-out.aligned.col",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.spans == [[42, 22.67, 970, 151.55]], got [[42, 22.67, 970, 151.55]]",
+       "path": "output.charts.wb-theory-out.spans",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.at.0 == [506, 84], got [506, 84]",
+       "path": "output.charts.wb-theory-out.at.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.viewBox == '0 0 980 190', got '0 0 980 190'",
+       "path": "output.charts.wb-theory-out.viewBox",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.marks == {'circle': 1, 'rect': 1, 'path': 1, 'line': 7}, got {'circle': 1, 'rect': 1, 'path': 1, 'line': 7}",
+       "path": "output.charts.wb-theory-out.marks",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g243-back",
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 40,
      "result": "driven"
     },
     {
@@ -14371,7 +14449,7 @@
      ],
      "id": "build",
      "message": "activate action_btn:83",
-     "ms": 39,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -14383,14 +14461,19 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.value contains 'data: ', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.15 120 5 60\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\\n\\n# what the workbench got from these entries \u2014 provenance, not protocol.\\n# Re-run the lines above and you should land on these numbers:\\n#   myfield: 5 species, Shannon H' 1.16, evenness J' 0.72, effective 3.2, Chao1 5\\n#   siteA vs siteB: 3 of 7 kinds shared, Jaccard 0.43, Sorensen 0.6, Bray-Curtis 0.17\\n#   quadrats: 10 frames, 91 individuals, mean 9.1, variance/mean 26.12, Morisita 3.51\\n#   mark-recapture: Lincoln-Petersen N 667, Chapman N 659, 95% CI 521\u2013797\\n#   Hardy-Weinberg: n 1000, p 0.5, q 0.5, chi2 (df 1) 0, expected 250 / 500 / 250\"",
+       "detail": "output.value contains 'data: ', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.25 120 10 30\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\\n\\n# what the workbench got from these entries \u2014 provenance, not protocol.\\n# Re-run the lines above and you should land on these numbers:\\n#   myfield: 5 species, Shannon H' 1.16, evenness J' 0.72, effective 3.2, Chao1 5\\n#   siteA vs siteB: 3 of 7 kinds shared, Jaccard 0.43, Sorensen 0.6, Bray-Curtis 0.17\\n#   quadrats: 10 frames, 91 individuals, mean 9.1, variance/mean 26.12, Morisita 3.51\\n#   mark-recapture: Lincoln-Petersen N 667, Chapman N 659, 95% CI 521\u2013797\\n#   Hardy-Weinberg: n 1000, p 0.5, q 0.5, chi2 (df 1) 0, expected 250 / 500 / 250\"",
        "path": "output.value",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.value contains 'model: logistic 0.25 120 10 30', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.25 120 10 30\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\\n\\n# what the workbench got from these entries \u2014 provenance, not protocol.\\n# Re-run the lines above and you should land on these numbers:\\n#   myfield: 5 species, Shannon H' 1.16, evenness J' 0.72, effective 3.2, Chao1 5\\n#   siteA vs siteB: 3 of 7 kinds shared, Jaccard 0.43, Sorensen 0.6, Bray-Curtis 0.17\\n#   quadrats: 10 frames, 91 individuals, mean 9.1, variance/mean 26.12, Morisita 3.51\\n#   mark-recapture: Lincoln-Petersen N 667, Chapman N 659, 95% CI 521\u2013797\\n#   Hardy-Weinberg: n 1000, p 0.5, q 0.5, chi2 (df 1) 0, expected 250 / 500 / 250\"",
+       "path": "output.value#2",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "eco",
      "message": "read readonly_out:0",
-     "ms": 17,
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -14404,7 +14487,7 @@
      ],
      "id": "g208-ecocopy",
      "message": "activate action_btn:84 -- the page said 'Copied 31 line(s). Paste them into a .eco file.' -- 1 payload(s) produced",
-     "ms": 34,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -14416,19 +14499,19 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'name: my workbench experiment', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.15 120 5 60\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\\n\\n# what the workbench got from these entries \u2014 provenance, not protocol.\\n# Re-run the lines above and you should land on these numbers:\\n#   myfield: 5 species, Shannon H' 1.16, evenness J' 0.72, effective 3.2, Chao1 5\\n#   siteA vs siteB: 3 of 7 kinds shared, Jaccard 0.43, Sorensen 0.6, Bray-Curtis 0.17\\n#   quadrats: 10 frames, 91 individuals, mean 9.1, variance/mean 26.12, Morisita 3.51\\n#   mark-recapture: Lincoln-Petersen N 667, Chapman N 659, 95% CI 521\u2013797\\n#   Hardy-Weinberg: n 1000, p 0.5, q 0.5, chi2 (df 1) 0, expected 250 / 500 / 250\"",
+       "detail": "output.payloads.0.text contains 'name: my workbench experiment', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.25 120 10 30\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\\n\\n# what the workbench got from these entries \u2014 provenance, not protocol.\\n# Re-run the lines above and you should land on these numbers:\\n#   myfield: 5 species, Shannon H' 1.16, evenness J' 0.72, effective 3.2, Chao1 5\\n#   siteA vs siteB: 3 of 7 kinds shared, Jaccard 0.43, Sorensen 0.6, Bray-Curtis 0.17\\n#   quadrats: 10 frames, 91 individuals, mean 9.1, variance/mean 26.12, Morisita 3.51\\n#   mark-recapture: Lincoln-Petersen N 667, Chapman N 659, 95% CI 521\u2013797\\n#   Hardy-Weinberg: n 1000, p 0.5, q 0.5, chi2 (df 1) 0, expected 250 / 500 / 250\"",
        "path": "output.payloads.0.text",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'seed: 42', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.15 120 5 60\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\\n\\n# what the workbench got from these entries \u2014 provenance, not protocol.\\n# Re-run the lines above and you should land on these numbers:\\n#   myfield: 5 species, Shannon H' 1.16, evenness J' 0.72, effective 3.2, Chao1 5\\n#   siteA vs siteB: 3 of 7 kinds shared, Jaccard 0.43, Sorensen 0.6, Bray-Curtis 0.17\\n#   quadrats: 10 frames, 91 individuals, mean 9.1, variance/mean 26.12, Morisita 3.51\\n#   mark-recapture: Lincoln-Petersen N 667, Chapman N 659, 95% CI 521\u2013797\\n#   Hardy-Weinberg: n 1000, p 0.5, q 0.5, chi2 (df 1) 0, expected 250 / 500 / 250\"",
+       "detail": "output.payloads.0.text contains 'seed: 42', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.25 120 10 30\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\\n\\n# what the workbench got from these entries \u2014 provenance, not protocol.\\n# Re-run the lines above and you should land on these numbers:\\n#   myfield: 5 species, Shannon H' 1.16, evenness J' 0.72, effective 3.2, Chao1 5\\n#   siteA vs siteB: 3 of 7 kinds shared, Jaccard 0.43, Sorensen 0.6, Bray-Curtis 0.17\\n#   quadrats: 10 frames, 91 individuals, mean 9.1, variance/mean 26.12, Morisita 3.51\\n#   mark-recapture: Lincoln-Petersen N 667, Chapman N 659, 95% CI 521\u2013797\\n#   Hardy-Weinberg: n 1000, p 0.5, q 0.5, chi2 (df 1) 0, expected 250 / 500 / 250\"",
        "path": "output.payloads.0.text#2",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g208-ecoout",
      "message": "1 payload(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -14442,7 +14525,7 @@
      ],
      "id": "eco-in",
      "message": "set-text text_in:31",
-     "ms": 28,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -14456,7 +14539,7 @@
      ],
      "id": "eco-import",
      "message": "activate action_btn:85",
-     "ms": 36,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -14470,7 +14553,7 @@
      ],
      "id": "g214-record-copy",
      "message": "activate action_btn:86 -- the page said 'Copied 21 line(s).' -- 1 payload(s) produced",
-     "ms": 32,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -14494,7 +14577,7 @@
      ],
      "id": "g214-record",
      "message": "1 payload(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -14507,8 +14590,8 @@
       }
      ],
      "id": "eco-imported",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 40,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -14535,17 +14618,17 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.charts.wb-theory-out.longest == 61, got 61",
+       "detail": "output.charts.wb-theory-out.longest == 31, got 31",
        "path": "output.charts.wb-theory-out.longest",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.charts.wb-theory-out.aligned.col == ['129', '97', '65', '32', '0'], got ['129', '97', '65', '32', '0']",
+       "detail": "output.charts.wb-theory-out.aligned.col == ['129', '97', '64', '32', '0'], got ['129', '97', '64', '32', '0']",
        "path": "output.charts.wb-theory-out.aligned.col",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.charts.wb-theory-out.spans == [[42, 22.67, 970, 150.43]], got [[42, 22.67, 970, 150.43]]",
+       "detail": "output.charts.wb-theory-out.spans == [[42, 22.67, 970, 144.82]], got [[42, 22.67, 970, 144.82]]",
        "path": "output.charts.wb-theory-out.spans",
        "verdict": "CONFIRMED"
       },
@@ -14555,14 +14638,19 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.wb-theory-out contains 'effective r=0.15, K=120 habitat: area 1 \u00b7 temp 1 \u00b7 wind 1 \u00b7 distance 0', got 'effective r=0.15, K=120 habitat: area 1 \u00b7 temp 1 \u00b7 wind 1 \u00b7 distance 00326597129t'",
+       "detail": "output.boxes.wb-theory-out contains 'effective r=0.25, K=120 habitat: area 1 \u00b7 temp 1 \u00b7 wind 1 \u00b7 distance 0', got 'effective r=0.25, K=120 habitat: area 1 \u00b7 temp 1 \u00b7 wind 1 \u00b7 distance 00326497129t'",
        "path": "output.boxes.wb-theory-out",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.wb-params-note == 'logistic growth is drawn from the numbers you gave it: r 0.25 \u00b7 K 120 \u00b7 N\u2080 10 \u00b7 steps 30 \u2014 kept while you look at another model.', got 'logistic growth is drawn from the numbers you gave it: r 0.25 \u00b7 K 120 \u00b7 N\u2080 10 \u00b7 steps 30 \u2014 kept while you look at another model.'",
+       "path": "output.boxes.wb-params-note",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "still",
-     "message": "49 figure(s), 32 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 44,
+     "message": "49 figure(s), 33 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -14586,7 +14674,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 31,
+     "ms": 20,
      "result": "driven"
     }
    ],

@@ -2,7 +2,7 @@
  "_comment": "Written by tools/audit_destructive.py. Per page: every control the gateway calls DESTRUCTIVE, how many records one tap of it took, whether the page asked first, and the ceiling the unasked bulk removers may not rise above (ADR-209).",
  "pages": {
   "breeding-bench.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 4,
@@ -23,7 +23,7 @@
    ]
   },
   "cell-bench.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 4,
@@ -44,7 +44,7 @@
    ]
   },
   "collection-sheet.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 4,
@@ -65,7 +65,7 @@
    ]
   },
   "cp-bench.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 7,
@@ -89,7 +89,7 @@
    ]
   },
   "cp-characters.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 1,
@@ -107,7 +107,7 @@
    ]
   },
   "deployment-log.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 2,
@@ -126,7 +126,7 @@
    ]
   },
   "ecology-lab.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 2,
@@ -145,7 +145,7 @@
    ]
   },
   "ethogram.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 6,
@@ -173,7 +173,7 @@
    ]
   },
   "experiment-guide.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 8,
@@ -198,7 +198,7 @@
    ]
   },
   "farm-scout.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 4,
@@ -219,7 +219,7 @@
    ]
   },
   "field-notebook.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 5,
@@ -241,7 +241,7 @@
    ]
   },
   "food-web.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 2,
@@ -260,7 +260,7 @@
    ]
   },
   "fungal-characters.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 1,
@@ -278,7 +278,7 @@
    ]
   },
   "greenhouse.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 3,
@@ -298,7 +298,7 @@
    ]
   },
   "micro-bench.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 5,
@@ -320,7 +320,7 @@
    ]
   },
   "ordination.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 2,
@@ -339,7 +339,7 @@
    ]
   },
   "pheno-tracker.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 6,
@@ -362,7 +362,7 @@
    ]
   },
   "plant-characters.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 1,
@@ -380,7 +380,7 @@
    ]
   },
   "releve.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 6,
@@ -403,7 +403,7 @@
    ]
   },
   "selection-log.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 6,
@@ -426,7 +426,7 @@
    ]
   },
   "soil-bench.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 5,
@@ -448,7 +448,7 @@
    ]
   },
   "stand-sheet.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 5,
@@ -470,7 +470,7 @@
    ]
   },
   "survey-design.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 3,
@@ -490,7 +490,7 @@
    ]
   },
   "tree-proofs.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 1,
@@ -508,7 +508,7 @@
    ]
   },
   "tree-visualizer.html": {
-   "at": 1790156775,
+   "at": 1790170463,
    "bare": [],
    "ceiling": 0,
    "controls": 2,

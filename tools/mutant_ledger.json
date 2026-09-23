@@ -2677,6 +2677,77 @@
    ],
    "survived": 0
   },
+  "mutate_ecolab": {
+   "at": 1790168079,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 12,
+   "mutants": 12,
+   "rows": [
+    {
+     "detail": "9 failure(s); first: back on the logistic the boxes hold what was typed, not the",
+     "name": "a chosen model is rebuilt from its defaults, whatever it was given",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: back on the logistic the boxes hold what was typed, not the",
+     "name": "what a model was given is never kept",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: ...and once a number is typed it says the model is drawn fr",
+     "name": "the line always calls the numbers the model's starting ones",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: at boot the line under the theory bench says the logistic i",
+     "name": "the line never calls them the starting ones",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...and once a number is typed it says the model is drawn fr",
+     "name": "the line is not repainted when a number is typed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...and a file whose numbers are not the starting ones is sa",
+     "name": "an imported model's numbers are not said",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the .eco line built next is the numbers the model was given",
+     "name": "the .eco line is built from the model's defaults, not its boxes",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: sites (identical): the verdict is the port's word for Bray\u2013",
+     "name": "identical sites are nearly identical again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: sites (abundant kinds agree, membership does not): the verd",
+     "name": "nearly the same counts read as nearly identical communities whatever the membership",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: sites (moderate): the verdict is the port's word for Bray\u2013C",
+     "name": "the moderate band ends at 0.5",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: sites (one kind at one site only): the verdict is the port'",
+     "name": "one kind at one site only 'are'",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: sites (abundant kinds agree, membership does not): the verd",
+     "name": "the membership figure printed is S\u00f8rensen under Jaccard's name",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_engines": {
    "at": 1789699311,
    "equivalent": 0,

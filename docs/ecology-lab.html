@@ -1629,6 +1629,7 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
       <label>wind <input type="number" id="wb-wind" value="1" step="0.1" min="0"></label>
       <label>distance <input type="number" id="wb-dist" value="0" step="0.1" min="0"></label>
     </div>
+    <p id="wb-params-note" class="whatis" role="status" aria-live="polite" style="margin:6px 0 0"></p>
     <div id="wb-theory-out"></div>
     <h3 class="h3" style="margin-top:16px">Transfer to a protocol — store, re-run, export</h3>
     <p class="whatis">Everything typed above, rewritten as <code>.eco</code> lines. Paste them into a file and
@@ -2527,6 +2528,7 @@ expect: evenness(pondA) is moderate"></textarea>
         m.params.forEach((v, i) => {
           if (!setNumberBox("wb-mp" + i, v)) refused.push(MODEL_PARAMS[m.kind][i][0]);
         });
+        paramsNote();                                      // ADR-243: the line says whose numbers these are
         loaded.push(`<b>${esc(written)}</b> → the theory bench`
             + (refused.length ? ` — except ${esc(refused.join(", "))}, which the boxes cannot hold` : ""));
       } else {
@@ -2810,7 +2812,15 @@ expect: evenness(pondA) is moderate"></textarea>
       out.innerHTML = '<p class="wb-error">enter counts for both sites</p>' + siteProblems; return;
     }
     const shared = st.shared, union = st.union, j = st.j, sor = st.sor, bc = st.bc;
-    const word = bc <= 0.2 ? "nearly identical communities" :
+    /* ADR-243. Bray–Curtis weighs by count, so two sites whose abundant kinds match read
+       "nearly identical" at 0.17 while sharing 3 of 7 kinds -- the tenth blind trial read that
+       beside "share 3 of 7" and filed it. The word now says which figure it is reading: where
+       the counts agree and the membership does not, both are named and the turnover is placed
+       where it is, among the scarce kinds; identical sites are called identical, not nearly. */
+    const only = union - shared.length;
+    const word = (only === 0 && bc === 0) ? "identical communities: the same kinds in the same counts" :
+                 bc <= 0.2 ? (only === 0 ? "nearly identical communities" :
+                   `the abundant kinds are nearly the same (Bray–Curtis ${fmt(bc, 2)} weighs by count), and ${only} of ${union} kinds ${only === 1 ? "is" : "are"} at one site only (Jaccard ${fmt(j, 2)}): the turnover is among the scarce kinds`) :
                  bc <= 0.6 ? "moderate turnover" : "major turnover — substantially different communities";
     out.innerHTML =
       `<div class="tiles">${tile(fmt(j, 2), "Jaccard")}${tile(fmt(sor, 2), "Sørensen")}${tile(fmt(bc, 2), "Bray–Curtis")}</div>
@@ -3166,11 +3176,40 @@ expect: evenness(pondA) is moderate"></textarea>
     competition: [["r₁", 0.4], ["K₁", 100], ["r₂", 0.4], ["K₂", 80], ["α₁₂", 0.7], ["α₂₁", 1.1], ["N₁", 5], ["N₂", 5], ["steps", 80]],
     predation:   [["r", 0.5], ["a", 0.02], ["b", 0.3], ["m", 0.4], ["N₀", 40], ["P₀", 9], ["steps", 200]],
   };
-  function buildParams() {
+  /* ADR-243. A MODEL KEEPS THE NUMBERS IT WAS GIVEN. This rebuilt the boxes from
+     MODEL_PARAMS every time the model changed, so r 0.25, N₀ 10 and 30 steps typed into the
+     logistic were gone after a look at competition and back -- and the .eco line built next
+     read "model: logistic 0.15 120 5 60", a protocol of numbers nobody typed. The tenth blind
+     trial filed it. What the boxes hold is kept per model when the model changes (whatever put
+     it there: a keystroke, an import), put back when that model is chosen again, and the line
+     under the boxes says which numbers the model is drawn from. */
+  const GIVEN = {};
+  let SHOWN = null;
+  function keepParams() {
+    if (SHOWN === null) return;
+    GIVEN[SHOWN] = [...document.querySelectorAll(".wb-mp")].map(el => el.value);
+  }
+  function paramsNote() {
     const kind = document.getElementById("wb-model").value;
-    document.getElementById("wb-params").innerHTML = MODEL_PARAMS[kind].map(([n, v], i) =>
-      `<label>${n} <input type="number" class="wb-mp" id="wb-mp${i}" value="${v}" step="any"></label>`).join("");
-    for (const el of document.querySelectorAll(".wb-mp")) el.addEventListener("input", runTheory);
+    const opt = document.querySelector(`#wb-model option[value="${kind}"]`);
+    const name = opt ? opt.textContent : kind;
+    const boxes = [...document.querySelectorAll(".wb-mp")].map(el => el.value);
+    const mine = boxes.some((v, i) => String(v).trim() !== String(MODEL_PARAMS[kind][i][1]));
+    const said = MODEL_PARAMS[kind].map(([n], i) =>
+      `${n} ${String(boxes[i]).trim() === "" ? "(empty)" : esc(String(boxes[i]).trim())}`).join(" · ");
+    document.getElementById("wb-params-note").innerHTML = mine
+      ? `${esc(name)} is drawn from the numbers you gave it: ${said} — kept while you look at another model.`
+      : `${esc(name)} is drawn from its starting numbers: ${said}. Change any of them and the change is kept while you look at another model.`;
+  }
+  function buildParams() {
+    keepParams();
+    const kind = document.getElementById("wb-model").value;
+    SHOWN = kind;
+    const vals = Object.hasOwn(GIVEN, kind) ? GIVEN[kind] : MODEL_PARAMS[kind].map(([, v]) => String(v));
+    document.getElementById("wb-params").innerHTML = MODEL_PARAMS[kind].map(([n], i) =>
+      `<label>${n} <input type="number" class="wb-mp" id="wb-mp${i}" value="${esc(vals[i])}" step="any"></label>`).join("");
+    for (const el of document.querySelectorAll(".wb-mp")) el.addEventListener("input", () => { paramsNote(); runTheory(); });
+    paramsNote();
     runTheory();
   }
   /* Read one field as a number, or report it. `+el.value` turned a blank box — and, in

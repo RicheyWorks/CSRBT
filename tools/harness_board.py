@@ -125,6 +125,7 @@ RUNNERS = [
     ("mutate_etho", "the ethogram's budget: the note's three numbers, the sheet's bouts, the CSV's whole"),
     ("mutate_evidence", "what the evidence is about: the tree every count was taken on, and the floor no suite falls below"),
     ("mutate_rv", "the relevé's voucher dials: unset until said, the next voucher named, no phenophase invented"),
+    ("mutate_ecolab", "the ecology lab's theory bench and sites verdict: a model keeps the numbers it was given, the word says which figure it reads"),
 ]
 
 
