@@ -554,8 +554,9 @@
       <div id="vouEntry"></div>
       <label class="f" style="margin:0 0 18px">collection no.<input type="text" id="vNum" placeholder="RJ-2026-014" autocomplete="off"></label>
       <div id="vou2Entry"></div>
+      <p class="fine" id="vouNote" role="status" aria-live="polite"></p>
       <input type="hidden" id="vSp"><input type="hidden" id="vDup" value="1">
-      <input type="hidden" id="vMat" value="fl"><input type="hidden" id="vPhen" value="fl">
+      <input type="hidden" id="vMat"><input type="hidden" id="vPhen">
       <input type="hidden" id="vAb">
       <label class="f" style="margin-top:10px">notes on the LIVING plant — what the press will destroy
         <textarea id="vNote" placeholder="Flower colour, scent, height, exudate, habit, substrate."></textarea></label>
@@ -2292,20 +2293,39 @@ var DWC = (function(){
   var RPHEN=FEK.dial({ field:"rPhen", label:"phenophase", clearable:false, value:"veg",
     options:PHENO.map(function(p){ return {value:p[0], label:p[1]}; }),
     onchange:function(v){ push("rPhen",v); } });
-  var VPHEN=FEK.dial({ field:"vPhen", label:"phenophase", clearable:false, value:"fl",
+  /* ADR-242: A VOUCHER'S DIALS START UNSET. These two defaulted to "in flower"
+     and "flowering", so a voucher recorded without touching them carried
+     "[in flower, flowering]" onto its label -- a statement about the specimen
+     the collector never made, on the one document a herbarium takes as
+     evidence (seventh blind trial). The occurrence dial above may default to
+     vegetative, because most plants in a relevé are; a specimen's material is
+     the thing that decides whether it can be determined, and it is asked for.
+     Below the dials, vouNote says what the next voucher WILL be recorded as,
+     so a value carried forward from the last specimen is seen before it is
+     written (ADR-238's rule). */
+  var VPHEN=FEK.dial({ field:"vPhen", label:"phenophase", clearable:false, value:null,
     options:PHENO.map(function(p){ return {value:p[0], label:p[1]}; }),
-    onchange:function(v){ push("vPhen",v); } });
-  var VMAT=FEK.dial({ field:"vMat", label:"material", clearable:false, value:"fl",
+    onchange:function(v){ push("vPhen",v); vouNext(); } });
+  var VMAT=FEK.dial({ field:"vMat", label:"material", clearable:false, value:null,
     options:[{value:"fl",label:"in flower",ramp:2},{value:"fr",label:"in fruit",ramp:2},
              {value:"ff",label:"flower & fruit",ramp:2},{value:"st",label:"sterile",sub:"vegetative only",ramp:4}],
-    onchange:function(v){ push("vMat",v); },
-    help:"A sterile specimen is often undeterminable. If you can wait for flower or fruit, wait." });
+    onchange:function(v){ push("vMat",v); vouNext(); },
+    help:"A sterile specimen is often undeterminable. If you can wait for flower or fruit, wait. Say which it is: a voucher is not recorded without it." });
   var VAB=FEK.dial({ field:"vAb", label:"abundance here",
     options:[{value:"rare",label:"rare"},{value:"occasional",label:"occasional"},
              {value:"frequent",label:"frequent"},{value:"abundant",label:"abundant"},
              {value:"dominant",label:"dominant"}],
-    onchange:function(v){ push("vAb",v); },
+    onchange:function(v){ push("vAb",v); vouNext(); },
     help:"Of the population you collected from — the label field that tells a future botanist whether this was a stray or the matrix." });
+  var VMATNAME={fl:"in flower",fr:"in fruit",ff:"flower & fruit",st:"sterile — vegetative only"};
+  function vouNext(){
+    var e=$("vouNote"); if(!e) return;
+    var PH={}; PHENO.forEach(function(p){ PH[p[0]]=p[1]; });
+    var m=val("vMat"), ph=val("vPhen"), ab=val("vAb");
+    e.innerHTML="The next voucher will be recorded as: <b>"+(m?esc(VMATNAME[m]||m):"material not recorded")+"</b> · "
+      +(ph?esc(PH[ph]||ph):"phenophase not recorded")+" · "+(ab?esc(ab):"abundance not recorded")+"."
+      +(m?"":" A voucher is not recorded until its material is said — in flower, in fruit, flower &amp; fruit, or sterile.");
+  }
   var VDUP=null;
   var LLAYER=FEK.dial({ field:"lLayer", label:"layer", clearable:false, value:"top",
     options:[{value:"top",label:"top canopy",sub:"first hit",ramp:2},
@@ -2315,6 +2335,7 @@ var DWC = (function(){
   FEK.mount("strEntry",[RSTR]);
   FEK.mount("phenEntry",[RPHEN]);
   FEK.mount("vou2Entry",[VMAT,VPHEN,VAB]);
+  vouNext();
 
   var SELEV=FEK.step({ field:"sElev", label:"elevation", unit:"m", value:0, min:-500, max:9000, step:10, dec:0,
     onchange:function(v){ push("sElev",v); } });
@@ -2660,11 +2681,14 @@ var DWC = (function(){
     var name = sp? sp.sci : val("rFree")||"undetermined";
     var com = sp? sp.com : "";
     if(!val("vNum")){ toast("A collection number is what makes it citable"); $("vNum").focus(); return; }
+    /* ADR-242: the material is asked for, never assumed. */
+    if(!val("vMat")){ toast("Say what the specimen is — in flower, in fruit, flower & fruit, or sterile. Nothing recorded."); return; }
     vouchers.push({sci:name, com:com, fam:sp?sp.fam:"", num:val("vNum"), dup:num("vDup")||1,
       mat:val("vMat"), phen:val("vPhen"), ab:val("vAb"), note:val("vNote")});
     $("vNum").value=""; $("vNote").value="";
-    buzz(); renderVouchers(); ecoOut();
-    toast("Voucher recorded"+(val("vMat")==="st"?" — sterile, may not be keyable":""));
+    buzz(); renderVouchers(); ecoOut(); vouNext();
+    toast("Voucher recorded"+(val("vMat")==="st"?" — sterile, may not be keyable":"")
+      +(val("vPhen")?"":" — no phenophase recorded"));
   });
   function renderVouchers(){
     var L=$("vList");
@@ -2677,7 +2701,7 @@ var DWC = (function(){
       var d=document.createElement("div");
       d.innerHTML='<div class="row2"'+(v.mat==="st"?' style="border-left:3px solid var(--s2)"':'')+'>'
         +'<div class="g"><b><i>'+esc(v.sci)+'</i>'+(v.com?" — "+esc(v.com):"")+'</b>'
-        +'<span>'+esc(v.num)+' · '+esc(MAT[v.mat]||v.mat)+' · '+esc(PH[v.phen]||v.phen)
+        +'<span>'+esc(v.num)+' · '+esc(MAT[v.mat]||v.mat)+' · '+esc(v.phen?(PH[v.phen]||v.phen):"phenophase not recorded")
         +' · '+v.dup+' sheet'+(v.dup===1?"":"s")+(v.ab?" · "+esc(v.ab):"")+'</span></div>'
         +'<button type="button" class="noprint">✕</button></div>'
         +'<div class="label"><div class="inst">Flora of '+esc(val("sComm")?"the study area":"the study area")+'</div>'
@@ -2691,7 +2715,7 @@ var DWC = (function(){
         +(num("sSlope")!==null?', slope '+num("sSlope")+'%':'')+(val("sSoil")?'; '+esc(val("sSoil")):'')+'</div>'
         +'<div class="row"><span class="k">Associates:</span> '+esc(topAssoc(v.sci))+'</div>'
         +'<div class="row"><span class="k">Notes:</span> '+esc(v.note||"—")
-        +' ['+esc(MAT[v.mat]||v.mat)+', '+esc(PH[v.phen]||v.phen)+(v.ab?", "+esc(v.ab):"")+']</div>'
+        +' ['+esc(MAT[v.mat]||v.mat)+', '+esc(v.phen?(PH[v.phen]||v.phen):"phenophase not recorded")+(v.ab?", "+esc(v.ab):"")+']</div>'
         +'<div class="coll"><span>'+esc(val("sObs")||"collector")+' <b>'+esc(v.num)+'</b></span>'
         +'<span>'+esc(val("sDate")||"")+'</span></div></div>';
       d.querySelector("button").addEventListener("click",function(){ vouchers.splice(i,1); renderVouchers(); ecoOut(); buzz(); });
@@ -2964,7 +2988,7 @@ var DWC = (function(){
       L.push("");
       L.push("# vouchers ("+vouchers.length+")");
       vouchers.forEach(function(v){
-        L.push("#   "+v.num+"  "+v.sci+"  ["+v.mat+", "+v.phen+", "+v.dup+" sheet"+(v.dup===1?"":"s")+"]"
+        L.push("#   "+v.num+"  "+v.sci+"  ["+v.mat+", "+(v.phen||"phenophase not recorded")+", "+v.dup+" sheet"+(v.dup===1?"":"s")+"]"
           +(v.note?" — "+v.note.replace(/\n/g," "):""));
       });
     }
@@ -3148,7 +3172,7 @@ var DWC = (function(){
      arriving on the path ADR-207 created. */
   function bootPaint(){
     fillSpecies(); fillLpiSelect(); renderScalePicker(); renderCov(); packStats();
-    renderVouchers(); lpiPlan(); renderLpi(); parentEvOut(); dwcRefresh(); renderAll();
+    renderVouchers(); lpiPlan(); renderLpi(); parentEvOut(); dwcRefresh(); renderAll(); vouNext();   /* ADR-242 */
   }
   bootPaint();
 

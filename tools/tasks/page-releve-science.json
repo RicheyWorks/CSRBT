@@ -2,7 +2,7 @@
  "id": "page-releve-science",
  "target": "page",
  "page": "releve.html",
- "goal": "Record a sagebrush-steppe releve whole and hold what the sheet computes. Three taxa by Braun-Blanquet class -- big sagebrush 4 (midpoint 62.5%), bluebunch wheatgrass 2 (15%), cheatgrass + (0.5%) -- read 3 taxa in 2 families, Shannon H' 0.53, evenness J' 0.48, 1.7 effective taxa, one non-native and the dominant at 80% of recorded cover, with 80% of that cover shrub; a fourth taxon at class 1 moves them to 0.67, 0.48, 1.9 and 77%, and an add with no cover class adds no row. Floristic Quality Assessment over two of three natives is mean C 4.50, FQI 6.4, adjusted FQI 31.8 and says so is partial; over three of three it is 4.33, 7.5 and 37.5. Scored UPL/FACU the Corps prevalence index is 4.77, above the 3.0 threshold, and the sheet says a determination still needs hydric soil and hydrology. A 50 m transect read at 1 m in duplicate plans 100 points and at 0.5 m plans 200; five top-canopy hits and four bare readings on the 100-point denominator are 5% foliar cover and 4% bare with 91 points still to read. A 40.5853/-111.6383 fix with 30 m of GPS on a 100 m2 plot is 43 m of coordinate uncertainty -- 7 m of it the plot itself -- and 5402 m with the datum unknown. A pack missing its required fields is rejected whole.",
+ "goal": "Record a sagebrush-steppe releve whole and hold what the sheet computes. Three taxa by Braun-Blanquet class -- big sagebrush 4 (midpoint 62.5%), bluebunch wheatgrass 2 (15%), cheatgrass + (0.5%) -- read 3 taxa in 2 families, Shannon H' 0.53, evenness J' 0.48, 1.7 effective taxa, one non-native and the dominant at 80% of recorded cover, with 80% of that cover shrub; a fourth taxon at class 1 moves them to 0.67, 0.48, 1.9 and 77%, and an add with no cover class adds no row. Floristic Quality Assessment over two of three natives is mean C 4.50, FQI 6.4, adjusted FQI 31.8 and says so is partial; over three of three it is 4.33, 7.5 and 37.5. Scored UPL/FACU the Corps prevalence index is 4.77, above the 3.0 threshold, and the sheet says a determination still needs hydric soil and hydrology. A 50 m transect read at 1 m in duplicate plans 100 points and at 0.5 m plans 200; five top-canopy hits and four bare readings on the 100-point denominator are 5% foliar cover and 4% bare with 91 points still to read. A 40.5853/-111.6383 fix with 30 m of GPS on a 100 m2 plot is 43 m of coordinate uncertainty -- 7 m of it the plot itself -- and 5402 m with the datum unknown. A pack missing its required fields is rejected whole. A voucher's material and phenophase start unset: the sheet says the next voucher would be recorded with material, phenophase and abundance not recorded, refuses to record one until the material is said, and after in fruit, dispersing and frequent are chosen says so and records RJW-2026-014 as [fr, dis, 3 sheets] with no 'in flower' the collector never chose.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -949,6 +949,44 @@
    }
   },
   {
+   "id": "g242-unset",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.vouNote": {
+     "op": "contains",
+     "value": "The next voucher will be recorded as: material not recorded · phenophase not recorded · abundance not recorded. A voucher is not recorded until its material is said — in flower, in fruit, flower & fruit, or sterile."
+    }
+   }
+  },
+  {
+   "id": "g242-refused",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:vAdd"
+   },
+   "expect": {
+    "ok": true,
+    "output.said": {
+     "op": "any-contains",
+     "value": "Say what the specimen is — in flower, in fruit, flower & fruit, or sterile. Nothing recorded."
+    }
+   }
+  },
+  {
+   "id": "g242-nothing",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "excludes",
+     "value": "RJW-2026-014"
+    },
+    "output.boxes.vList": {
+     "op": "contains",
+     "value": "No specimens yet."
+    }
+   }
+  },
+  {
    "id": "vphen",
    "action": "activate",
    "arguments": {
@@ -979,6 +1017,13 @@
    }
   },
   {
+   "id": "g242-next",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.vouNote": "The next voucher will be recorded as: in fruit · dispersing · frequent."
+   }
+  },
+  {
    "id": "vnote",
    "action": "set-text",
    "arguments": {
@@ -1006,6 +1051,18 @@
     "output.boxes.ecoOut": {
      "op": "contains",
      "value": "RJW-2026-014"
+    },
+    "output.boxes.ecoOut#2": {
+     "op": "contains",
+     "value": "# RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] — Silvery pubescence"
+    },
+    "output.boxes.vList": {
+     "op": "contains",
+     "value": "RJW-2026-014 · in fruit · dispersing · 3 sheets · frequent"
+    },
+    "output.boxes.vList#2": {
+     "op": "excludes",
+     "value": "in flower"
     }
    }
   },

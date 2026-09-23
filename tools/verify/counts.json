@@ -1,730 +1,730 @@
 {
  "_comment": "Written by run_all.py. n is what the suite counted; sha identifies the suite source it was counted from; at is when THAT suite was last scored, which is not necessarily this run -- a run updates only the suites it could run. A count whose sha no longer matches says nothing about the suite as it stands -- rerun run_all.",
- "at": 1790147639,
+ "at": 1790158912,
  "suites": {
   "verify_addresses": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 36,
    "of": 36,
    "sha": "6a74f2526e98",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_advertised": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 29,
    "of": 29,
    "sha": "9efeaa527c4e",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_anchors": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 23,
    "of": 23,
    "sha": "abe681eb6bb5",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_audit_frontend": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 23,
    "of": 23,
    "sha": "de511a68b96b",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_audit_states": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 70,
    "of": 70,
    "sha": "bdbcaa15beac",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_badinput": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 35,
    "of": 35,
    "sha": "04e27bbb56af",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_board": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
-   "n": 237,
-   "of": 237,
+   "n": 240,
+   "of": 240,
    "sha": "58b6eba6c81d",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_br": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 90,
    "of": 90,
    "sha": "d9178e14431a",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_brief": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 46,
    "of": 46,
    "sha": "5313b5dea992",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_carried": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 55,
    "of": 55,
    "sha": "7d7c29f7253d",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_cb": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 74,
    "of": 74,
    "sha": "922cd70ccc4c",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_ci": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 14,
    "of": 14,
    "sha": "1cef5d85dac5",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_claims_math": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 49,
    "of": 49,
    "sha": "64f6db468a31",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_claims_slice": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 56,
    "of": 56,
    "sha": "5dfc912c2163",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_claims_triage": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 46,
    "of": 46,
    "sha": "5043144f9c58",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_contend": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 42,
    "of": 42,
    "sha": "ebfd4069b8ee",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_contract": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 261,
    "of": 261,
    "sha": "2a6fd87031ad",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_contrast_slice": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 57,
    "of": 57,
    "sha": "6a4c6d049d46",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_cp": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 93,
    "of": 93,
    "sha": "7505cc4859f9",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_cpc": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 116,
    "of": 116,
    "sha": "75c9786e9766",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_cs": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 72,
    "of": 72,
    "sha": "4a2cfe10b618",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_cs_science": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 86,
    "of": 86,
    "sha": "89f7402be45b",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_declared": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 48,
    "of": 48,
    "sha": "a4c4113bc267",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_delivery": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 82,
    "of": 82,
    "sha": "e3a4425df133",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_dep": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 109,
    "of": 109,
    "sha": "0427fa5af413",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_destructive": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 47,
    "of": 47,
    "sha": "2549bb68f97d",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_dwc": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 154,
    "of": 154,
    "sha": "f9e50c9e43d7",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_eco": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 200,
    "of": 200,
    "sha": "6fa25d86aed3",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_eco_experiment": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 35,
    "of": 35,
    "sha": "df49be95d2ec",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_ecosystem": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 116,
    "of": 116,
    "sha": "1cc98ad9dea2",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_emitters": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 173,
    "of": 173,
    "sha": "f1665c524138",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_engine_sessions": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 37,
    "of": 37,
    "sha": "ab622bdb6e2b",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_entry_reach": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 26,
    "of": 26,
    "sha": "55a123844f39",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_epl": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 42,
    "of": 42,
    "sha": "efb082b345d7",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_epr": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 46,
    "of": 46,
    "sha": "39c86f7c6f79",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_escaping_slice": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 115,
    "of": 115,
    "sha": "f193991eb86b",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_etho": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 86,
    "of": 86,
    "sha": "b3bd666abdfb",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_evidence": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 29,
    "of": 29,
    "sha": "adf47c240a24",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_experiment_guide": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 92,
    "of": 92,
    "sha": "6946100b443a",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_fek": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 134,
    "of": 134,
    "sha": "019f3bc36589",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_findings": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 12,
    "of": 12,
    "sha": "aaa4acc86606",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_fn": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 21,
    "of": 21,
    "sha": "8fd0739f5ba1",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_focus_slice": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 22,
    "of": 22,
    "sha": "1cec4cf19e41",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_frames": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 115,
    "of": 115,
    "sha": "2037ef42af80",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_fs": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 48,
    "of": 48,
    "sha": "78b935d4f7d9",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_fw": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 64,
    "of": 64,
    "sha": "8388574ca5b3",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_gh": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 147,
    "of": 147,
    "sha": "d6a99ec2ce36",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_harness": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 33,
    "of": 33,
    "sha": "b8cd569ce89d",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_harness_matrix": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 77,
    "of": 77,
    "sha": "0406e31f9e0e",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_http": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 65,
    "of": 65,
    "sha": "186b5bd9e7dd",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_keep": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 316,
    "of": 316,
    "sha": "1f967c0645fa",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_kit_consistency": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 51,
    "of": 51,
    "sha": "144cd1ddc66a",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_lab": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 35,
    "of": 35,
    "sha": "5cce2907b720",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_label_escaping": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 23,
    "of": 23,
    "sha": "39f6694a0877",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_mb": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 83,
    "of": 83,
    "sha": "8e3d28a7b15f",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_mcp": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 101,
    "of": 101,
    "sha": "dde30141b0a6",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_mutate": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 47,
    "of": 47,
    "sha": "08f64a0e37f6",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_offline_slice": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 218,
    "of": 218,
    "sha": "71e191c93fa2",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_ord": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 129,
    "of": 129,
    "sha": "682e4e4bcf4e",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_organism": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 317,
    "of": 317,
    "sha": "aa3a7ede364e",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_outbox": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 337,
    "of": 337,
    "sha": "6e5c98babfea",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_outputs": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 64,
    "of": 64,
    "sha": "470c9fffc8b7",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_print_channel": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 11,
    "of": 11,
    "sha": "4ac8854f3a08",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_print_slice": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 20,
    "of": 20,
    "sha": "fe7304e80302",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_probe": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 25,
    "of": 25,
    "sha": "caf176f31937",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_proofs": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 149,
    "of": 149,
    "sha": "de081746bc46",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_pt": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 63,
    "of": 63,
    "sha": "1c0be7d32ae4",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_publish_drift": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 50,
    "of": 50,
    "sha": "51ca7c07571c",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_publish_reach": {
-   "at": 1790147639,
+   "at": 1790158912,
    "green": true,
    "n": 81,
    "of": 81,
    "sha": "06c7ea1428e0",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_readable": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 37,
    "of": 37,
    "sha": "0219cd86cfc3",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_recipes": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 241,
    "of": 241,
    "sha": "ce79609d1ec0",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_report": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 281,
    "of": 281,
    "sha": "9c14ebf42490",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_restored": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 29,
    "of": 29,
    "sha": "963d53775ce3",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_routes": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 14,
    "of": 14,
    "sha": "b46bc7104aa4",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_rv": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
-   "n": 81,
-   "of": 81,
-   "sha": "5b4be563700a",
-   "tree": "1b8118a5459e"
+   "n": 94,
+   "of": 94,
+   "sha": "519ab52ef01a",
+   "tree": "2d015ee17583"
   },
   "verify_sd": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 73,
    "of": 73,
    "sha": "fef921582a3c",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_sel": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 95,
    "of": 95,
    "sha": "6c2f222f8577",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_soil": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 80,
    "of": 80,
    "sha": "51cbe00fa00c",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_ss": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 114,
    "of": 114,
    "sha": "f87048b53be7",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_suites": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 122,
    "of": 122,
    "sha": "7ae7af0feeb9",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_swarm": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 40,
    "of": 40,
    "sha": "65442fab17de",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_sweep_ledger": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 25,
    "of": 25,
    "sha": "372fd5229f90",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_takeaway": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 31,
    "of": 31,
    "sha": "da30d76cd570",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_tasks": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 479,
    "of": 479,
    "sha": "ffe8c0c0ced8",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_tie_render": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 13,
    "of": 13,
    "sha": "6c46fd86a7fa",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_ties": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 19,
    "of": 19,
    "sha": "782505e30933",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_tv": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 118,
    "of": 118,
    "sha": "44de1a76abf1",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_two": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 40,
    "of": 40,
    "sha": "39f25d9935de",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_visualizer_sessions": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 32,
    "of": 32,
    "sha": "73894d627338",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   },
   "verify_walk": {
-   "at": 1790147325,
+   "at": 1790158294,
    "green": true,
    "n": 126,
    "of": 126,
    "sha": "cbffefd05b02",
-   "tree": "1b8118a5459e"
+   "tree": "2d015ee17583"
   }
  },
  "tree": {
-  "digest": "1b8118a5459e5732884ccc2cea36ddbe3c17de938b1d48740b6fc864c0ac1f4f",
+  "digest": "2d015ee1758364d35081fb18cf4a8a073792428c38b0c8d13a7a743816dc7de5",
   "files": {
    ".github/workflows/ci.yml": "54890fe9ef8e",
    "csrbt-benchmarks/build.gradle.kts": "2ad5d86ce15c",
@@ -1198,7 +1198,8 @@
    "docs/ADR-239-a-name-outlives-the-press-2026-09-22.md": "b2b9fc01fbe5",
    "docs/ADR-240-a-budget-file-is-the-whole-budget-2026-09-22.md": "e65f5d43b906",
    "docs/ADR-241-the-count-says-which-tree-it-counted-2026-09-22.md": "5d1430b90cd2",
-   "docs/AI_HARNESS.md": "b2e27460f63f",
+   "docs/ADR-242-a-voucher-says-nothing-it-was-not-told-2026-09-23.md": "6e3889b0e6fe",
+   "docs/AI_HARNESS.md": "e829a62faeff",
    "docs/AUDIT-2026-07-14-capability-coverage.md": "98c473b007f6",
    "docs/AUDIT-2026-08-09-ecology-bug-audit.md": "70fd8b388651",
    "docs/AUDIT-2026-08-09-ecology-module.md": "b2bba69bf098",
@@ -1427,6 +1428,7 @@
    "docs/CHANGELOG-2026-09-22-adr239-a-name-outlives-the-press.md": "668d3053951f",
    "docs/CHANGELOG-2026-09-22-adr240-a-budget-file-is-the-whole-budget.md": "e33866690499",
    "docs/CHANGELOG-2026-09-22-adr241-the-count-says-which-tree-it-counted.md": "4706e4a7d901",
+   "docs/CHANGELOG-2026-09-23-adr242-a-voucher-says-nothing-it-was-not-told.md": "902cd4e59a23",
    "docs/DESIGN-adaptive-engine.md": "a159d17611fa",
    "docs/ECOLOGY-FIELD-GUIDE.md": "c4bb0f114e8d",
    "docs/ESSAY-the-ecology-of-a-tree.md": "71d264a7ced1",
@@ -1494,11 +1496,11 @@
    "docs/ordination.html": "781c40fb75cb",
    "docs/pheno-tracker.html": "68244f15a943",
    "docs/plant-characters.html": "bfdf709c7fb6",
-   "docs/releve.html": "c9a59e4f900d",
+   "docs/releve.html": "a1bab7d9d7f5",
    "docs/selection-log.html": "f27019128abe",
    "docs/soil-bench.html": "72b8c174bb9d",
    "docs/soil-recipes.html": "6ee94f26189c",
-   "docs/soil-suite.html": "65355cf56ab5",
+   "docs/soil-suite.html": "b9c8a97e7e21",
    "docs/stand-sheet.html": "f33d2de90068",
    "docs/strategy-audit-and-feasibility-2026-05-30.md": "d60acafe7d25",
    "docs/survey-design.html": "c93ab3e4dfd0",
@@ -1558,7 +1560,7 @@
    "tools/gh_emit.py": "eb9df6bef436",
    "tools/harness.py": "085488fa74aa",
    "tools/harness_baseline.json": "1d5e5bb0fadf",
-   "tools/harness_board.py": "60ebdc32bd23",
+   "tools/harness_board.py": "b3175eb838cf",
    "tools/harness_contract.py": "d67727937094",
    "tools/harness_frames.py": "7f824c261656",
    "tools/harness_http.py": "1153df6ced68",
@@ -1610,6 +1612,7 @@
    "tools/mutate_readable.py": "c16bfdfd34cb",
    "tools/mutate_report.py": "aa6aaa5d090a",
    "tools/mutate_restored.py": "f45d965849c1",
+   "tools/mutate_rv.py": "3493fcfb5ba5",
    "tools/mutate_sel.py": "44de6e68a2b8",
    "tools/mutate_takeaway.py": "daf69b20c262",
    "tools/mutate_tasks.py": "619cbc463ff0",
@@ -1671,7 +1674,7 @@
    "tools/tasks/page-ordination-science.json": "3e31d9288843",
    "tools/tasks/page-pheno-tracker-science.json": "df1e4331aac3",
    "tools/tasks/page-plant-characters-key.json": "895e873de60e",
-   "tools/tasks/page-releve-science.json": "1895e207373a",
+   "tools/tasks/page-releve-science.json": "64cbf1fc7a73",
    "tools/tasks/page-selection-log-science.json": "9b078ac20e89",
    "tools/tasks/page-soil-bench-science.json": "eaaf77bb71db",
    "tools/tasks/page-soil-recipes-scaling.json": "11a35a4a7858",
@@ -1807,7 +1810,7 @@
    "tools/verify/verify_report.py": "dc3ac17f0093",
    "tools/verify/verify_restored.py": "0f15738cfc99",
    "tools/verify/verify_routes.py": "f4297a8b94c3",
-   "tools/verify/verify_rv.py": "91090ed687b1",
+   "tools/verify/verify_rv.py": "a87f42cfdeb6",
    "tools/verify/verify_sd.py": "d8568fd74752",
    "tools/verify/verify_sel.py": "2ba138def45a",
    "tools/verify/verify_soil.py": "fb334444f8cf",

@@ -202,6 +202,63 @@ with sync_playwright() as p:
     ck("sterile warned about",
        "undeterminable" in pg.inner_text("#vou2Entry"), pg.inner_text("#vou2Entry")[:200])
 
+    # ---- ADR-242: a voucher's dials start unset, and the sheet says what the next one will carry ----
+    # The seventh blind trial recorded a voucher without touching material or
+    # phenophase and its label carried "[in flower, flowering]" -- a statement
+    # about the specimen the collector never made. The statements below are
+    # about the RECORD (the hidden fields, the voucher object KEEP holds, the
+    # export line), not only the sentence on screen.
+    ck("ADR-242 material and phenophase start UNSET -- the hidden fields are empty and no dial button is lit",
+       pg.evaluate("()=>document.getElementById('vMat').value+'|'+document.getElementById('vPhen').value")=="|"
+       and pg.eval_on_selector_all("#vou2Entry .fek-dial button.on","e=>e.length")==0,
+       pg.evaluate("()=>document.getElementById('vMat').value+'|'+document.getElementById('vPhen').value"))
+    _vn=pg.inner_text("#vouNote")
+    ck("ADR-242 the sheet says what the next voucher WILL be recorded as, and that all three are not recorded",
+       "The next voucher will be recorded as: material not recorded · phenophase not recorded · abundance not recorded." in _vn
+       and "not recorded until its material is said" in _vn, _vn)
+    pg.fill("#vNum","T-1"); pg.click("#vAdd"); pg.wait_for_timeout(250)
+    _nv=pg.evaluate("()=>KEEP.live().snapshot() ? (KEEP.live().snapshot().state.vouchers||[]).length : 0")
+    ck("ADR-242 RECORD WITHOUT A MATERIAL IS REFUSED: no voucher in the record, the number kept, the toast says so",
+       _nv==0 and pg.input_value("#vNum")=="T-1" and "Say what the specimen is" in pg.inner_text("#toast")
+       and "Nothing recorded" in pg.inner_text("#toast"), (_nv, pg.inner_text("#toast")))
+    ck("ADR-242 ...and the collection number is not on the sheet",
+       "T-1" not in pg.inner_text("#ecoOut"), "")
+    def _dial(host, label):
+        pg.evaluate("""([h,l])=>{const b=[...document.querySelectorAll('#'+h+' .fek-dial button')]
+          .find(x=>x.querySelector('span').textContent.trim()===l); if(!b) throw new Error('no '+l); b.click();}""",[host,label])
+    _dial("vou2Entry","in fruit"); pg.wait_for_timeout(150)
+    ck("ADR-242 choosing a material moves the line, and phenophase is still not recorded",
+       "recorded as: in fruit · phenophase not recorded · abundance not recorded." in pg.inner_text("#vouNote")
+       and "until its material is said" not in pg.inner_text("#vouNote"), pg.inner_text("#vouNote"))
+    pg.click("#vAdd"); pg.wait_for_timeout(300)
+    _v=pg.evaluate("()=>(KEEP.live().snapshot().state.vouchers||[]).slice(-1)[0]")
+    ck("ADR-242 A VOUCHER RECORDED WITH NO PHENOPHASE HOLDS NONE -- the record says '', not a default",
+       _v and _v.get("mat")=="fr" and _v.get("phen")=="" and _v.get("num")=="T-1", _v)
+    ck("ADR-242 ...its label and list say 'phenophase not recorded' and never 'flowering' or 'in flower'",
+       "phenophase not recorded" in pg.inner_text("#vList") and "flowering" not in pg.inner_text("#vList")
+       and "in flower" not in pg.inner_text("#vList"), pg.inner_text("#vList")[:300])
+    _lab=pg.inner_text("#vList .label")
+    ck("ADR-242 ...the herbarium LABEL's notes row -- the line a curator reads -- says [in fruit, phenophase not recorded], "
+       "not an empty id between the commas",
+       "[in fruit, phenophase not recorded]" in _lab and "[in fruit, ]" not in _lab, _lab[-160:])
+    ck("ADR-242 ...the export line says it too",
+       any("T-1" in l and "[fr, phenophase not recorded, 1 sheet]" in l for l in pg.inner_text("#ecoOut").split("\n")),
+       [l for l in pg.inner_text("#ecoOut").split("\n") if "T-1" in l])
+    ck("ADR-242 ...and the toast said no phenophase was recorded",
+       "no phenophase recorded" in pg.inner_text("#toast"), pg.inner_text("#toast"))
+    _dial("vou2Entry","dispersing"); _dial("vou2Entry","frequent"); pg.wait_for_timeout(150)
+    ck("ADR-242 the dials carry forward and the line says what the NEXT voucher will carry -- before it is written",
+       "recorded as: in fruit · dispersing · frequent." in pg.inner_text("#vouNote"), pg.inner_text("#vouNote"))
+    pg.fill("#vNum","T-2"); pg.click("#vAdd"); pg.wait_for_timeout(300)
+    _v2=pg.evaluate("()=>(KEEP.live().snapshot().state.vouchers||[]).slice(-1)[0]")
+    ck("ADR-242 the second voucher carries exactly what the line said",
+       _v2 and _v2.get("mat")=="fr" and _v2.get("phen")=="dis" and _v2.get("ab")=="frequent", _v2)
+    _lit=pg.evaluate("""()=>{const d=[...document.querySelectorAll('.fek-row')].find(r=>(r.querySelector('.fek-lab')||{}).textContent.trim()==='phenophase' && r.closest('#p-vou')===null);
+      return d ? [...d.querySelectorAll('.fek-dial button.on')].map(b=>b.querySelector('span').textContent.trim()) : null;}""")
+    ck("ADR-242 the occurrence dial's vegetative default is untouched -- its 'vegetative' button is LIT and the field says veg; "
+       "most plants in a relevé are vegetative, and that dial was never the defect",
+       _lit==["vegetative"] and pg.evaluate("()=>document.getElementById('rPhen').value")=="veg", _lit)
+
     # ---------------- WETLAND EDITOR: ordinal dials, blank stays blank ----------------
     pg.click('.tab[data-pane="p-an"]'); pg.wait_for_timeout(400)
     nd=pg.eval_on_selector_all("#wEditor .fek-dial","e=>e.length")

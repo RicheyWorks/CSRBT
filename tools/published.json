@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1790147638,
+      "at": 1790158911,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "a64bab53f647897763fc3a804d835f33ace79ac6156faefd6581f432039226bf",
+      "sha": "faba166a88201ee1fc51c6a71402e764d699464ec6c7d34a4f241e250d8912ea",
       "via": "read"
     },
     "adr-031.html": {
@@ -201,9 +201,9 @@
       "via": "read"
     },
     "releve.html": {
-      "at": 1789523659,
+      "at": 1790158780,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "686998313bc690d5a1feaee5947adea0be54484bdf47586535c63e041d957880",
+      "sha": "3c08dd18556ac9c83104df9630b4ffef14bc79122867293d7037005d7febcada",
       "via": "read"
     },
     "selection-log.html": {
@@ -225,9 +225,9 @@
       "via": "read"
     },
     "soil-suite.html": {
-      "at": 1789266795,
+      "at": 1790158780,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "08fad31fab999d87787810e7d174ec1c1f44856976fda661b4967fca5acfe77e",
+      "sha": "a0f3a4e927da2b72e62ed5d8702dfa2801353d162afc18b7572982b1ec310ed9",
       "via": "read"
     },
     "stand-sheet.html": {

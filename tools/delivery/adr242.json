@@ -1,0 +1,38 @@
+{
+  "id": "adr242",
+  "chain": "adr241",
+  "chain_probe": "docs/ADR-241-the-count-says-which-tree-it-counted-2026-09-22.md",
+  "clean": [
+    "adr241"
+  ],
+  "once": true,
+  "subject": "ADR-242: a voucher says nothing it was not told -- the relev\u00e9's voucher dials start unset, a voucher is refused until its material is said, an unset phenophase is recorded as none, and the sheet says what the next voucher will carry",
+  "body": "The seventh blind trial recorded a relev\u00e9 voucher without touching material or phenophase and its herbarium label carried '[in flower, flowering]', a statement the collector never made. Both dials now start unset; Record voucher is refused until the material is said; a voucher with no phenophase records none and its label, list row, export line and confirmation say so; and vouNote says what the next voucher will be recorded as, since the dials carry forward. The occurrence dial keeps its vegetative default, which is the common case. Task 183 to 187 confirmed and refuted on the old page; verify_rv 81 to 94 against the record KEEP holds; new mutate_rv runner.",
+  "paths": [
+    "docs/ADR-242-a-voucher-says-nothing-it-was-not-told-2026-09-23.md",
+    "docs/CHANGELOG-2026-09-23-adr242-a-voucher-says-nothing-it-was-not-told.md",
+    "docs/AI_HARNESS.md",
+    "docs/releve.html",
+    "docs/soil-suite.html",
+    "tools/tasks/page-releve-science.json",
+    "tools/task_ledger.json",
+    "tools/verify/verify_rv.py",
+    "tools/mutate_rv.py",
+    "tools/harness_board.py",
+    "tools/delivery/adr242.json",
+    "tools/harness_board.html",
+    "tools/mutant_ledger.json",
+    "tools/published.json",
+    "tools/verify/counts.json",
+    "tools/delivery_ledger.json",
+    "tools/badinput_ledger.json",
+    "tools/carried_ledger.json",
+    "tools/destructive_ledger.json",
+    "tools/entry_ledger.json",
+    "tools/outputs_ledger.json",
+    "tools/readable_ledger.json",
+    "tools/restored_ledger.json",
+    "tools/takeaway_ledger.json",
+    "tools/address_ledger.json"
+  ]
+}

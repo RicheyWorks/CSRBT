@@ -5925,6 +5925,77 @@
    ],
    "survived": 0
   },
+  "mutate_rv": {
+   "at": 1790148979,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 12,
+   "mutants": 12,
+   "rows": [
+    {
+     "detail": "1 failure(s); first: ADR-242 material and phenophase start UNSET -- the hidden f",
+     "name": "material defaults to in flower again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-242 material and phenophase start UNSET -- the hidden f",
+     "name": "phenophase defaults to flowering again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: ADR-242 material and phenophase start UNSET -- the hidden f",
+     "name": "the hidden field carries the old default",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: ADR-242 RECORD WITHOUT A MATERIAL IS REFUSED: no voucher in",
+     "name": "a voucher is recorded without a material",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: ADR-242 RECORD WITHOUT A MATERIAL IS REFUSED: no voucher in",
+     "name": "the refusal toasts but records anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: ADR-242 A VOUCHER RECORDED WITH NO PHENOPHASE HOLDS NONE --",
+     "name": "an unset phenophase is written as flowering",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-242 ...the herbarium LABEL's notes row -- the line a cu",
+     "name": "the label calls an unset phenophase by its empty id",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-242 ...the export line says it too  << ['#   T-1  test ",
+     "name": "the export line drops the unset phenophase",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-242 the sheet says what the next voucher WILL be record",
+     "name": "the next-voucher line never says a material is missing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-242 choosing a material moves the line, and phenophase ",
+     "name": "the next-voucher line is not repainted when a dial moves",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-242 ...and the toast said no phenophase was recorded  <",
+     "name": "the toast does not say when no phenophase was recorded",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-242 the occurrence dial's vegetative default is untouch",
+     "name": "the occurrence dial loses its vegetative default",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_sel": {
    "at": 1790062166,
    "equivalent": 0,

@@ -28155,13 +28155,13 @@
    "verdict": "PASS"
   },
   "page-releve-science": {
-   "at": 1789451839,
-   "claims": 83,
-   "confirmed": 178,
+   "at": 1790148317,
+   "claims": 90,
+   "confirmed": 187,
    "gives": 35,
-   "goal": "Record a sagebrush-steppe releve whole and hold what the sheet computes. Three taxa by Braun-Blanquet class -- big sagebrush 4 (midpoint 62.5%), bluebunch wheatgrass 2 (15%), cheatgrass + (0.5%) -- read 3 taxa in 2 families, Shannon H' 0.53, evenness J' 0.48, 1.7 effective taxa, one non-native and the dominant at 80% of recorded cover, with 80% of that cover shrub; a fourth taxon at class 1 moves them to 0.67, 0.48, 1.9 and 77%, and an add with no cover class adds no row. Floristic Quality Assessment over two of three natives is mean C 4.50, FQI 6.4, adjusted FQI 31.8 and says so is partial; over three of three it is 4.33, 7.5 and 37.5. Scored UPL/FACU the Corps prevalence index is 4.77, above the 3.0 threshold, and the sheet says a determination still needs hydric soil and hydrology. A 50 m transect read at 1 m in duplicate plans 100 points and at 0.5 m plans 200; five top-canopy hits and four bare readings on the 100-point denominator are 5% foliar cover and 4% bare with 91 points still to read. A 40.5853/-111.6383 fix with 30 m of GPS on a 100 m2 plot is 43 m of coordinate uncertainty -- 7 m of it the plot itself -- and 5402 m with the datum unknown. A pack missing its required fields is rejected whole.",
+   "goal": "Record a sagebrush-steppe releve whole and hold what the sheet computes. Three taxa by Braun-Blanquet class -- big sagebrush 4 (midpoint 62.5%), bluebunch wheatgrass 2 (15%), cheatgrass + (0.5%) -- read 3 taxa in 2 families, Shannon H' 0.53, evenness J' 0.48, 1.7 effective taxa, one non-native and the dominant at 80% of recorded cover, with 80% of that cover shrub; a fourth taxon at class 1 moves them to 0.67, 0.48, 1.9 and 77%, and an add with no cover class adds no row. Floristic Quality Assessment over two of three natives is mean C 4.50, FQI 6.4, adjusted FQI 31.8 and says so is partial; over three of three it is 4.33, 7.5 and 37.5. Scored UPL/FACU the Corps prevalence index is 4.77, above the 3.0 threshold, and the sheet says a determination still needs hydric soil and hydrology. A 50 m transect read at 1 m in duplicate plans 100 points and at 0.5 m plans 200; five top-canopy hits and four bare readings on the 100-point denominator are 5% foliar cover and 4% bare with 91 points still to read. A 40.5853/-111.6383 fix with 30 m of GPS on a 100 m2 plot is 43 m of coordinate uncertainty -- 7 m of it the plot itself -- and 5402 m with the datum unknown. A pack missing its required fields is rejected whole. A voucher's material and phenophase start unset: the sheet says the next voucher would be recorded with material, phenophase and abundance not recorded, refuses to record one until the material is said, and after in fruit, dispersing and frequent are chosen says so and records RJW-2026-014 as [fr, dis, 3 sheets] with no 'in flower' the collector never chose.",
    "held": true,
-   "holds": 31,
+   "holds": 34,
    "id": "page-releve-science",
    "must": "PASS",
    "refuted": 0,
@@ -28172,7 +28172,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the goal includes undoing the last line-point hit: lUndo is 'Undo'",
-   "seconds": 12.2,
+   "seconds": 20.3,
    "steps": [
     {
      "action": "observe",
@@ -28204,7 +28204,7 @@
      ],
      "id": "plot",
      "message": "opened pane p-plot",
-     "ms": 110,
+     "ms": 190,
      "result": "driven"
     },
     {
@@ -28216,7 +28216,7 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut excludes '# site:', got '# Relev\u00e9 \u2014 unnamed-releve # 2026-09-15 # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2'",
+       "detail": "output.boxes.ecoOut excludes '# site:', got '# Relev\u00e9 \u2014 unnamed-releve # 2026-09-23 # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       },
@@ -28237,8 +28237,8 @@
       }
      ],
      "id": "blank-site",
-     "message": "4 figure(s), 24 box(es), 0 list(s), 5 table(s), 29 heading(s)",
-     "ms": 13,
+     "message": "4 figure(s), 25 box(es), 0 list(s), 5 table(s), 29 heading(s)",
+     "ms": 16,
      "result": "driven"
     },
     {
@@ -28252,7 +28252,7 @@
      ],
      "id": "s-plot",
      "message": "set-text text_in:1",
-     "ms": 28,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -28266,7 +28266,7 @@
      ],
      "id": "s-obs",
      "message": "set-text text_in:2",
-     "ms": 27,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -28280,7 +28280,7 @@
      ],
      "id": "s-date",
      "message": "set-text text_in:3",
-     "ms": 26,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -28294,7 +28294,7 @@
      ],
      "id": "s-lat",
      "message": "set-text text_in:4",
-     "ms": 26,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -28308,7 +28308,7 @@
      ],
      "id": "s-lon",
      "message": "set-text text_in:5",
-     "ms": 27,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -28322,7 +28322,7 @@
      ],
      "id": "s-comm",
      "message": "set-text text_in:6",
-     "ms": 29,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -28336,7 +28336,7 @@
      ],
      "id": "s-soil",
      "message": "set-text text_in:7",
-     "ms": 27,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -28350,7 +28350,7 @@
      ],
      "id": "elev",
      "message": "set-text step_val:0",
-     "ms": 28,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -28364,7 +28364,7 @@
      ],
      "id": "size",
      "message": "set-text step_val:1",
-     "ms": 27,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -28378,7 +28378,7 @@
      ],
      "id": "asp",
      "message": "activate dial_btn:26",
-     "ms": 26,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -28392,7 +28392,7 @@
      ],
      "id": "slope",
      "message": "set-text step_val:2",
-     "ms": 26,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -28406,7 +28406,7 @@
      ],
      "id": "moist",
      "message": "activate dial_btn:29",
-     "ms": 26,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -28420,7 +28420,7 @@
      ],
      "id": "bare",
      "message": "set-slider slider:0",
-     "ms": 27,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -28434,7 +28434,7 @@
      ],
      "id": "litter",
      "message": "set-slider slider:1",
-     "ms": 26,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -28448,7 +28448,7 @@
      ],
      "id": "notes",
      "message": "set-text text_in:8",
-     "ms": 25,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -28476,8 +28476,8 @@
       }
      ],
      "id": "site-line",
-     "message": "4 figure(s), 24 box(es), 0 list(s), 5 table(s), 29 heading(s)",
-     "ms": 8,
+     "message": "4 figure(s), 25 box(es), 0 list(s), 5 table(s), 29 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -28491,7 +28491,7 @@
      ],
      "id": "rec",
      "message": "opened pane p-rec",
-     "ms": 71,
+     "ms": 109,
      "result": "driven"
     },
     {
@@ -28510,7 +28510,7 @@
      ],
      "id": "s1",
      "message": "pick pick_search:0",
-     "ms": 149,
+     "ms": 156,
      "result": "driven"
     },
     {
@@ -28524,7 +28524,7 @@
      ],
      "id": "st1",
      "message": "activate dial_btn:2",
-     "ms": 27,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -28538,7 +28538,7 @@
      ],
      "id": "ph1",
      "message": "activate dial_btn:10",
-     "ms": 26,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -28552,7 +28552,7 @@
      ],
      "id": "c1",
      "message": "activate dial_btn:19",
-     "ms": 25,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -28566,7 +28566,7 @@
      ],
      "id": "a1",
      "message": "activate action_btn:0 -- the page said 'big sagebrush \u00b7 S1 \u00b7 4'",
-     "ms": 28,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -28585,7 +28585,7 @@
      ],
      "id": "s2",
      "message": "pick pick_search:0",
-     "ms": 148,
+     "ms": 157,
      "result": "driven"
     },
     {
@@ -28599,7 +28599,7 @@
      ],
      "id": "st2",
      "message": "activate dial_btn:4",
-     "ms": 26,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -28613,7 +28613,7 @@
      ],
      "id": "c2",
      "message": "activate dial_btn:17",
-     "ms": 26,
+     "ms": 41,
      "result": "driven"
     },
     {
@@ -28627,7 +28627,7 @@
      ],
      "id": "a2",
      "message": "activate action_btn:0 -- the page said 'bluebunch wheatgrass \u00b7 H \u00b7 2'",
-     "ms": 27,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -28646,7 +28646,7 @@
      ],
      "id": "s3",
      "message": "pick pick_search:0",
-     "ms": 149,
+     "ms": 159,
      "result": "driven"
     },
     {
@@ -28660,7 +28660,7 @@
      ],
      "id": "c3",
      "message": "activate dial_btn:15",
-     "ms": 25,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -28674,7 +28674,7 @@
      ],
      "id": "a3",
      "message": "activate action_btn:0 -- the page said 'cheatgrass \u00b7 H \u00b7 +'",
-     "ms": 27,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -28688,7 +28688,7 @@
      ],
      "id": "an",
      "message": "opened pane p-an",
-     "ms": 103,
+     "ms": 111,
      "result": "driven"
     },
     {
@@ -28731,8 +28731,8 @@
       }
      ],
      "id": "three",
-     "message": "10 figure(s), 24 box(es), 1 list(s), 6 table(s), 32 heading(s)",
-     "ms": 30,
+     "message": "10 figure(s), 25 box(es), 1 list(s), 6 table(s), 32 heading(s)",
+     "ms": 14,
      "result": "driven"
     },
     {
@@ -28745,8 +28745,8 @@
       }
      ],
      "id": "spectrum",
-     "message": "10 figure(s), 24 box(es), 1 list(s), 6 table(s), 32 heading(s)",
-     "ms": 8,
+     "message": "10 figure(s), 25 box(es), 1 list(s), 6 table(s), 32 heading(s)",
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -28760,7 +28760,7 @@
      ],
      "id": "rec2",
      "message": "opened pane p-rec",
-     "ms": 82,
+     "ms": 80,
      "result": "driven"
     },
     {
@@ -28779,7 +28779,7 @@
      ],
      "id": "s4",
      "message": "pick pick_search:0",
-     "ms": 149,
+     "ms": 158,
      "result": "driven"
     },
     {
@@ -28793,7 +28793,7 @@
      ],
      "id": "c4",
      "message": "activate dial_btn:16",
-     "ms": 26,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -28807,7 +28807,7 @@
      ],
      "id": "a4",
      "message": "activate action_btn:0 -- the page said 'Sandberg bluegrass \u00b7 H \u00b7 1'",
-     "ms": 26,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -28821,7 +28821,7 @@
      ],
      "id": "an3",
      "message": "opened pane p-an",
-     "ms": 89,
+     "ms": 102,
      "result": "driven"
     },
     {
@@ -28859,8 +28859,8 @@
       }
      ],
      "id": "four",
-     "message": "10 figure(s), 24 box(es), 1 list(s), 6 table(s), 32 heading(s)",
-     "ms": 10,
+     "message": "10 figure(s), 25 box(es), 1 list(s), 6 table(s), 32 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -28874,7 +28874,7 @@
      ],
      "id": "rec3",
      "message": "opened pane p-rec",
-     "ms": 90,
+     "ms": 94,
      "result": "driven"
     },
     {
@@ -28888,7 +28888,7 @@
      ],
      "id": "free",
      "message": "set-text text_in:0",
-     "ms": 28,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -28902,7 +28902,7 @@
      ],
      "id": "no-cover",
      "message": "activate action_btn:0 -- the page said 'Tap a cover class'",
-     "ms": 26,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -28916,7 +28916,7 @@
      ],
      "id": "an4",
      "message": "opened pane p-an",
-     "ms": 68,
+     "ms": 81,
      "result": "driven"
     },
     {
@@ -28929,8 +28929,8 @@
       }
      ],
      "id": "still4",
-     "message": "10 figure(s), 24 box(es), 1 list(s), 6 table(s), 32 heading(s)",
-     "ms": 8,
+     "message": "10 figure(s), 25 box(es), 1 list(s), 6 table(s), 32 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -28944,7 +28944,7 @@
      ],
      "id": "cv1",
      "message": "set-text text_in:10",
-     "ms": 36,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -28958,7 +28958,7 @@
      ],
      "id": "cv2",
      "message": "set-text text_in:11",
-     "ms": 30,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -28996,8 +28996,8 @@
       }
      ],
      "id": "fqa-partial",
-     "message": "15 figure(s), 24 box(es), 1 list(s), 6 table(s), 32 heading(s)",
-     "ms": 10,
+     "message": "15 figure(s), 25 box(es), 1 list(s), 6 table(s), 32 heading(s)",
+     "ms": 18,
      "result": "driven"
     },
     {
@@ -29011,7 +29011,7 @@
      ],
      "id": "cv3",
      "message": "set-text text_in:12",
-     "ms": 29,
+     "ms": 41,
      "result": "driven"
     },
     {
@@ -29049,8 +29049,8 @@
       }
      ],
      "id": "fqa-full",
-     "message": "15 figure(s), 24 box(es), 1 list(s), 6 table(s), 32 heading(s)",
-     "ms": 8,
+     "message": "15 figure(s), 25 box(es), 1 list(s), 6 table(s), 32 heading(s)",
+     "ms": 14,
      "result": "driven"
     },
     {
@@ -29064,7 +29064,7 @@
      ],
      "id": "w0",
      "message": "activate dial_btn:39",
-     "ms": 32,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -29078,7 +29078,7 @@
      ],
      "id": "w1",
      "message": "activate dial_btn:43",
-     "ms": 27,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -29092,7 +29092,7 @@
      ],
      "id": "w2",
      "message": "activate dial_btn:48",
-     "ms": 28,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -29106,7 +29106,7 @@
      ],
      "id": "w3",
      "message": "activate dial_btn:53",
-     "ms": 30,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -29139,8 +29139,8 @@
       }
      ],
      "id": "upland",
-     "message": "18 figure(s), 24 box(es), 1 list(s), 6 table(s), 32 heading(s)",
-     "ms": 8,
+     "message": "18 figure(s), 25 box(es), 1 list(s), 6 table(s), 32 heading(s)",
+     "ms": 16,
      "result": "driven"
     },
     {
@@ -29154,7 +29154,7 @@
      ],
      "id": "lpi",
      "message": "opened pane p-lpi",
-     "ms": 83,
+     "ms": 114,
      "result": "driven"
     },
     {
@@ -29168,7 +29168,7 @@
      ],
      "id": "len",
      "message": "set-text step_val:3",
-     "ms": 26,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -29182,7 +29182,7 @@
      ],
      "id": "int",
      "message": "set-text step_val:4",
-     "ms": 27,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -29196,7 +29196,7 @@
      ],
      "id": "num",
      "message": "set-text step_val:5",
-     "ms": 31,
+     "ms": 40,
      "result": "driven"
     },
     {
@@ -29209,8 +29209,8 @@
       }
      ],
      "id": "plan",
-     "message": "18 figure(s), 24 box(es), 1 list(s), 6 table(s), 32 heading(s)",
-     "ms": 9,
+     "message": "18 figure(s), 25 box(es), 1 list(s), 6 table(s), 32 heading(s)",
+     "ms": 15,
      "result": "driven"
     },
     {
@@ -29229,7 +29229,7 @@
      ],
      "id": "h1",
      "message": "pick pick_search:1",
-     "ms": 149,
+     "ms": 153,
      "result": "driven"
     },
     {
@@ -29243,7 +29243,7 @@
      ],
      "id": "h1a",
      "message": "activate dial_btn:55",
-     "ms": 26,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -29257,7 +29257,7 @@
      ],
      "id": "h1add",
      "message": "activate action_btn:10",
-     "ms": 27,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -29271,7 +29271,7 @@
      ],
      "id": "h1b",
      "message": "activate action_btn:10",
-     "ms": 26,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -29285,7 +29285,7 @@
      ],
      "id": "h1c",
      "message": "activate action_btn:10",
-     "ms": 27,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -29304,7 +29304,7 @@
      ],
      "id": "h2",
      "message": "pick pick_search:1",
-     "ms": 148,
+     "ms": 155,
      "result": "driven"
     },
     {
@@ -29318,7 +29318,7 @@
      ],
      "id": "h2add",
      "message": "activate action_btn:10",
-     "ms": 25,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -29332,7 +29332,7 @@
      ],
      "id": "h2b",
      "message": "activate action_btn:10",
-     "ms": 26,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -29346,7 +29346,7 @@
      ],
      "id": "miss1",
      "message": "activate action_btn:12 -- the page said 'Bare recorded'",
-     "ms": 28,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -29360,7 +29360,7 @@
      ],
      "id": "miss2",
      "message": "activate action_btn:12 -- the page said 'Bare recorded'",
-     "ms": 26,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -29374,7 +29374,7 @@
      ],
      "id": "miss3",
      "message": "activate action_btn:12 -- the page said 'Bare recorded'",
-     "ms": 26,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -29388,7 +29388,7 @@
      ],
      "id": "miss4",
      "message": "activate action_btn:12 -- the page said 'Bare recorded'",
-     "ms": 27,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -29421,8 +29421,8 @@
       }
      ],
      "id": "cover",
-     "message": "22 figure(s), 24 box(es), 2 list(s), 6 table(s), 34 heading(s)",
-     "ms": 9,
+     "message": "22 figure(s), 25 box(es), 2 list(s), 6 table(s), 34 heading(s)",
+     "ms": 16,
      "result": "driven"
     },
     {
@@ -29436,7 +29436,7 @@
      ],
      "id": "int2",
      "message": "set-text step_val:4",
-     "ms": 26,
+     "ms": 43,
      "result": "driven"
     },
     {
@@ -29449,8 +29449,8 @@
       }
      ],
      "id": "plan2",
-     "message": "22 figure(s), 24 box(es), 2 list(s), 6 table(s), 34 heading(s)",
-     "ms": 8,
+     "message": "22 figure(s), 25 box(es), 2 list(s), 6 table(s), 34 heading(s)",
+     "ms": 15,
      "result": "driven"
     },
     {
@@ -29464,7 +29464,7 @@
      ],
      "id": "int3",
      "message": "set-text step_val:4",
-     "ms": 29,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -29478,7 +29478,7 @@
      ],
      "id": "undo",
      "message": "activate action_btn:11",
-     "ms": 27,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -29491,8 +29491,8 @@
       }
      ],
      "id": "undone",
-     "message": "22 figure(s), 24 box(es), 2 list(s), 6 table(s), 34 heading(s)",
-     "ms": 9,
+     "message": "22 figure(s), 25 box(es), 2 list(s), 6 table(s), 34 heading(s)",
+     "ms": 15,
      "result": "driven"
     },
     {
@@ -29506,7 +29506,7 @@
      ],
      "id": "vou",
      "message": "opened pane p-vou",
-     "ms": 79,
+     "ms": 92,
      "result": "driven"
     },
     {
@@ -29525,7 +29525,7 @@
      ],
      "id": "v1",
      "message": "pick pick_search:2",
-     "ms": 147,
+     "ms": 153,
      "result": "driven"
     },
     {
@@ -29539,7 +29539,7 @@
      ],
      "id": "vdup",
      "message": "set-text step_val:6",
-     "ms": 29,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -29553,7 +29553,59 @@
      ],
      "id": "vnum",
      "message": "set-text text_in:13",
-     "ms": 27,
+     "ms": 33,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.vouNote contains 'The next voucher will be recorded as: material not recorded \u00b7 phenophase not recorded \u00b7 abundance not recorded. A voucher is not recorded until its material is said \u2014 in flower, in fruit, flower & fruit, or sterile.', got 'The next voucher will be recorded as: material not recorded \u00b7 phenophase not recorded \u00b7 abundance not recorded. A voucher is not recorded until its material is said \u2014 in flower, in fruit, flower & fruit, or sterile.'",
+       "path": "output.boxes.vouNote",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g242-unset",
+     "message": "22 figure(s), 25 box(es), 2 list(s), 6 table(s), 34 heading(s)",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.said any-contains 'Say what the specimen is \u2014 in flower, in fruit, flower & fruit, or sterile. Nothing recorded.', got ['Say what the specimen is \u2014 in flower, in fruit, flower & fruit, or sterile. Nothing recorded.']",
+       "path": "output.said",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g242-refused",
+     "message": "activate action_btn:21 -- the page said 'Say what the specimen is \u2014 in flower, in fruit, flower & fruit, or sterile. Not",
+     "ms": 31,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.ecoOut excludes 'RJW-2026-014', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48, effective taxa 1.9 # FQA: mean C (native) 4.33, FQI 7.5, adjusted FQI 37.5 \u2014 in the region those C-values came from # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
+       "path": "output.boxes.ecoOut",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.vList contains 'No specimens yet.', got 'No specimens yet.'",
+       "path": "output.boxes.vList",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g242-nothing",
+     "message": "22 figure(s), 25 box(es), 2 list(s), 6 table(s), 34 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -29566,8 +29618,8 @@
       }
      ],
      "id": "vphen",
-     "message": "activate dial_btn:59",
-     "ms": 26,
+     "message": "activate dial_btn:59 -- the page said 'The next voucher will be recorded as: in fruit \u00b7 phenophase not recorded \u00b7 abunda",
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -29580,8 +29632,8 @@
       }
      ],
      "id": "vphen2",
-     "message": "activate dial_btn:67",
-     "ms": 26,
+     "message": "activate dial_btn:67 -- the page said 'The next voucher will be recorded as: in fruit \u00b7 dispersing \u00b7 abundance not recor",
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -29594,8 +29646,22 @@
       }
      ],
      "id": "vab",
-     "message": "activate dial_btn:72",
-     "ms": 25,
+     "message": "activate dial_btn:72 -- the page said 'The next voucher will be recorded as: in fruit \u00b7 dispersing \u00b7 frequent.'",
+     "ms": 37,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.vouNote == 'The next voucher will be recorded as: in fruit \u00b7 dispersing \u00b7 frequent.', got 'The next voucher will be recorded as: in fruit \u00b7 dispersing \u00b7 frequent.'",
+       "path": "output.boxes.vouNote",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g242-next",
+     "message": "22 figure(s), 25 box(es), 2 list(s), 6 table(s), 34 heading(s)",
+     "ms": 63,
      "result": "driven"
     },
     {
@@ -29609,7 +29675,7 @@
      ],
      "id": "vnote",
      "message": "set-text text_in:14",
-     "ms": 25,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -29622,22 +29688,37 @@
       }
      ],
      "id": "vadd",
-     "message": "activate action_btn:21 -- the page said 'Voucher recorded'",
-     "ms": 29,
+     "message": "activate action_btn:21 -- the page said 'The next voucher will be recorded as: in fruit \u00b7 dispersing \u00b7 frequent.'",
+     "ms": 30,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains 'RJW-2026-014', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48 # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
+       "detail": "output.boxes.ecoOut contains 'RJW-2026-014', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48, effective taxa 1.9 # FQA: mean C (native) 4.33, FQI 7.5, adjusted FQI 37.5 \u2014 in the region those C-values came from # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
        "path": "output.boxes.ecoOut",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.ecoOut contains '# RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48, effective taxa 1.9 # FQA: mean C (native) 4.33, FQI 7.5, adjusted FQI 37.5 \u2014 in the region those C-values came from # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
+       "path": "output.boxes.ecoOut#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.vList contains 'RJW-2026-014 \u00b7 in fruit \u00b7 dispersing \u00b7 3 sheets \u00b7 frequent', got 'Artemisia tridentata \u2014 big sagebrushRJW-2026-014 \u00b7 in fruit \u00b7 dispersing \u00b7 3 sheets \u00b7 frequent\u2715Flora of the study areaArtemisia tridentatabig sagebrushFamily: AsteraceaeLocality: WAS-12; 40.5853, -111.6383; 1840 mHabitat: Artemisia tridentata / Pseudoroegneria spicata; xeric; aspect 225\u00b0, slope 18%; gravelly loam over limestone colluviumAssociates: Pseudoroegneria spicata, Poa secunda, Bromus tectorumNotes: Silvery pubescence, three-toothed leaves, strong camphor scent. [in fruit, dispersing, frequent]R. Wright RJW-2026-0142026-09-06'",
+       "path": "output.boxes.vList",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.vList excludes 'in flower', got 'Artemisia tridentata \u2014 big sagebrushRJW-2026-014 \u00b7 in fruit \u00b7 dispersing \u00b7 3 sheets \u00b7 frequent\u2715Flora of the study areaArtemisia tridentatabig sagebrushFamily: AsteraceaeLocality: WAS-12; 40.5853, -111.6383; 1840 mHabitat: Artemisia tridentata / Pseudoroegneria spicata; xeric; aspect 225\u00b0, slope 18%; gravelly loam over limestone colluviumAssociates: Pseudoroegneria spicata, Poa secunda, Bromus tectorumNotes: Silvery pubescence, three-toothed leaves, strong camphor scent. [in fruit, dispersing, frequent]R. Wright RJW-2026-0142026-09-06'",
+       "path": "output.boxes.vList#2",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "vouchered",
-     "message": "22 figure(s), 24 box(es), 3 list(s), 6 table(s), 34 heading(s)",
-     "ms": 8,
+     "message": "22 figure(s), 25 box(es), 3 list(s), 6 table(s), 34 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -29651,7 +29732,7 @@
      ],
      "id": "met",
      "message": "opened pane p-met",
-     "ms": 91,
+     "ms": 93,
      "result": "driven"
     },
     {
@@ -29665,7 +29746,7 @@
      ],
      "id": "parent",
      "message": "set-text text_in:15",
-     "ms": 27,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -29679,7 +29760,7 @@
      ],
      "id": "gps",
      "message": "set-text step_val:7",
-     "ms": 28,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -29697,8 +29778,8 @@
       }
      ],
      "id": "dwc41",
-     "message": "22 figure(s), 24 box(es), 3 list(s), 6 table(s), 34 heading(s)",
-     "ms": 9,
+     "message": "22 figure(s), 25 box(es), 3 list(s), 6 table(s), 34 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -29712,7 +29793,7 @@
      ],
      "id": "unknown",
      "message": "activate dial_btn:78",
-     "ms": 27,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -29725,8 +29806,8 @@
       }
      ],
      "id": "dwc5402",
-     "message": "22 figure(s), 24 box(es), 3 list(s), 6 table(s), 34 heading(s)",
-     "ms": 10,
+     "message": "22 figure(s), 25 box(es), 3 list(s), 6 table(s), 34 heading(s)",
+     "ms": 17,
      "result": "driven"
     },
     {
@@ -29740,7 +29821,7 @@
      ],
      "id": "wgs",
      "message": "activate dial_btn:75",
-     "ms": 25,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -29753,8 +29834,8 @@
       }
      ],
      "id": "dwc-back",
-     "message": "22 figure(s), 24 box(es), 3 list(s), 6 table(s), 34 heading(s)",
-     "ms": 8,
+     "message": "22 figure(s), 25 box(es), 3 list(s), 6 table(s), 34 heading(s)",
+     "ms": 18,
      "result": "driven"
     },
     {
@@ -29768,7 +29849,7 @@
      ],
      "id": "plot2",
      "message": "opened pane p-plot",
-     "ms": 83,
+     "ms": 99,
      "result": "driven"
     },
     {
@@ -29782,7 +29863,7 @@
      ],
      "id": "pack-open",
      "message": "activate action_btn:8",
-     "ms": 27,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -29796,7 +29877,7 @@
      ],
      "id": "pack-bad",
      "message": "set-text text_in:9",
-     "ms": 29,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -29810,7 +29891,7 @@
      ],
      "id": "pack-load-bad",
      "message": "activate action_btn:9",
-     "ms": 26,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -29828,8 +29909,8 @@
       }
      ],
      "id": "pack-refused",
-     "message": "22 figure(s), 24 box(es), 3 list(s), 6 table(s), 34 heading(s)",
-     "ms": 9,
+     "message": "22 figure(s), 25 box(es), 3 list(s), 6 table(s), 34 heading(s)",
+     "ms": 18,
      "result": "driven"
     },
     {
@@ -29843,7 +29924,7 @@
      ],
      "id": "plot3",
      "message": "opened pane p-plot",
-     "ms": 4,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -29857,21 +29938,21 @@
      ],
      "id": "db",
      "message": "activate kopt:1",
-     "ms": 28,
+     "ms": 33,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '# method: Daubenmire cover scale', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Daubenmire cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.62 (on cover), evenness J' 0.44 # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (2.5%) fruiting FACU # Bromus tectorum + (0%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=0 Poa-secunda=25 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.78 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
+       "detail": "output.boxes.ecoOut contains '# method: Daubenmire cover scale', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Daubenmire cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.62 (on cover), evenness J' 0.44, effective taxa 1.8 # FQA: mean C (native) 4.33, FQI 7.5, adjusted FQI 37.5 \u2014 in the region those C-values came from # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (2.5%) fruiting FACU # Bromus tectorum + (0%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=0 Poa-secunda=25 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.78 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "daubenmire",
-     "message": "22 figure(s), 24 box(es), 3 list(s), 6 table(s), 34 heading(s)",
-     "ms": 9,
+     "message": "22 figure(s), 25 box(es), 3 list(s), 6 table(s), 34 heading(s)",
+     "ms": 14,
      "result": "driven"
     },
     {
@@ -29885,45 +29966,45 @@
      ],
      "id": "bb",
      "message": "activate kopt:0",
-     "ms": 27,
+     "ms": 30,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '# method: Braun-Blanquet cover scale', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48 # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
+       "detail": "output.boxes.ecoOut contains '# method: Braun-Blanquet cover scale', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48, effective taxa 1.9 # FQA: mean C (native) 4.33, FQI 7.5, adjusted FQI 37.5 \u2014 in the region those C-values came from # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "back-to-bb",
-     "message": "22 figure(s), 24 box(es), 3 list(s), 6 table(s), 34 heading(s)",
-     "ms": 8,
+     "message": "22 figure(s), 25 box(es), 3 list(s), 6 table(s), 34 heading(s)",
+     "ms": 16,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '# Relev\u00e9 \u2014 WAS-12', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48 # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
+       "detail": "output.boxes.ecoOut contains '# Relev\u00e9 \u2014 WAS-12', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48, effective taxa 1.9 # FQA: mean C (native) 4.33, FQI 7.5, adjusted FQI 37.5 \u2014 in the region those C-values came from # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains 'FQA mean C 4.33', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48 # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
+       "detail": "output.boxes.ecoOut contains 'FQA mean C 4.33', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48, effective taxa 1.9 # FQA: mean C (native) 4.33, FQI 7.5, adjusted FQI 37.5 \u2014 in the region those C-values came from # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
        "path": "output.boxes.ecoOut#2",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains 'big sagebrush', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48 # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
+       "detail": "output.boxes.ecoOut contains 'big sagebrush', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48, effective taxa 1.9 # FQA: mean C (native) 4.33, FQI 7.5, adjusted FQI 37.5 \u2014 in the region those C-values came from # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
        "path": "output.boxes.ecoOut#3",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "sheet",
-     "message": "22 figure(s), 24 box(es), 3 list(s), 6 table(s), 34 heading(s)",
-     "ms": 8,
+     "message": "22 figure(s), 25 box(es), 3 list(s), 6 table(s), 34 heading(s)",
+     "ms": 15,
      "result": "driven"
     },
     {
@@ -29931,7 +30012,7 @@
      "expectations": [],
      "id": "g153-print-pane",
      "message": "opened pane p-met",
-     "ms": 78,
+     "ms": 104,
      "result": "driven"
     },
     {
@@ -29939,7 +30020,7 @@
      "expectations": [],
      "id": "g153-print-press",
      "message": "activate action_btn:29 -- 1 payload(s) produced",
-     "ms": 26,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -29953,7 +30034,7 @@
      ],
      "id": "g153-print",
      "message": "1 payload(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -29961,7 +30042,7 @@
      "expectations": [],
      "id": "g153-csv-press",
      "message": "activate action_btn:26 -- the page said 'Species CSV copied \u2014 4 rows' -- 1 payload(s) produced",
-     "ms": 29,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -29985,7 +30066,7 @@
      ],
      "id": "g153-csv",
      "message": "1 payload(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -29993,7 +30074,7 @@
      "expectations": [],
      "id": "g153-dwc-press",
      "message": "activate action_btn:27 -- the page said 'Darwin Core copied \u2014 4 occurrences' -- 1 payload(s) produced",
-     "ms": 26,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -30005,19 +30086,19 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,associatedMedia,occurrenceRemarks,informationWithheld,dataGeneralizations\\n862c06f6-0d40-4538-9f5e-c6261fd1de28,HumanObservation,Artemisia tridentata,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,big sagebrush,62.5,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum S1; fruiting; shrub; native,,\\n1ebdbbbf-6f1f-4a19-83c9-5c8ad861e9de,HumanObservation,Pseudoroegneria spicata,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,bluebunch wheatgrass,15,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum H; fruiting; graminoid; native,,\\nf8b351e8-4ba0-4863-bbcf-3c285f69b687,HumanObservation,Bromus tectorum,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,cheatgrass,0.5,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum H; fruiting; graminoid; invasive,,\\nc6ab895d-3d76-4a2a-8d5d-99094f8e9f79,HumanObservation,Poa secunda,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,Sandberg bluegrass,3,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum H; fruiting; graminoid; native,,'",
+       "detail": "output.payloads.0.text contains 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,associatedMedia,occurrenceRemarks,informationWithheld,dataGeneralizations\\n56c542f5-ae8e-49ee-939b-b2aff030aa28,HumanObservation,Artemisia tridentata,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,big sagebrush,62.5,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum S1; fruiting; shrub; native,,\\nf5ffc830-ca1c-4edf-acaf-791b113e4930,HumanObservation,Pseudoroegneria spicata,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,bluebunch wheatgrass,15,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum H; fruiting; graminoid; native,,\\n47b746a8-6bbd-48a4-9378-7cd91b8d0839,HumanObservation,Bromus tectorum,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,cheatgrass,0.5,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum H; fruiting; graminoid; invasive,,\\n8e96c97e-0bfb-49ce-a021-b43304fda38e,HumanObservation,Poa secunda,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,Sandberg bluegrass,3,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum H; fruiting; graminoid; native,,'",
        "path": "output.payloads.0.text",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'Artemisia tridentata', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,associatedMedia,occurrenceRemarks,informationWithheld,dataGeneralizations\\n862c06f6-0d40-4538-9f5e-c6261fd1de28,HumanObservation,Artemisia tridentata,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,big sagebrush,62.5,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum S1; fruiting; shrub; native,,\\n1ebdbbbf-6f1f-4a19-83c9-5c8ad861e9de,HumanObservation,Pseudoroegneria spicata,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,bluebunch wheatgrass,15,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum H; fruiting; graminoid; native,,\\nf8b351e8-4ba0-4863-bbcf-3c285f69b687,HumanObservation,Bromus tectorum,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,cheatgrass,0.5,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum H; fruiting; graminoid; invasive,,\\nc6ab895d-3d76-4a2a-8d5d-99094f8e9f79,HumanObservation,Poa secunda,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,Sandberg bluegrass,3,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum H; fruiting; graminoid; native,,'",
+       "detail": "output.payloads.0.text contains 'Artemisia tridentata', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,associatedMedia,occurrenceRemarks,informationWithheld,dataGeneralizations\\n56c542f5-ae8e-49ee-939b-b2aff030aa28,HumanObservation,Artemisia tridentata,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,big sagebrush,62.5,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum S1; fruiting; shrub; native,,\\nf5ffc830-ca1c-4edf-acaf-791b113e4930,HumanObservation,Pseudoroegneria spicata,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,bluebunch wheatgrass,15,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum H; fruiting; graminoid; native,,\\n47b746a8-6bbd-48a4-9378-7cd91b8d0839,HumanObservation,Bromus tectorum,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,cheatgrass,0.5,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum H; fruiting; graminoid; invasive,,\\n8e96c97e-0bfb-49ce-a021-b43304fda38e,HumanObservation,Poa secunda,2026-09-06,R. Wright,40.5853,-111.6383,WGS84,43,Artemisia tridentata / Pseudoroegneria spicata,WAS-12,releve:WAS-12:2026-09-06,SGH2026:plot:03,,species,Plantae,Sandberg bluegrass,3,percentageCoverage,present,\"Releve, cover by stratum\",100,square metre,1840,,,,,,,,stratum H; fruiting; graminoid; native,,'",
        "path": "output.payloads.0.text#2",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g153-dwc",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -30025,7 +30106,7 @@
      "expectations": [],
      "id": "g153-eco-press",
      "message": "activate action_btn:25 -- the page said 'Relev\u00e9 sheet copied' -- 1 payload(s) produced",
-     "ms": 26,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -30037,17 +30118,17 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains \"# 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48\", got \"# Relev\u00e9 \u2014 WAS-12\\n# recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m\\n# method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2\\n# community: Artemisia tridentata / Pseudoroegneria spicata\\n# site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35%\\n\\n# 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48\\n# S1 (2\u20135 m):\\n#   Artemisia tridentata  4  (62.5%)  fruiting  UPL\\n# H (field layer):\\n#   Pseudoroegneria spicata  2  (15%)  fruiting  FACU\\n#   Poa secunda  1  (3%)  fruiting  FACU\\n#   Bromus tectorum  +  (0.5%)  fruiting  FACU  [NON-NATIVE]\\ndata: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30\\n# (data: line carries cover x10 as integers so the workbench's diversity instruments can read it)\\nnote: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list\\nnote: non-native taxa present \u2014 Bromus tectorum\\nnote: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here\\n\\n# line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m)\\n#   big sagebrush  3/100  3.0%\\n#   bluebunch wheatgrass  2/100  2.0%\\n\\n# vouchers (1)\\n#   RJW-2026-014  Artemisia tridentata  [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent.\\n\\n# notes: Cattle trailing along the fence line; no recent fire.\\n\\n# Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
+       "detail": "output.payloads.0.text contains \"# 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48\", got \"# Relev\u00e9 \u2014 WAS-12\\n# recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m\\n# method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2\\n# community: Artemisia tridentata / Pseudoroegneria spicata\\n# site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35%\\n\\n# 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48, effective taxa 1.9\\n# FQA: mean C (native) 4.33, FQI 7.5, adjusted FQI 37.5  \u2014 in the region those C-values came from\\n# S1 (2\u20135 m):\\n#   Artemisia tridentata  4  (62.5%)  fruiting  UPL\\n# H (field layer):\\n#   Pseudoroegneria spicata  2  (15%)  fruiting  FACU\\n#   Poa secunda  1  (3%)  fruiting  FACU\\n#   Bromus tectorum  +  (0.5%)  fruiting  FACU  [NON-NATIVE]\\ndata: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30\\n# (data: line carries cover x10 as integers so the workbench's diversity instruments can read it)\\nnote: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list\\nnote: non-native taxa present \u2014 Bromus tectorum\\nnote: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here\\n\\n# line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m)\\n#   big sagebrush  3/100  3.0%\\n#   bluebunch wheatgrass  2/100  2.0%\\n\\n# vouchers (1)\\n#   RJW-2026-014  Artemisia tridentata  [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent.\\n\\n# notes: Cattle trailing along the fence line; no recent fire.\\n\\n# Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
        "path": "output.payloads.0.text",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'note: FQA mean C 4.33 over 3 scored natives, FQI 7.5', got \"# Relev\u00e9 \u2014 WAS-12\\n# recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m\\n# method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2\\n# community: Artemisia tridentata / Pseudoroegneria spicata\\n# site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35%\\n\\n# 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48\\n# S1 (2\u20135 m):\\n#   Artemisia tridentata  4  (62.5%)  fruiting  UPL\\n# H (field layer):\\n#   Pseudoroegneria spicata  2  (15%)  fruiting  FACU\\n#   Poa secunda  1  (3%)  fruiting  FACU\\n#   Bromus tectorum  +  (0.5%)  fruiting  FACU  [NON-NATIVE]\\ndata: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30\\n# (data: line carries cover x10 as integers so the workbench's diversity instruments can read it)\\nnote: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list\\nnote: non-native taxa present \u2014 Bromus tectorum\\nnote: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here\\n\\n# line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m)\\n#   big sagebrush  3/100  3.0%\\n#   bluebunch wheatgrass  2/100  2.0%\\n\\n# vouchers (1)\\n#   RJW-2026-014  Artemisia tridentata  [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent.\\n\\n# notes: Cattle trailing along the fence line; no recent fire.\\n\\n# Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
+       "detail": "output.payloads.0.text contains 'note: FQA mean C 4.33 over 3 scored natives, FQI 7.5', got \"# Relev\u00e9 \u2014 WAS-12\\n# recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m\\n# method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2\\n# community: Artemisia tridentata / Pseudoroegneria spicata\\n# site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35%\\n\\n# 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48, effective taxa 1.9\\n# FQA: mean C (native) 4.33, FQI 7.5, adjusted FQI 37.5  \u2014 in the region those C-values came from\\n# S1 (2\u20135 m):\\n#   Artemisia tridentata  4  (62.5%)  fruiting  UPL\\n# H (field layer):\\n#   Pseudoroegneria spicata  2  (15%)  fruiting  FACU\\n#   Poa secunda  1  (3%)  fruiting  FACU\\n#   Bromus tectorum  +  (0.5%)  fruiting  FACU  [NON-NATIVE]\\ndata: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30\\n# (data: line carries cover x10 as integers so the workbench's diversity instruments can read it)\\nnote: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list\\nnote: non-native taxa present \u2014 Bromus tectorum\\nnote: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here\\n\\n# line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m)\\n#   big sagebrush  3/100  3.0%\\n#   bluebunch wheatgrass  2/100  2.0%\\n\\n# vouchers (1)\\n#   RJW-2026-014  Artemisia tridentata  [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent.\\n\\n# notes: Cattle trailing along the fence line; no recent fire.\\n\\n# Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
        "path": "output.payloads.0.text#2",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'note: wetland prevalence index 4.77 over 4 scored taxa', got \"# Relev\u00e9 \u2014 WAS-12\\n# recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m\\n# method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2\\n# community: Artemisia tridentata / Pseudoroegneria spicata\\n# site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35%\\n\\n# 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48\\n# S1 (2\u20135 m):\\n#   Artemisia tridentata  4  (62.5%)  fruiting  UPL\\n# H (field layer):\\n#   Pseudoroegneria spicata  2  (15%)  fruiting  FACU\\n#   Poa secunda  1  (3%)  fruiting  FACU\\n#   Bromus tectorum  +  (0.5%)  fruiting  FACU  [NON-NATIVE]\\ndata: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30\\n# (data: line carries cover x10 as integers so the workbench's diversity instruments can read it)\\nnote: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list\\nnote: non-native taxa present \u2014 Bromus tectorum\\nnote: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here\\n\\n# line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m)\\n#   big sagebrush  3/100  3.0%\\n#   bluebunch wheatgrass  2/100  2.0%\\n\\n# vouchers (1)\\n#   RJW-2026-014  Artemisia tridentata  [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent.\\n\\n# notes: Cattle trailing along the fence line; no recent fire.\\n\\n# Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
+       "detail": "output.payloads.0.text contains 'note: wetland prevalence index 4.77 over 4 scored taxa', got \"# Relev\u00e9 \u2014 WAS-12\\n# recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m\\n# method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2\\n# community: Artemisia tridentata / Pseudoroegneria spicata\\n# site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35%\\n\\n# 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48, effective taxa 1.9\\n# FQA: mean C (native) 4.33, FQI 7.5, adjusted FQI 37.5  \u2014 in the region those C-values came from\\n# S1 (2\u20135 m):\\n#   Artemisia tridentata  4  (62.5%)  fruiting  UPL\\n# H (field layer):\\n#   Pseudoroegneria spicata  2  (15%)  fruiting  FACU\\n#   Poa secunda  1  (3%)  fruiting  FACU\\n#   Bromus tectorum  +  (0.5%)  fruiting  FACU  [NON-NATIVE]\\ndata: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30\\n# (data: line carries cover x10 as integers so the workbench's diversity instruments can read it)\\nnote: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list\\nnote: non-native taxa present \u2014 Bromus tectorum\\nnote: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here\\n\\n# line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m)\\n#   big sagebrush  3/100  3.0%\\n#   bluebunch wheatgrass  2/100  2.0%\\n\\n# vouchers (1)\\n#   RJW-2026-014  Artemisia tridentata  [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent.\\n\\n# notes: Cattle trailing along the fence line; no recent fire.\\n\\n# Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
        "path": "output.payloads.0.text#3",
        "verdict": "CONFIRMED"
       }
@@ -30062,7 +30143,7 @@
      "expectations": [],
      "id": "g153-mat-press",
      "message": "activate action_btn:28 -- the page said 'Matrix row copied \u2014 stack plots for vegan' -- 1 payload(s) produced",
-     "ms": 30,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -30086,7 +30167,7 @@
      ],
      "id": "g153-mat",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -30094,7 +30175,7 @@
      "expectations": [],
      "id": "g153-pack-press",
      "message": "activate action_btn:7 -- the page said 'Pack exported' -- 1 payload(s) produced",
-     "ms": 99,
+     "ms": 131,
      "result": "driven"
     },
     {
@@ -30113,7 +30194,7 @@
      ],
      "id": "g153-pack",
      "message": "1 payload(s)",
-     "ms": 3,
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -30121,7 +30202,7 @@
      "expectations": [],
      "id": "g153-prompt-press",
      "message": "activate action_btn:6 -- the page said 'Prompt copied' -- 1 payload(s) produced",
-     "ms": 27,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -30140,21 +30221,21 @@
      ],
      "id": "g153-prompt",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '# Relev\u00e9 \u2014 WAS-12', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48 # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
+       "detail": "output.boxes.ecoOut contains '# Relev\u00e9 \u2014 WAS-12', got \"# Relev\u00e9 \u2014 WAS-12 # recorder R. Wright \u2014 2026-09-06 \u2014 40.5853, -111.6383 \u2014 1840 m # method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m\u00b2 # community: Artemisia tridentata / Pseudoroegneria spicata # site: aspect 225\u00b0 \u00b7 slope 18% \u00b7 xeric \u00b7 gravelly loam over limestone colluvium \u00b7 bare 25% \u00b7 litter 35% # 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48, effective taxa 1.9 # FQA: mean C (native) 4.33, FQI 7.5, adjusted FQI 37.5 \u2014 in the region those C-values came from # S1 (2\u20135 m): # Artemisia tridentata 4 (62.5%) fruiting UPL # H (field layer): # Pseudoroegneria spicata 2 (15%) fruiting FACU # Poa secunda 1 (3%) fruiting FACU # Bromus tectorum + (0.5%) fruiting FACU [NON-NATIVE] data: was-12 Artemisia-tridentata=625 Pseudoroegneria-spicata=150 Bromus-tectorum=5 Poa-secunda=30 # (data: line carries cover x10 as integers so the workbench's diversity instruments can read it) note: FQA mean C 4.33 over 3 scored natives, FQI 7.5 \u2014 C-values from the recorder's regional list note: non-native taxa present \u2014 Bromus tectorum note: wetland prevalence index 4.77 over 4 scored taxa (>3.0, indicator not met) \u2014 vegetation criterion only; soil and hydrology not assessed here # line-point intercept: 8 hits over 100 points (2 x 50 m at 1 m) # big sagebrush 3/100 3.0% # bluebunch wheatgrass 2/100 2.0% # vouchers (1) # RJW-2026-014 Artemisia tridentata [fr, dis, 3 sheets] \u2014 Silvery pubescence, three-toothed leaves, strong camphor scent. # notes: Cattle trailing along the fence line; no recent fire. # Cover classes are ordinal; midpoints are approximations, and observer difference of one class is normal. One relev\u00e9 does not describe a community type.\"",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g153-close",
-     "message": "22 figure(s), 24 box(es), 3 list(s), 6 table(s), 34 heading(s)",
-     "ms": 9,
+     "message": "22 figure(s), 25 box(es), 3 list(s), 6 table(s), 34 heading(s)",
+     "ms": 16,
      "result": "driven"
     },
     {
@@ -30178,7 +30259,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 7,
+     "ms": 16,
      "result": "driven"
     }
    ],
