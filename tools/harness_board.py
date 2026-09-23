@@ -38,8 +38,18 @@ def _load(name, default):
 
 
 def ledgers():
+    counts = _load(os.path.join("verify", "counts.json"), {"suites": {}})
+    # ADR-241: the tree the counts were measured on, against the tree now. Read
+    # here, with the ledgers, so render() stays a function of its input and a
+    # fixture can say what the tree situation is.
+    try:
+        import evidence as EV
+        tree = EV.status(counts, ROOT)
+    except Exception as e:
+        tree = {"error": str(e)[:120]}
     return {
-        "counts": _load(os.path.join("verify", "counts.json"), {"suites": {}}),
+        "counts": counts,
+        "tree": tree,
         "walk": _load("walk_ledger.json", {"targets": {}}),
         "tasks": _load("task_ledger.json", {"tasks": {}}),
         "contention": _load("contention_ledger.json", {"suites": {}}),
@@ -72,6 +82,7 @@ HARNESS_SUITES = [
     ("verify_harness_matrix", "the swarm's verdicts mean something"),
     ("verify_anchors", "the mutant ledger is about the code as it is: every anchor lands, no catalogue drifted"),
     ("verify_addresses", "a control's name outlives pressing it: nothing renamed by its own count, nothing shadowed"),
+    ("verify_evidence", "the counts are about this tree, and no suite counts fewer than its floor"),
 ]
 
 RUNNERS = [
@@ -112,6 +123,7 @@ RUNNERS = [
     ("mutate_sel", "the selection log's next-individual line: a cleared dial said, the missing named"),
     ("mutate_addresses", "the address audit and the door's resolver: a name read off the page as it stands"),
     ("mutate_etho", "the ethogram's budget: the note's three numbers, the sheet's bouts, the CSV's whole"),
+    ("mutate_evidence", "what the evidence is about: the tree every count was taken on, and the floor no suite falls below"),
 ]
 
 
@@ -148,8 +160,19 @@ def summary(L):
     traces = {k: e for k, e in T.items() if k.endswith(("@trace", "@blind"))}   # ADR-136: blind traces count too
     M = L["mutants"]["runners"]
     E = L["ecosystem"]["engines"]
+    tree = L.get("tree") or {}
     return {
         "checks": n, "of": of, "holes": holes, "suites": len(c), "green": green,
+        # ADR-241: whether every count is about the tree as it stands, and
+        # which suites counted fewer checks than their committed floor.
+        "tree_ok": bool(tree.get("same")) and not tree.get("off") and not tree.get("moved")
+                   and not tree.get("unstamped"),
+        "tree_now": tree.get("now") or "", "tree_recorded": tree.get("recorded") or "",
+        "tree_files": tree.get("files") or 0,
+        "tree_diff": tree.get("diff") or {"changed": [], "added": [], "removed": []},
+        "tree_off": tree.get("off") or [], "tree_moved": tree.get("moved") or [],
+        "tree_unstamped": tree.get("unstamped") or [],
+        "below_floor": sorted((k, v.get("n"), v.get("below_floor")) for k, v in c.items() if v.get("below_floor")),
         "targets": len(targets), "pages": len(pages), "bad_walks": bad_walks,
         "commands": sum(e.get("commands", 0) for e in W.values()),
         "tasks": len(runs), "tasks_held": sum(1 for e in runs.values() if e.get("held")),
@@ -211,6 +234,30 @@ def summary(L):
     }
 
 
+def tree_line(S):
+    """ADR-241: which tree the counts are about, said on the page. A board that
+    was green about a tree that no longer exists says so, and names the files."""
+    if S["tree_ok"]:
+        return ('<p class="tree">Measured on tree <span class="mono">%s</span>, %d subject files, '
+                'which is the tree as it stands.</p>' % (esc(S["tree_now"]), S["tree_files"]))
+    d = S["tree_diff"]
+    parts = []
+    if not S["tree_recorded"]:
+        parts.append("no run has recorded a tree")
+    for k in ("changed", "added", "removed"):
+        if d.get(k):
+            parts.append("%d %s: %s%s" % (len(d[k]), k, ", ".join(d[k][:5]), "…" if len(d[k]) > 5 else ""))
+    if S["tree_moved"]:
+        parts.append("the tree moved DURING the run: " + ", ".join(S["tree_moved"][:5]))
+    if S["tree_off"]:
+        parts.append("%d count(s) from another tree: %s" % (len(S["tree_off"]), ", ".join(S["tree_off"][:5])))
+    if S["tree_unstamped"]:
+        parts.append("%d count(s) carry no tree: %s" % (len(S["tree_unstamped"]), ", ".join(S["tree_unstamped"][:5])))
+    return ('<p class="tree bad">The counts are about tree <span class="mono">%s</span>; this tree is '
+            '<span class="mono">%s</span> \u2014 %s. Rerun <span class="mono">run_all</span>.</p>'
+            % (esc(S["tree_recorded"] or "none"), esc(S["tree_now"]), esc("; ".join(parts) or "the digests differ")))
+
+
 def render(L):
     S = summary(L)
     c = L["counts"]["suites"]
@@ -240,6 +287,10 @@ def render(L):
         ("no mutant survived", S["survived"] == 0, "mutants killed"),
         ("no mutant was inconclusive", S["inconclusive"] == 0, "mutants killed"),
         ("no engine suite failed", S["engine_failures"] == 0, "engine tests"),
+        # ADR-241, ported from the FlowersForever harness: evidence is about
+        # the tree it was taken on, and a suite may not shrink below its floor.
+        ("the counts are about this tree", S["tree_ok"], None),
+        ("no suite counts fewer than its floor", not S["below_floor"], "suite checks passing"),
     ]
     all_green = all(ok for _n, ok, _t in GATES)
     GATED = set(t for _n, _ok, t in GATES if t)
@@ -273,18 +324,20 @@ def render(L):
              '<p class="gates">The verdict is these %d and nothing else: %s. '
              'Every other number below is a READING -- a measurement with a ratchet or a worklist '
              'behind it, which moves on its own schedule and does not decide whether this page is '
-             'green.</p></header>'
+             'green.</p>%s</header>'
              % ("good" if all_green else "bad",
                 "Everything the harness knows how to check is green." if all_green else
                 "Something is not green — read down.",
                 len(GATES),
-                "; ".join("%s%s" % (n, "" if ok else " \u2014 NOT MET") for n, ok, _t in GATES)))
+                "; ".join("%s%s" % (n, "" if ok else " \u2014 NOT MET") for n, ok, _t in GATES),
+                tree_line(S)))
 
     # summary strip
     o.append('<section><div class="stats">')
     tiles = [
-        ("%d / %d" % (S["checks"], S["of"]), "suite checks passing", "%d suites, %d green%s; the audits are run_all's" % (
-            S["suites"], S["green"], (", %d NOT VERIFIED" % S["holes"]) if S["holes"] else ", no holes")),
+        ("%d / %d" % (S["checks"], S["of"]), "suite checks passing", "%d suites, %d green%s; the audits are run_all's%s" % (
+            S["suites"], S["green"], (", %d NOT VERIFIED" % S["holes"]) if S["holes"] else ", no holes",
+            ("; BELOW FLOOR: " + ", ".join("%s %s<%s" % b for b in S["below_floor"])) if S["below_floor"] else "")),
         ("%d" % S["commands"], "commands walked", "%d targets × 2 transports, %d pages" % (S["targets"] // 2, S["pages"])),
         ("%d / %d" % (S["tasks_held"], S["tasks"]), "tasks held", "%d / %d traces held, %d expectations confirmed"
          % (S["traces_held"], S["traces"], S["confirmed"])),
@@ -495,6 +548,8 @@ STYLE = """<style>
           text-transform: uppercase; margin: 8px 0 0; }
   .kind.gate { color: var(--good); }
   .kind.reading { color: var(--na); text-transform: none; letter-spacing: 0; font-size: 0.7rem; }
+  .tree { margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .tree.bad { color: var(--bad); }
   .verdict { display: inline-block; margin-top: 16px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; padding: 6px 12px; border-radius: 3px; border: 1px solid; }
   .verdict.good { color: var(--good); border-color: var(--good); background: var(--good-soft); }
   .verdict.bad { color: var(--bad); border-color: var(--bad); background: var(--bad-soft); }

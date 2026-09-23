@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """The Harness Board is what the ledgers say (ADR-127).
 
-tools/harness_board.py renders tools/harness_board.html from seven ledgers
+tools/harness_board.py renders tools/harness_board.html from seven ledgers and the tree
 and nothing else. This suite holds the file to the ledgers and the ledgers
 to each other:
 
@@ -122,8 +122,8 @@ ck(_GATES is not None, "THE PAGE SAYS WHAT ITS VERDICT IS COMPUTED FROM, in the 
                        "the verdict")
 if _GATES:
     _named = [g.strip() for g in _GATES.group(2).split(";")]
-    ck(len(_named) == int(_GATES.group(1)) == 7,
-       "...all of them, counted: %s" % _named)
+    ck(len(_named) == int(_GATES.group(1)) == 9,
+       "...all of them, counted (seven of ADR-215's and ADR-241's two): %s" % _named)
     ck(all("NOT MET" not in g for g in _named) == ("verdict good" in page),
        "THE BANNER IS THE CONJUNCTION OF THOSE GATES AND NOTHING ELSE -- a gate that is not met "
        "and a green banner on the same page is the board lying about the thing it exists to "
@@ -270,9 +270,48 @@ ck(fp == B.render(FIX), "the fixture render is deterministic")
 # the verdict: every one of the seven gates is broken here, and each is named
 for _g in ("every suite check passes", "every walk of every target holds", "every task is held",
            "every trace is held", "no mutant survived", "no mutant was inconclusive",
-           "no engine suite failed"):
+           "no engine suite failed", "the counts are about this tree"):
     ck(("%s — NOT MET" % _g) in fp, "on the fixture ledgers the gate is NOT MET and says so: %s" % _g)
 ck("verdict bad" in fp and "verdict good" not in fp, "...and the banner is red")
+
+# ---- 10. the counts are about this tree, and no suite is below its floor (ADR-241) ----
+# Ported from the FlowersForever harness: a count is evidence about the tree it
+# was taken on, and a suite that shrinks has lost a check. The fixture above
+# carries no tree, so its tree gate is NOT MET; here the tree situation is
+# stated and the render held to it, both ways.
+import copy as _cp
+_T = _cp.deepcopy(FIX)
+_T["tree"] = {"same": True, "now": "abc123abc123", "recorded": "abc123abc123", "files": 3,
+              "diff": {"changed": [], "added": [], "removed": []}, "off": [], "moved": [], "unstamped": []}
+_tp = B.render(_T)
+ck("the counts are about this tree — NOT MET" not in _tp
+   and "Measured on tree <span class=\"mono\">abc123abc123</span>, 3 subject files, which is the tree as it stands." in _tp,
+   "WHEN THE COUNTS ARE ABOUT THIS TREE the gate is met and the page says which tree, and how big")
+_T["tree"] = {"same": False, "now": "def456def456", "recorded": "abc123abc123", "files": 3,
+              "diff": {"changed": ["docs/x.html", "tools/y.py"], "added": ["docs/z.html"], "removed": []},
+              "off": ["verify_x"], "moved": [], "unstamped": []}
+_tp2 = B.render(_T)
+ck("the counts are about this tree — NOT MET" in _tp2 and "verdict bad" in _tp2,
+   "WHEN THE TREE HAS CHANGED SINCE THE RUN the gate is NOT MET and the banner is red")
+ck("2 changed: docs/x.html, tools/y.py" in _tp2 and "1 added: docs/z.html" in _tp2
+   and "1 count(s) from another tree: verify_x" in _tp2 and "abc123abc123" in _tp2 and "def456def456" in _tp2,
+   "...and the page NAMES the files that changed, the counts from another tree, and both digests")
+_T["tree"] = {"same": True, "now": "abc123abc123", "recorded": "abc123abc123", "files": 3,
+              "diff": {"changed": [], "added": [], "removed": []}, "off": [], "moved": ["tools/y.py"], "unstamped": []}
+ck("the counts are about this tree — NOT MET" in B.render(_T) and "moved DURING the run: tools/y.py" in B.render(_T),
+   "a tree that moved DURING the run is not the tree the counts are about, even when it is back now")
+_T["tree"]["moved"] = []; _T["tree"]["unstamped"] = ["verify_old"]
+ck("the counts are about this tree — NOT MET" in B.render(_T) and "carry no tree: verify_old" in B.render(_T),
+   "a count that carries no tree at all is about no tree, and is named")
+_T["tree"]["unstamped"] = []
+_T["counts"]["suites"]["verify_mcp"]["below_floor"] = 6
+_fp = B.render(_T)
+ck("no suite counts fewer than its floor — NOT MET" in _fp and "BELOW FLOOR: verify_mcp 5&lt;6" in _fp,
+   "A SUITE BELOW ITS FLOOR is a gate not met, and the suite tile names the suite, its count and its floor")
+ck("no suite counts fewer than its floor — NOT MET" not in _tp,
+   "...and with every suite at or above its floor the gate is met")
+ck(any(g.strip().startswith("no suite counts fewer than its floor") for g in _GATES.group(2).split(";")) if _GATES else False,
+   "the floor gate is on the real board's list (met or not -- the board before a run renders last run's counts)")
 # the tiles, each with its numbers
 for _big, _what, _note in (
         ("17 / 18", "suite checks passing", "4 suites, 2 green, 1 NOT VERIFIED"),

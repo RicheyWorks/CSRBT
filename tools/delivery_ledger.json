@@ -1232,10 +1232,15 @@
    "by": "adr240",
    "sha": "e65f5d43b9065f6f6cd3d0b8255f1a43bdf546f7afd9733a77363129a47b8a32"
   },
+  "docs/ADR-241-the-count-says-which-tree-it-counted-2026-09-22.md": {
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "5d1430b90cd24f4b6881a56b0ad3cee04424ecc4b550b2e7d807ff869451284f"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "648f1fcb2d9beb856c99f946f8a684aca4851873b6e16c96cb14083a8ae1827f"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "b2e27460f63f274984fa1c5e8d46878e8fe0465774bc48789da8d75e798bc03f"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -2404,6 +2409,11 @@
    "by": "adr240",
    "sha": "e33866690499448c7aad26863b44f239ccb7ea2644863d1f3f6200fae82010fe"
   },
+  "docs/CHANGELOG-2026-09-22-adr241-the-count-says-which-tree-it-counted.md": {
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "4706e4a7d901b4572aa3cb647e54b1c31a3c27dda5a6084fcda9c594874643ab"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2994,9 +3004,9 @@
    "sha": "6c2f24bb8892f8aa6f27be694e3309d06d7d5ffffd27044c141b2115d60ac043"
   },
   "tools/address_ledger.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "74d3b0f8cf5b8b1bf263b19aa6b58ac53003d129a1fd98eefa61b6cae8a7a9a6"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "90f865d0a124fa583c57ec17f606d47588d41ff806e5b7e84ad83f5c4811de80"
   },
   "tools/artifact_map.json": {
    "at": 1788676925,
@@ -3119,9 +3129,9 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "ae59af5a57e0102b8183b141fa4632df355ab420a8b33444521b39cb21a8e4f6"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "9684e397b8b1a546878ab0fb7eeab374fc4238a8d36a7db71d5362bfd9b2a5fc"
   },
   "tools/blind_console.py": {
    "at": 1789817593,
@@ -3129,9 +3139,9 @@
    "sha": "a6ed06413756f3e5509f4dc369b65242d453749e11a07a0f2d3cb1450c6f403c"
   },
   "tools/carried_ledger.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "5e3c626031d8156ab51b6a79134f10a4ab2aaa1601db64eec5ea06d02bad38bc"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "2fbba78e66213b6b7f693668745980c3ffa63f2617997c0d2ef0c828abf0675a"
   },
   "tools/ci/ci.yml": {
    "at": 1789711865,
@@ -3647,15 +3657,20 @@
    "by": "adr240",
    "sha": "0111a05950df057898d214a966a53e37492fb203f733ad9e6ec546295503be5a"
   },
+  "tools/delivery/adr241.json": {
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "69722cd007b9a8283e746437d327f176f110c28e9146fc0d90661cd6ca290128"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "87fdb2d054550e3342c5dac08fb09f4cc42dc13531957903dc68f8424b02dcef"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "b271bfa357eeb155b51a8b1b9959af6d15b3cc2106a8ab2ea468cf9d66304ea2"
   },
   "tools/destructive_ledger.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "46da8a46ded4a6d8d88aa458bb330d4f39dbecabff0ca0afd90881df5ee30552"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "234b79cccabfccb6c4b743cf742948e34d38cdd46e1406f83475fd2588c80328"
   },
   "tools/dwc.py": {
    "at": 1789690114,
@@ -3699,14 +3714,19 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "818ed3ca103cfe16e13a90c89120e508fb5169bd86f7739933d8767c4974c02e"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "227f3cbcfa405222af6b32cea999d7aa94ee1312dbc69ff433df3c06f466b70d"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
    "by": "adr146b",
    "sha": "99c46c9126e397d520630b1cbd6282686a547e6e952b87cf3f1c02e781d3d86d"
+  },
+  "tools/evidence.py": {
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "92c5665238e077e3812c0d1a6137471dbe2745a43f6a06598d530d822e20f77b"
   },
   "tools/exempt.py": {
    "at": 1789711865,
@@ -3761,14 +3781,14 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "3215c0be35e8aa3d9eb982d919fbab3899d709792e3a1ded2c24f963b1b6734b"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "8da8cc9e34f3bb8d3f20aef343d48c3b8cae97969ef44665bf5812f12b75f88e"
   },
   "tools/harness_board.py": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "bc5a93b024d503289e5bdf51ad45fac09d2a5096ee3587febd3a4f64a279b4a9"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "60ebdc32bd23ce78c093cbe8158e8a53562e9e3e67651fc4c88413cf3805e455"
   },
   "tools/harness_contract.py": {
    "at": 1789817593,
@@ -3861,9 +3881,9 @@
    "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
   },
   "tools/mutant_ledger.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "e7f6be305666df23a9a1de27e125339fa4752ccea7f0c8f53dd59ac59eaf4283"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "13091c7f70d77d304fedcda318876d518cc8fd5edde05dd44d1f1e7460074fd5"
   },
   "tools/mutant_ledger.py": {
    "at": 1788676926,
@@ -3896,9 +3916,9 @@
    "sha": "2d58518d643f36e5180c788f2b4f61d0f9652bef82cebf2caaec35066d09dc74"
   },
   "tools/mutate_board.py": {
-   "at": 1789718066,
-   "by": "adr227",
-   "sha": "6b0c91fa5e566a036afc214f59f78e9b0f316629887405146706dfa2c1634205"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "4bcd2624880b8ac4b6b44b22db35e0c2a8a034401c384a8b5a84a80ded8cd537"
   },
   "tools/mutate_brief.py": {
    "at": 1790004743,
@@ -3955,6 +3975,11 @@
    "at": 1790130093,
    "by": "adr240",
    "sha": "13ca81e8ee2df8f4c32d7dd4422f129466f21b8adcb1437c71c9caabf9c7fa06"
+  },
+  "tools/mutate_evidence.py": {
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "83ec5d4fa6a044091cb35841fcd06d6fcf806fb74ef8fad4defaddf05b3e4550"
   },
   "tools/mutate_fek.py": {
    "at": 1789690114,
@@ -4099,9 +4124,9 @@
    "sha": "b326bc268f68cd28544a28e49b34fea3ce04b026ec0098c9f9a5395788bde19f"
   },
   "tools/outputs_ledger.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "f9a973187030989c2573affc767e6e4ce5eef6c8303a2bff30c0f40c2467a99a"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "38918c783ad184052b36297fb0b8f28a7419c90fa55f8d2d4a8cd997e8861419"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -4134,9 +4159,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "8edcea2d527f2b7adcfc6b2e7e6954fe771863515f54801dbfab52fdc8c5383a"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "c28ca7eb1619683a299ea382f950896ff322d86a475de4d7d54d84414dcc3958"
   },
   "tools/push/push-adr225-siblings.ps1": {
    "at": 1789713249,
@@ -4149,14 +4174,14 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "733aa1ca0734ee1d5254dcb52348d8e2bf3255fda560332416c00b452d0721a0"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "fedfa073ddbf0408be6282422e548c5d2fb60ab9271938cc4065a4408ba3f951"
   },
   "tools/restored_ledger.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "54b5ec694b215483fcadc44bf1ae8cd422ac9ea4cb1482308803e3157a36c66e"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "805a39e825ca4bf526ad2a808e3350a0e214baa612ee75aae42523a1858e2f75"
   },
   "tools/routes.json": {
    "at": 1789690114,
@@ -4191,9 +4216,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/takeaway_ledger.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "2f1fe9e6ca75ae7b96d9b1866c90cf3bdb4ad9ceb33f581ef971d0a0ec0f7ca2"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "d76dba6c9bc86ee2f693795ddbc8222d52c8452b19c6ec65baf7dbcfe2d43370"
   },
   "tools/task_ledger.json": {
    "at": 1790130093,
@@ -4749,14 +4774,19 @@
    "sha": "b5a35ba0a1cdc46ec58d68e733a4d59aef5c26fe1ccf964894107a9be47e6ae6"
   },
   "tools/verify/counts.json": {
-   "at": 1790130093,
-   "by": "adr240",
-   "sha": "7f341233ce18b6af8b52a58ca0c62547f63a92367e9c2f477c817bdc7579d068"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "a5696a9cd804cca2338d3391ae42b9203f65ad6c84f420c7eb3209fc2119b011"
+  },
+  "tools/verify/floors.json": {
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "658d45d68ebedd9fd59ca4c53bcbceaa6e5ac202c3e457920b41ef107acb170a"
   },
   "tools/verify/run_all.py": {
-   "at": 1790071741,
-   "by": "adr239",
-   "sha": "6492c5c6dfb6b24b3eceb4434b638efc26f714ce8d3b69c6edde732db88b8fd9"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "a6d220595b09dc74de93d0cf7f572dcd384fb313c6f2384d19d09a872ad048ae"
   },
   "tools/verify/verify_addresses.py": {
    "at": 1790071741,
@@ -4789,9 +4819,9 @@
    "sha": "fb0d4bec805d262876683665ce9d12718eef31fb14a87baf1568666b55e5f331"
   },
   "tools/verify/verify_board.py": {
-   "at": 1789718066,
-   "by": "adr227",
-   "sha": "9e51082c8d370d3296bdacbd3df042fef870e9b702b69907559919d7679e3720"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "c60370ccda3263f7429aabc4a9e17e074cfb0c77f0fef3997bc800a720c188f0"
   },
   "tools/verify/verify_br.py": {
    "at": 1789690114,
@@ -4954,9 +4984,9 @@
    "sha": "eed7736a23be8244fec548266bff2ecc4d2b8d7a4464c3a6cb26dc17fb3626c5"
   },
   "tools/verify/verify_evidence.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "26d5ef58784a3e2cb30ecf781eb48af62e29b6f4b15ac2dae7228b9b64242326"
+   "at": 1790147642,
+   "by": "adr241",
+   "sha": "dcf18302da39d5ccdb8ed13827688dd688172e31b7a1e98975be0b3622e85e44"
   },
   "tools/verify/verify_experiment_guide.py": {
    "at": 1788956788,
@@ -5331,6 +5361,7 @@
   "adr237",
   "adr238",
   "adr239",
-  "adr240"
+  "adr240",
+  "adr241"
  ]
 }

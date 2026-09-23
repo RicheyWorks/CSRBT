@@ -1,0 +1,39 @@
+{
+ "id": "adr241",
+ "chain": "adr240",
+ "chain_probe": "docs/ADR-240-a-budget-file-is-the-whole-budget-2026-09-22.md",
+ "clean": [
+  "adr240"
+ ],
+ "once": true,
+ "subject": "ADR-241: the count says which tree it counted -- every suite count is bound to a digest of the tree it measured, every suite has a floor it may not shrink below, and the board's verdict gates on both (ported from the FlowersForever harness)",
+ "body": "A review of the FlowersForever harness found two things it does that this kit did not: its evidence is bound to a digest of every build input, refused on --check from any other tree and invalidated by an edit during verification; and every test class has a committed floor so a growing class cannot hide a deleted one. This kit's counts bound each suite count to the suite's own source and never to what it measured, so an edited page or tool left the board green about a tree that no longer existed, and the ADR-238 close hand-edited a counts entry. tools/evidence.py digests the subject and not the evidence; run_all takes the tree before the jobs, writes it with every count, hands it to every job, applies the floors, and fails a run the tree moved under; run_all --only records one job the way the run does; the board gains two gates and names the changed files. New verify_evidence 28, verify_board 225 to 234, new mutate_evidence 13/13.",
+ "paths": [
+  "docs/ADR-241-the-count-says-which-tree-it-counted-2026-09-22.md",
+  "docs/CHANGELOG-2026-09-22-adr241-the-count-says-which-tree-it-counted.md",
+  "docs/AI_HARNESS.md",
+  "tools/evidence.py",
+  "tools/verify/floors.json",
+  "tools/verify/run_all.py",
+  "tools/harness_board.py",
+  "tools/verify/verify_board.py",
+  "tools/verify/verify_evidence.py",
+  "tools/mutate_evidence.py",
+  "tools/mutate_board.py",
+  "tools/delivery/adr241.json",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json",
+  "tools/badinput_ledger.json",
+  "tools/carried_ledger.json",
+  "tools/destructive_ledger.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/readable_ledger.json",
+  "tools/restored_ledger.json",
+  "tools/takeaway_ledger.json",
+  "tools/address_ledger.json"
+ ]
+}

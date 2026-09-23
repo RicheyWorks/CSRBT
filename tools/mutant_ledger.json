@@ -564,7 +564,7 @@
    "survived": 0
   },
   "mutate_board": {
-   "at": 1789714415,
+   "at": 1790137823,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
@@ -572,217 +572,217 @@
    "mutants": 43,
    "rows": [
     {
-     "detail": "4 failure(s); first: A GATE THAT IS NOT MET TURNS THE BANNER RED AND IS NAMED ON",
+     "detail": "6 failure(s); first: suite checks are the sum of counts.json: 7994/7994",
      "name": "suite checks are the sum of `of`, so a suite with a hole still reads whole",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: summary[holes] on the fixture ledgers is 0, not 1",
+     "detail": "3 failure(s); first: summary[holes] on the fixture ledgers is 0, not 1",
      "name": "holes are never counted",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: summary[green] on the fixture ledgers is 4, not 2",
+     "detail": "3 failure(s); first: summary[green] on the fixture ledgers is 4, not 2",
      "name": "every suite is green",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a walk is bad when a command FAILED or its identity did not",
+     "detail": "3 failure(s); first: a walk is bad when a command FAILED or its identity did not",
      "name": "a walk whose command FAILED still holds",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a walk is bad when a command FAILED or its identity did not",
+     "detail": "3 failure(s); first: a walk is bad when a command FAILED or its identity did not",
      "name": "a walk whose identity did not hold still holds",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: tasks and traces are counted as the task ledger holds them,",
+     "detail": "6 failure(s); first: tasks and traces are counted as the task ledger holds them,",
      "name": "a blind trace is counted as a task",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: summary[tasks_held] on the fixture ledgers is 3, not 2",
+     "detail": "4 failure(s); first: summary[tasks_held] on the fixture ledgers is 3, not 2",
      "name": "every task is held",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: summary[traces_held] on the fixture ledgers is 3, not 2",
+     "detail": "4 failure(s); first: summary[traces_held] on the fixture ledgers is 3, not 2",
      "name": "every trace is held",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: summary[given] on the fixture ledgers is 0, not 2",
+     "detail": "3 failure(s); first: summary[given] on the fixture ledgers is 0, not 2",
      "name": "the values handed over are never summed",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: summary[supervised] on the fixture ledgers is 2, not 1",
+     "detail": "3 failure(s); first: summary[supervised] on the fixture ledgers is 2, not 1",
      "name": "a task that declares DESTRUCTIVE counts as supervised",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: summary[fields_entered] on the fixture ledgers is 10, not 8",
+     "detail": "3 failure(s); first: summary[fields_entered] on the fixture ledgers is 10, not 8",
      "name": "fields entered reads the field count",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: summary[entry_pages] on the fixture ledgers is 2, not 1",
+     "detail": "3 failure(s); first: summary[entry_pages] on the fixture ledgers is 2, not 1",
      "name": "a page with nothing to enter is counted as an entry page",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: summary[unreadable] on the fixture ledgers is 1, not 2",
+     "detail": "3 failure(s); first: summary[unreadable] on the fixture ledgers is 1, not 2",
      "name": "unreadable figures are counted per page rather than per figure",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: summary[slices] on the fixture ledgers is 3, not 2",
+     "detail": "3 failure(s); first: summary[slices] on the fixture ledgers is 3, not 2",
      "name": "slices are counted per path rather than per slice",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: summary[load_clean] on the fixture ledgers is 2, not 1",
+     "detail": "3 failure(s); first: summary[load_clean] on the fixture ledgers is 2, not 1",
      "name": "every load reading is clean",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: summary[survived] on the fixture ledgers is 0, not 1",
+     "detail": "4 failure(s); first: summary[survived] on the fixture ledgers is 0, not 1",
      "name": "no mutant ever survived",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: summary[inconclusive] on the fixture ledgers is 0, not 1",
+     "detail": "4 failure(s); first: summary[inconclusive] on the fixture ledgers is 0, not 1",
      "name": "no mutant was ever inconclusive",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: summary[engine_failures] on the fixture ledgers is 1, not 3",
+     "detail": "3 failure(s); first: summary[engine_failures] on the fixture ledgers is 1, not 3",
      "name": "an engine's errors are not failures",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: summary[newest] on the fixture ledgers is 300, not 400",
+     "detail": "3 failure(s); first: summary[newest] on the fixture ledgers is 300, not 400",
      "name": "the newest reading ignores the mutant runners",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: A GATE THAT IS NOT MET TURNS THE BANNER RED AND IS NAMED ON",
+     "detail": "6 failure(s); first: THE BANNER IS THE CONJUNCTION OF THOSE GATES AND NOTHING EL",
      "name": "the banner is green whatever the gates say",
      "verdict": "killed"
     },
     {
-     "detail": "8 failure(s); first: A GATE THAT IS NOT MET TURNS THE BANNER RED AND IS NAMED ON",
+     "detail": "14 failure(s); first: THE BANNER IS THE CONJUNCTION OF THOSE GATES AND NOTHING E",
      "name": "a gate that is not met is not named as such",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: ...all of them, counted: ['every suite check passes', 'ever",
+     "detail": "4 failure(s); first: ...all of them, counted (seven of ADR-215's and ADR-241's t",
      "name": "the trace gate is dropped from the list",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: on the fixture ledgers the gate is NOT MET and says so: eve",
+     "detail": "2 failure(s); first: on the fixture ledgers the gate is NOT MET and says so: eve",
      "name": "the task gate is always met",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: on the fixture ledgers the gate is NOT MET and says so: eve",
+     "detail": "2 failure(s); first: on the fixture ledgers the gate is NOT MET and says so: eve",
      "name": "the walk gate is always met",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: on the fixture ledgers the gate is NOT MET and says so: no ",
+     "detail": "2 failure(s); first: on the fixture ledgers the gate is NOT MET and says so: no ",
      "name": "the engine gate is always met",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: A GATE THAT IS NOT MET TURNS THE BANNER RED AND IS NAMED ON",
+     "detail": "3 failure(s); first: A GATE THAT IS NOT MET TURNS THE BANNER RED AND IS NAMED ON",
      "name": "the suite gate is always met",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: ...and a tile that does NOT gate says in one line what kind",
+     "detail": "3 failure(s); first: ...and a tile that does NOT gate says in one line what kind",
      "name": "every tile is a reading, the gating ones included",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the suite checks passing tile reads 17 / 18 and says '4 sui",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "a hole is reported as no holes",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the commands walked tile reads 30 and says '1 targets \u00d7 2 t",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "targets are counted per transport",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a suite that is whole and NOT green is still bad: green is ",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "a suite's pill is good whenever its ratio is whole, green or not",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: THE RENDER DOES NOT DEPEND ON THE MACHINE'S TIME ZONE -- th",
+     "detail": "6 failure(s); first: THE RENDER DOES NOT DEPEND ON THE MACHINE'S TIME ZONE -- th",
      "name": "a suite's stamp is rendered in local time",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a stamp is the instant in UTC: '2026-09-18 00:00'",
+     "detail": "3 failure(s); first: a stamp is the instant in UTC: '2026-09-18 00:00'",
      "name": "a missing stamp is rendered as the epoch",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: of the two lab walks the one with a failed command is BAD a",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "every walk holds",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: routed pages are counted by DISTINCT page: a route listed t",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "routed pages are counted with their duplicates",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a page whose walk failed is red; a page's unreachable count",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "a page whose walk failed is not red",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a canary that must FAIL and did is good, and says so",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "a canary that must FAIL is not marked as one",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a task that failed is bad; its blind trace that failed is b",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "a blind trace that failed renders good",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: with both a trace and a blind trace, the calls column is th",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "the calls column reads the sighted trace over the blind one",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a runner with an inconclusive mutant and no survivor is STI",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "a runner with an inconclusive mutant and no survivor is good",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: engines are ordered by tests, most first, and an engine wit",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "engines are listed by name rather than by size",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: an engine's pill is its own green; a floor is printed; no t",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "an engine that failed still gets a good pill",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: an engine's pill is its own green; a floor is printed; no t",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "an engine with no reading is rendered as a reading",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the newest reading is the newest `at` across every ledger, ",
+     "detail": "2 failure(s); first: the floor gate is on the real board's list",
      "name": "the footer's newest reading is the suites' alone",
      "verdict": "killed"
     }
@@ -2930,6 +2930,82 @@
     {
      "detail": "2 failure(s); first: ADR-240 the budget CSV carries aggress's rate per observed ",
      "name": "the CSV's rate is not the page's rate",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_evidence": {
+   "at": 1790137833,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 13,
+   "mutants": 13,
+   "rows": [
+    {
+     "detail": "5 failure(s); first: THE SUBJECT is pages, prose, tools, tasks, suites and CI --",
+     "name": "a ledger is part of the subject",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: THE SUBJECT is pages, prose, tools, tasks, suites and CI --",
+     "name": "the pages are not part of the subject",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a changed byte in a page moves the tree, and the page is na",
+     "name": "the digest ignores a file's bytes",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: an added file and a removed file are named as such: {'chang",
+     "name": "a removed file is not named",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: counts about ANOTHER tree: not same, the suite is off, and ",
+     "name": "a count from another tree is not off",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the tree can match while one count is from another tree and",
+     "name": "a count with no tree is not unstamped",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A GREEN SUITE THAT COUNTED FEWER THAN ITS FLOOR GOES RED an",
+     "name": "a suite below its floor stays green",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a suite never seen before is floored at what it counted: {'",
+     "name": "a suite never seen gets no floor",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: --raise-floors raises a green suite's floor to its count, N",
+     "name": "--raise-floors lowers a floor",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: run_all takes the tree BEFORE the jobs run",
+     "name": "run_all takes the tree after the jobs",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...applies the floors, and a suite below its floor FAILS TH",
+     "name": "a suite below its floor does not fail the run",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: on the fixture ledgers the gate is NOT MET and says so: the",
+     "name": "the board's tree gate is always met",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A SUITE BELOW ITS FLOOR is a gate not met, and the suite ti",
+     "name": "the board's floor gate is always met",
      "verdict": "killed"
     }
    ],

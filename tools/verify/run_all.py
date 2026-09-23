@@ -139,9 +139,23 @@ def main():
     ap.add_argument("-j", "--jobs", type=int, default=2,
                     help="how many to run at once (each drives a browser; 2 is kind to a laptop)")
     ap.add_argument("-v", "--verbose", action="store_true", help="print failing output in full")
+    ap.add_argument("--raise-floors", action="store_true",
+                    help="after the run, today's green counts become the floors where higher (ADR-241)")
+    ap.add_argument("--only", default="",
+                    help="comma-separated job names to run alone (ADR-241): a suite re-measured after a "
+                         "sweep is recorded the way the run records it, not typed into counts.json")
     a = ap.parse_args()
+    # ADR-241: the tree this run is about, taken BEFORE anything runs. Recorded
+    # with every count, so a count is about a tree and not only about its suite.
+    sys.path.insert(0, TOOLS)
+    import evidence as EV
+    tree0 = EV.digest(ROOT)
+    # ...and told to every job, so a suite that holds the evidence to the tree
+    # can hold it to THIS run's tree while counts.json is still last run's.
+    os.environ["CSRBT_RUN_TREE"] = tree0["digest"]
     do_audits = a.audits or not a.suites
     do_suites = a.suites or not a.audits
+    only = set(x.strip() for x in a.only.split(",") if x.strip())
 
     jobs = []
     if do_audits:
@@ -155,6 +169,11 @@ def main():
     # (so verify_board holds it against what the ledgers say NOW, not against
     # the last render) and again after counts.json is written (so the committed
     # board is this run's). A run is the one thing that changes counts.json.
+    if only:
+        jobs = [j for j in jobs if j[1] in only]
+        missing = only - set(j[1] for j in jobs)
+        if missing:
+            print("no such job: %s" % ", ".join(sorted(missing))); return 2
     render_board("before the run")
     if not jobs:
         print("nothing to run"); return 1
@@ -283,11 +302,38 @@ def main():
         except OSError:
             continue
         entry = {"n": got, "of": tot, "sha": sha, "at": int(time.time()),
-                 "green": rc == 0 and got == tot}
+                 "green": rc == 0 and got == tot, "tree": EV.short(tree0["digest"])}
         u = unverified(out)
         if u:
             entry["unverified"] = u
         rec[name] = entry
+    # ADR-241: THE FLOOR. A suite that counted fewer checks than the floor it
+    # is committed to is red for this run, whatever it printed -- a section
+    # deleted from a suite used to leave it green with a smaller number, and
+    # the board's total absorbed the loss without a word. A suite never seen
+    # before is floored at what it counted; floors rise only by --raise-floors.
+    floors = EV.load_floors()
+    below, floors_now = EV.apply_floors(rec, floors)
+    if a.raise_floors:
+        floors_now = EV.raise_floors(rec, floors_now)
+    if floors_now != floors:
+        EV.save_floors(floors_now)
+    for name, n, f in below:
+        print("FLOOR  %-24s %d/%d counted but the floor is %d -- a check went missing" % (name, n, rec[name]["of"], f))
+        failed.append((name, "%s counted %d checks; its floor is %d. A suite that shrinks has lost a "
+                             "check, not passed one. Raise the floor on purpose with --raise-floors "
+                             "if the loss was meant." % (name, n, f)))
+    # ADR-241: THE TREE, AGAIN. A run that measured a tree somebody edited under
+    # it is about neither the tree it started on nor the one it ended on.
+    tree1 = EV.digest(ROOT)
+    moved = []
+    if tree1["digest"] != tree0["digest"]:
+        d = EV.compare(tree0, tree1)
+        moved = d["changed"] + d["added"] + d["removed"]
+        print("")
+        print("THE TREE MOVED DURING THE RUN: %d file(s) -- %s" % (len(moved), ", ".join(moved[:6])))
+        print("every count this run recorded is about a tree that no longer exists. Rerun.")
+        failed.append(("tree", "the tree moved during the run: " + ", ".join(moved[:12])))
     if rec:
         cpath = os.path.join(HERE, "counts.json")
         # MERGE, DO NOT REPLACE. This ledger used to be rebuilt from scratch on
@@ -325,7 +371,10 @@ def main():
                              "necessarily this run -- a run updates only the suites "
                              "it could run. A count whose sha no longer matches says "
                              "nothing about the suite as it stands -- rerun run_all.",
-                 "at": int(time.time()), "suites": merged},
+                 "at": int(time.time()), "suites": merged,
+                 # ADR-241: the tree every count of THIS run is about, file by
+                 # file, so the board can name what changed since.
+                 "tree": tree0, "tree_moved": moved},
                 indent=1, sort_keys=True) + "\n")
             kept = len(merged) - len(rec)
             print("wrote %s (%d suite counts updated%s)"
