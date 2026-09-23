@@ -2869,6 +2869,72 @@
    ],
    "survived": 0
   },
+  "mutate_etho": {
+   "at": 1790125166,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 11,
+   "mutants": 11,
+   "rows": [
+    {
+     "detail": "2 failure(s); first: ADR-240 the budget note does not call the time in a state '",
+     "name": "the note calls the time in a state 'elapsed' again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-240 ...and names the time the session ran, which is a t",
+     "name": "the note's third number is the time in a state, not the time the session ran",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-240 the sheet says 'bout' of one and 'bouts' of two  <<",
+     "name": "the sheet says '1 bouts' again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ADR-240 the sheet says 'bout' of one and 'bouts' of two  <<",
+     "name": "the sheet counts every state's bouts as one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-240 the sheet names the out-of-sight time it excluded  ",
+     "name": "the sheet drops the out-of-sight line",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-240 ...and the time in no state, which is elapsed minus",
+     "name": "the sheet's in-no-state line is elapsed minus observed, forgetting out of sight",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-240 the budget CSV has an out-of-sight row carrying the",
+     "name": "the budget CSV has no out-of-sight row",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ADR-240 the budget CSV carries aggress's rate per observed ",
+     "name": "the budget CSV's rates are per elapsed minute",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ADR-240 the budget CSV carries aggress's rate per observed ",
+     "name": "the budget CSV carries no event rows",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADR-240 in point mode the out-of-sight points dropped from ",
+     "name": "in point mode the dropped points are not a row",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ADR-240 the budget CSV carries aggress's rate per observed ",
+     "name": "the CSV's rate is not the page's rate",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_fek": {
    "at": 1789417052,
    "equivalent": 0,

@@ -2359,8 +2359,14 @@ var OUT = (function(){
            '<td class="n">'+mmss(p.ms/p.n)+'</td></tr>';
       });
       h+='</table></div>';
+      /* ADR-240: the second number here is NOT elapsed. It is the time in a
+         state -- observed plus out of sight -- and the session ran longer than
+         that by the in-no-state gap the note above already names. ADR-154
+         fixed the tile and left this sentence saying the old word beside it;
+         the seventh blind trial read both and filed the contradiction. */
       if(oos>0) h+='<p class="fine">Out-of-sight time is excluded from the denominator: percentages are of '+
-        mmss(obs)+' observed, not '+mmss(obs+oos)+' elapsed.</p>';
+        mmss(obs)+' observed, not the '+mmss(obs+oos)+' in a state (observed plus out of sight)'+
+        (gap>=1000 ? ', and not the '+mmss(ran)+' the session ran' : '')+'.</p>';
       box.innerHTML=h;
     } else if(D.record==="inst"){
       if(!pts.length){ box.innerHTML=head+'<p class="fine" style="margin:0">Take a scan or two.</p>';
@@ -2594,8 +2600,16 @@ var OUT = (function(){
         if(!per[s.beh])per[s.beh]={ms:0,n:0}; per[s.beh].ms+=(s.t1-s.t0); per[s.beh].n++; });
       Object.keys(per).forEach(function(k){
         L.push(("  "+((byId(k)||{}).name||k)+"                    ").slice(0,22)+
-          mmss(per[k].ms)+"   "+(obs?(per[k].ms/obs*100).toFixed(1):"0.0")+"%   "+per[k].n+" bouts");
+          mmss(per[k].ms)+"   "+(obs?(per[k].ms/obs*100).toFixed(1):"0.0")+"%   "+per[k].n+
+          (per[k].n===1?" bout":" bouts"));                       /* ADR-240: "1 bouts" */
       });
+      /* ADR-240: the sheet said what was observed and never what was excluded,
+         so a reader adding up the rows came out 00:30 short with nothing to
+         say where it went. */
+      var oosMs=0; segs.forEach(function(s){ if(s.beh==="oos") oosMs+=(s.t1-s.t0); });
+      if(oosMs>0) L.push("  out of sight        "+mmss(oosMs)+"   excluded from the denominator");
+      var gapMs=now()-(obs+oosMs);
+      if(gapMs>=1000) L.push("  in no state         "+mmss(gapMs)+"   before the first state or after the last");
     } else if(D.record==="inst"){
       var use=pts.filter(function(p){return p.beh!=="oos";}), n=use.length, c={};
       use.forEach(function(p){ c[p.beh]=(c[p.beh]||0)+1; });
@@ -2673,11 +2687,31 @@ var OUT = (function(){
       Object.keys(per).forEach(function(k){ var b=byId(k)||{};
         rows.push([b.name||k,"state","pct_observed_time",(obs?(per[k].ms/obs*100).toFixed(2):"0"),
           (obs/1000).toFixed(1)+" s observed"].map(cell).join(",")); });
+      /* ADR-240: THE BUDGET CSV CARRIED THE STATES AND NOTHING ELSE. The
+         out-of-sight time that was taken OUT of the denominator was in no row,
+         so the denominator could not be checked from the file; and the event
+         rates the page shows beside the budget were in no export at all (the
+         log CSV has the taps, not the rates). The seventh blind trial filed
+         both. A budget file is the whole budget: what was excluded and why,
+         and what the events came to per observed minute. */
+      var oosS=0; segs.forEach(function(s){ if(s.beh==="oos") oosS+=(s.t1-s.t0); });
+      if(oosS>0) rows.push(["out of sight","state","seconds_excluded",(oosS/1000).toFixed(1),
+        ((obs+oosS)/1000).toFixed(1)+" s in a state"].map(cell).join(","));
+      if(evts.length){
+        var mins=obs/60000, ec={};
+        evts.forEach(function(e){ ec[e.beh]=(ec[e.beh]||0)+1; });
+        Object.keys(ec).sort(function(a,b){return ec[b]-ec[a];}).forEach(function(k){ var b=byId(k)||{};
+          rows.push([b.name||k,"event","per_observed_min",(mins?(ec[k]/mins).toFixed(3):"0"),
+            ec[k]+" events / "+mins.toFixed(1)+" min observed"].map(cell).join(",")); });
+      }
     } else if(D.record==="inst"){
       var use=pts.filter(function(p){return p.beh!=="oos";}), n=use.length, c={};
       use.forEach(function(p){ c[p.beh]=(c[p.beh]||0)+1; });
       Object.keys(c).forEach(function(k){ var b=byId(k)||{};
         rows.push([b.name||k,"state","pct_of_points",(c[k]/n*100).toFixed(2),n+" points"].map(cell).join(",")); });
+      /* ADR-240: the points that were dropped are a row too. */
+      if(pts.length>n) rows.push(["out of sight","state","points_excluded",String(pts.length-n),
+        pts.length+" points taken"].map(cell).join(","));
     } else {
       var hits={}; ozs.forEach(function(o){ hits[o.beh]=(hits[o.beh]||0)+1; });
       Object.keys(hits).forEach(function(k){ var b=byId(k)||{};

@@ -1,0 +1,37 @@
+{
+ "id": "adr240",
+ "chain": "adr239",
+ "chain_probe": "docs/ADR-239-a-name-outlives-the-press-2026-09-22.md",
+ "clean": [
+  "adr239"
+ ],
+ "once": true,
+ "subject": "ADR-240: a budget file is the whole budget -- the ethogram's note names all three numbers, the sheet says bout of one and names what it excluded, and the budget CSV carries the out-of-sight row and the event rates",
+ "body": "The seventh blind trial filed three things on the ethogram and the task certified all three: the budget note called the time in a state 'elapsed' one paragraph under ADR-154's corrected in-no-state note; the budget CSV carried the state rows and nothing else, no out-of-sight row and no event rates; and the sheet said '1 bouts'. The note now names all three numbers (observed, in a state, the session ran), the sheet says bout/bouts and names the excluded and in-no-state time so its lines add up to the clock, and the budget CSV gains an out-of-sight row, one per-observed-minute row per event, and a points-excluded row in point mode. Task 67 to 77 confirmed and refuted on the old page; verify_etho 71 to 86 with a door-driven stepped-clock section stating the durations itself; new mutate_etho 11/11.",
+ "paths": [
+  "docs/ADR-240-a-budget-file-is-the-whole-budget-2026-09-22.md",
+  "docs/CHANGELOG-2026-09-22-adr240-a-budget-file-is-the-whole-budget.md",
+  "docs/AI_HARNESS.md",
+  "docs/ethogram.html",
+  "tools/tasks/page-ethogram-science.json",
+  "tools/verify/verify_etho.py",
+  "tools/mutate_etho.py",
+  "tools/harness_board.py",
+  "tools/delivery/adr240.json",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json",
+  "tools/task_ledger.json",
+  "tools/badinput_ledger.json",
+  "tools/carried_ledger.json",
+  "tools/destructive_ledger.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/readable_ledger.json",
+  "tools/restored_ledger.json",
+  "tools/takeaway_ledger.json",
+  "tools/address_ledger.json"
+ ]
+}

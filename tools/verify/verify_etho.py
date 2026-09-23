@@ -102,7 +102,10 @@ with sync_playwright() as p:
         .map(r=>parseFloat(r.children[2].textContent))""")
     ck("budget percentages sum to 100", abs(sum(pcts)-100)<0.6, pcts)
     ck("forage is the largest share", pcts and pcts[0]>50, pcts)
-    ck("oos not a budget row", "out of sight" not in bud.split("elapsed")[-1].split("Out-of-sight")[0], "")
+    # ADR-240: read the table's rows, not a slice of the box text -- the old
+    # slice ended at the last word "elapsed", which the fixed note no longer says.
+    _rows0 = pg.evaluate("()=>[...document.querySelectorAll('#budBox table tr')].slice(1).map(r=>r.children[0].textContent)")
+    ck("oos not a budget row", "out of sight" not in _rows0, _rows0)
     rate=pg.inner_text("#rateBox")
     ck("event rate computed for alarm", "alarm" in rate, rate[:200])
     ck("rates are per observed minute", "observed" in rate, "")
@@ -222,6 +225,121 @@ with sync_playwright() as p:
     for t in ["Field Entry Kit","it is not a design","proportion of time","cannot give you a rate"]:
         ck("method documents "+t, t in m, m[:200])
 
+    b.close()
+
+# ---------- ADR-240: the budget's second number, the sheet's bouts, the CSV's whole ----------
+# Driven through the door against a stepped clock, exactly as the task drives
+# it, so every figure below is arithmetic on known durations and not on how
+# long a click took. The statements are made HERE, from the durations, not read
+# off the page: forage 20-95 and 155-230 (02:30), vigilant 95-155 and 320-380
+# (02:00), out of sight 230-260 (00:30), rest 260-320 (01:00); aggress at 140,
+# alarm at 200 and 350; stop at 380, so 00:20 of the session is in no state.
+import io as _io, json as _json, re as _re
+sys.path.insert(0, _os.path.join(ROOT, "tools"))
+import harness_plugin_page as _PP
+import harness as _H
+_STATES = [(20, 95, "forage"), (95, 155, "vigilant"), (155, 230, "forage"), (230, 260, "out of sight"),
+           (260, 320, "rest"), (320, 380, "vigilant")]
+_TAPS = [(20, "state", "forage"), (95, "state", "vigilant"), (140, "event", "aggress"), (155, "state", "forage"),
+         (200, "event", "alarm"), (230, "state", "out of sight"), (260, "state", "rest"), (320, "state", "vigilant"),
+         (350, "event", "alarm")]
+_STOP = 380
+_obs = sum(t1 - t0 for t0, t1, n in _STATES if n != "out of sight")          # 330
+_oos = sum(t1 - t0 for t0, t1, n in _STATES if n == "out of sight")          # 30
+_gap = _STOP - (_obs + _oos)                                                  # 20
+_bouts = {}
+for t0, t1, n in _STATES:
+    if n != "out of sight": _bouts[n] = _bouts.get(n, 0) + 1
+_events = {}
+for t, k, n in _TAPS:
+    if k == "event": _events[n] = _events.get(n, 0) + 1
+def _mmss(sec): return "%02d:%02d" % (sec // 60, sec % 60)
+with sync_playwright() as p:
+    b = p.chromium.launch()
+    ctx = b.new_context(viewport=_H.VIEWPORT); ctx.set_offline(True)
+    ctx.add_init_script(_H.STUBS); ctx.add_init_script(_H.DETERMINISM)   # the clock the door steps
+    pg = ctx.new_page()
+    plug = _PP.PagePlugin(pg, "ethogram.html")
+    plug.execute("open", {"page": "ethogram.html"}); plug.observe()
+    plug.execute("show-pane", {"pane": "p-des"})
+    plug.execute("activate", {"selector": "@dSample/focal animal"})
+    plug.execute("activate", {"selector": "@dRecord/continuous"})
+    def _clock(sec, running=True):
+        was = pg.evaluate("() => document.getElementById('clock').textContent")
+        plug.execute("set-clock", {"at": "2026-09-07T09:%02d:%02dZ" % (sec // 60, sec % 60)})
+        # the page reads the clock on its own 200 ms loop and re-renders the
+        # grid at a scan boundary; wait until its clock has MOVED (the same
+        # tick did the rebuild), or the tap races the rebuild -- a fixed wait
+        # lost that race under -j2 contention. Before Start nothing ticks.
+        if running:
+            pg.wait_for_function("(w) => document.getElementById('clock').textContent !== w", arg=was, timeout=5000)
+        pg.wait_for_timeout(50)
+    _clock(0, running=False); plug.execute("show-pane", {"pane": "p-rec"}); plug.execute("activate", {"selector": "#rStart"})
+    for t, k, n in _TAPS:
+        _clock(t); plug.execute("activate", {"selector": "@%sGrid/%s" % (k, n)})
+    _clock(_STOP); plug.execute("activate", {"selector": "#rStop"})
+    plug.execute("show-pane", {"pane": "p-bud"})
+    _ok, _m, rep = plug.execute("read-report", {})
+    bud = rep["boxes"].get("budBox", "")
+    ck("ADR-240 the budget note does not call the time in a state 'elapsed'",
+       _re.search(r"not %s elapsed" % _mmss(_obs + _oos), bud) is None, bud[-400:])
+    ck("ADR-240 the budget note names the second number as time in a state, observed plus out of sight",
+       ("not the %s in a state (observed plus out of sight)" % _mmss(_obs + _oos)) in bud, bud[-400:])
+    ck("ADR-240 ...and names the time the session ran, which is a third number",
+       ("and not the %s the session ran" % _mmss(_STOP)) in bud and _STOP != _obs + _oos, bud[-400:])
+    ck("ADR-240 the three numbers are the tiles' (elapsed / observed / out of sight)",
+       rep["by"].get("budBox", {}).get("elapsed") == _mmss(_STOP)
+       and rep["by"]["budBox"].get("observed") == _mmss(_obs)
+       and rep["by"]["budBox"].get("out of sight") == _mmss(_oos), rep["by"].get("budBox"))
+    # the session sheet
+    plug.execute("activate", {"selector": "#ecoCopy"})
+    _ok, _m, out = plug.execute("collect-output", {})
+    sheet = (out["payloads"] or [{}])[0].get("text", "")
+    ck("ADR-240 the sheet says 'bout' of one and 'bouts' of two",
+       ("   %d bout\n" % 1 in sheet + "\n") and "   2 bouts" in sheet and "1 bouts" not in sheet,
+       [l for l in sheet.split("\n") if "bout" in l])
+    ck("ADR-240 every state's bout count on the sheet is the count of its segments",
+       all(_re.search(r"^  %s\s+\S+\s+\S+\s+%d bouts?$" % (_re.escape(n), c), sheet, _re.M) for n, c in _bouts.items()),
+       [l for l in sheet.split("\n") if "bout" in l])
+    ck("ADR-240 the sheet names the out-of-sight time it excluded",
+       ("  out of sight        %s   excluded from the denominator" % _mmss(_oos)) in sheet, sheet[:600])
+    ck("ADR-240 ...and the time in no state, which is elapsed minus the time in a state",
+       ("  in no state         %s   before the first state or after the last" % _mmss(_gap)) in sheet, sheet[:600])
+    ck("ADR-240 so the sheet's lines add up to the clock",
+       _mmss(_obs) in sheet and ("# elapsed %s   observed %s" % (_mmss(_STOP), _mmss(_obs))) in sheet, sheet[:300])
+    # the budget CSV
+    plug.execute("activate", {"selector": "#budCopy"})
+    _ok, _m, out = plug.execute("collect-output", {})
+    csv = (out["payloads"] or [{}])[0].get("text", "")
+    rows = [l.split(",") for l in csv.split("\n")]
+    ck("ADR-240 the budget CSV has an out-of-sight row carrying the seconds excluded and the in-a-state total",
+       ["out of sight", "state", "seconds_excluded", "%.1f" % _oos, "%.1f s in a state" % (_obs + _oos)] in rows, rows)
+    for n, c in _events.items():
+        ck("ADR-240 the budget CSV carries %s's rate per observed minute, with its count and denominator" % n,
+           [n, "event", "per_observed_min", "%.3f" % (c / (_obs / 60.0)), "%d events / %.1f min observed" % (c, _obs / 60.0)] in rows,
+           [r for r in rows if r and r[0] == n])
+    ck("ADR-240 the CSV's state percentages are of observed time and sum to 100",
+       abs(sum(float(r[3]) for r in rows if len(r) > 3 and r[2] == "pct_observed_time") - 100) < 0.02
+       and all(r[4] == "%.1f s observed" % _obs for r in rows if len(r) > 4 and r[2] == "pct_observed_time"), rows)
+    ck("ADR-240 the rate the CSV carries is the rate the page shows",
+       rep["tables"].get("rateBox", [[]])[1][2] == "%.3f" % (_events["alarm"] / (_obs / 60.0)),
+       rep["tables"].get("rateBox"))
+    # instantaneous: the excluded points are a row too
+    plug.execute("show-pane", {"pane": "p-des"})
+    plug.execute("activate", {"selector": "@dSample/scan"})
+    plug.execute("activate", {"selector": "@dRecord/instantaneous"})
+    _clock(400, running=False); plug.execute("show-pane", {"pane": "p-rec"}); plug.execute("activate", {"selector": "#rStart"})
+    for t, n in [(401, "forage"), (461, "out of sight"), (521, "forage"), (581, "vigilant")]:   # one point per 60 s scan
+        _clock(t); plug.execute("activate", {"selector": "@stateGrid/%s" % n})
+    _clock(640); plug.execute("activate", {"selector": "#rStop"})
+    plug.execute("show-pane", {"pane": "p-bud"})
+    plug.execute("activate", {"selector": "#budCopy"})
+    _ok, _m, out = plug.execute("collect-output", {})
+    csv2 = (out["payloads"] or [{}])[0].get("text", "")
+    rows2 = [l.split(",") for l in csv2.split("\n")]
+    ck("ADR-240 in point mode the out-of-sight points dropped from n are a row of the budget CSV",
+       ["out of sight", "state", "points_excluded", "1", "4 points taken"] in rows2
+       and any(r[:3] == ["forage", "state", "pct_of_points"] and r[4] == "3 points" for r in rows2), rows2)
     b.close()
 
 print("PASS %d"%len(P))

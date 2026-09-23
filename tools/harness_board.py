@@ -111,6 +111,7 @@ RUNNERS = [
     ("mutate_ord", "the ordination page's verdicts: a perfect fit, the unreadable-value count, the toast"),
     ("mutate_sel", "the selection log's next-individual line: a cleared dial said, the missing named"),
     ("mutate_addresses", "the address audit and the door's resolver: a name read off the page as it stands"),
+    ("mutate_etho", "the ethogram's budget: the note's three numbers, the sheet's bouts, the CSV's whole"),
 ]
 
 

@@ -2,7 +2,7 @@
  "_comment": "Written by tools/audit_takeaway.py. Per page: the controls that hand something over whose only channel is a download -- which a published artifact refuses silently -- and whether the page claimed it left (ADR-212).",
  "pages": {
   "breeding-bench.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 2,
@@ -14,7 +14,7 @@
    "stranded": []
   },
   "cell-bench.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 4,
@@ -28,7 +28,7 @@
    "stranded": []
   },
   "collection-sheet.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 6,
@@ -44,7 +44,7 @@
    "stranded": []
   },
   "cp-bench.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
@@ -57,7 +57,7 @@
    "stranded": []
   },
   "deployment-log.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
@@ -70,7 +70,7 @@
    "stranded": []
   },
   "eco-protocol-library.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 1,
@@ -81,7 +81,7 @@
    "stranded": []
   },
   "ecology-lab.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 2,
@@ -93,7 +93,7 @@
    "stranded": []
   },
   "ethogram.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 5,
@@ -108,7 +108,7 @@
    "stranded": []
   },
   "experiment-guide.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 5,
@@ -123,7 +123,7 @@
    "stranded": []
   },
   "farm-scout.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
@@ -136,7 +136,7 @@
    "stranded": []
   },
   "field-notebook.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
@@ -149,7 +149,7 @@
    "stranded": []
   },
   "field-season.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 1,
@@ -160,7 +160,7 @@
    "stranded": []
   },
   "food-web.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
@@ -173,7 +173,7 @@
    "stranded": []
   },
   "greenhouse.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
@@ -186,7 +186,7 @@
    "stranded": []
   },
   "micro-bench.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 5,
@@ -201,7 +201,7 @@
    "stranded": []
   },
   "ordination.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
@@ -214,7 +214,7 @@
    "stranded": []
   },
   "pheno-tracker.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
@@ -227,7 +227,7 @@
    "stranded": []
   },
   "releve.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 7,
@@ -244,7 +244,7 @@
    "stranded": []
   },
   "selection-log.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 3,
@@ -257,7 +257,7 @@
    "stranded": []
   },
   "soil-bench.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 2,
@@ -269,7 +269,7 @@
    "stranded": []
   },
   "soil-recipes.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 2,
@@ -281,7 +281,7 @@
    "stranded": []
   },
   "stand-sheet.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 7,
@@ -298,7 +298,7 @@
    "stranded": []
   },
   "survey-design.html": {
-   "at": 1790069795,
+   "at": 1790127914,
    "ceiling": 0,
    "claims": [],
    "hands": 6,
